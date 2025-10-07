@@ -8,17 +8,15 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 - **Avatarer**: 🦊 🐷 🐸 🐥 🐙 🐬 🦉 🦄
 - **Läs noga igenom hela uppgiftsbeskrivningen innan ni börjar.**
 
-Kravlista
-\_: Dessa krav måste göras (20st).
-Antal krav: 40.
+### Kravlista
 
-G: 20 (50%).
-VG: 32 (80%).
+G: 20 (50%).<br>
+VG: 32 (80%).<br>
 
 ### Kravlista (4)
 
 - [ ] **En logga, splashscreen och appikon ska designas och användas.**
-- [ ] **Applikationen ska byggas med RN, Expo & TS.**
+- [x] **Applikationen ska byggas med RN, Expo & TS.**
 - [ ] **Designen av appen ska utgå ifrån befintliga skisser, undantag kan ges men ska diskuteras med produktägare, godkännas och dokumenteras.**
 - [ ] Information ska kommuniceras till och från en server.
 
