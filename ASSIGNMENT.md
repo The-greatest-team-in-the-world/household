@@ -10,8 +10,8 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 
 ### Kravlista
 
-G: 20 (50%).<br>
-VG: 32 (80%).<br>
+- G: 20 (50%).
+- VG: 32 (80%).
 
 ### Kravlista (4)
 
@@ -32,12 +32,11 @@ VG: 32 (80%).<br>
 
 ### Konto (5)
 
-En användare ska kunna registrera och logga in sig. _
-En användare ska kunna skapa ett nytt hushåll. _
-En användare ska kunna gå med i ett hushåll genom att ange hushållets kod. \_
-När en användare har valt att gå med i ett hushåll behöver en ägare av hushållet först
-godkänna användaren.
-En användare ska kunna lämna ett hushåll.
+- [ ] **En användare ska kunna registrera och logga in sig.**
+- [ ] **En användare ska kunna skapa ett nytt hushåll.**
+- [ ] **En användare ska kunna gå med i ett hushåll genom att ange hushållets kod.**
+- [ ] När en användare har valt att gå med i ett hushåll behöver en ägare av hushållet först godkänna användaren.
+- [ ] En användare ska kunna lämna ett hushåll.
 
 ### Profil (6)
 
@@ -104,4 +103,4 @@ I slutet av kursen ska ni genomföra en opponering på varandras arbeten och i s
 ### Krav för väl godkänt:
 
 7. [ ] Alla punkter för godkänt är uppfyllda
-8. [x] Ni har använt CI under projektet.
+8. [x] Ni har använt CI<del>/CD</del> under projektet.
