@@ -6,7 +6,7 @@ export type Household = {
   name: string;
   code: string;
   chores: Chore[];
-  choreCompletion: ChoreCompletion[];
+  choreCompletions: ChoreCompletion[];
   ownerIds: string[];
   memberIds: string[];
   createdAt: Date;
