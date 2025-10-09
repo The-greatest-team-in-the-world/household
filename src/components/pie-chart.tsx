@@ -9,17 +9,17 @@ interface Props {
 }
 
 /**
-* Renders a pie-achrt for the specified chore.
-* @param chores Cannot contain chores with non matching ChoreIds.
-* @param size Diameter of the pie-chart.
-*/
+ * Renders a pie-achrt for the specified chore.
+ * @param chores Cannot contain chores with non matching ChoreIds.
+ * @param size Diameter of the pie-chart.
+ */
 export default function PieChart({ chores, size }: Props) {
   if (!chores || chores.length === 0) return null;
 
-  if (!chores.every(c => c.choreId === chores[0].choreId)) {
+  if (!chores.every((c) => c.choreId === chores[0].choreId)) {
     console.warn("Tried to render an array containing different chores.");
     return null;
-  };
+  }
 
   function getEffortPerUser() {
     const effortPerUser: Record<string, number> = {};
@@ -35,22 +35,24 @@ export default function PieChart({ chores, size }: Props) {
     return effortPerUser;
   }
 
-  const series: Slice[] = Object.entries(getEffortPerUser()).map(([userId, effort]) => {
-    const avatar = useMemberAvatar(userId);
+  const series: Slice[] = Object.entries(getEffortPerUser()).map(
+    ([userId, effort]) => {
+      const avatar = useMemberAvatar(userId);
 
-    const color = avatar.color
-    const value = effort;
-    const label: SliceLabel = { text: avatar.emoji }
+      const color = avatar.color;
+      const value = effort;
+      const label: SliceLabel = { text: avatar.emoji };
 
-    return { color, value, label }
-  })
+      return { color, value, label };
+    },
+  );
 
   return (
     <View style={s.container}>
       <PieChartRN widthAndHeight={size} series={series} />
       <Text style={s.title}>{chores[0].choreName}</Text>
     </View>
-  )
+  );
 }
 
 const s = StyleSheet.create({
@@ -61,4 +63,4 @@ const s = StyleSheet.create({
     margin: 10,
     fontWeight: 600,
   },
-})
+});

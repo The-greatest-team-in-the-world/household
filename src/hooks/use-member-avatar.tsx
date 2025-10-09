@@ -2,8 +2,8 @@ import { mockdataAtom } from "@/providers/mockdata-provider";
 import { useAtomValue } from "jotai";
 
 export default function useMemberAvatar(id: string) {
-  const db = useAtomValue(mockdataAtom)
-  const user = db.householdMembers.find(m => m.userId === id)
+  const db = useAtomValue(mockdataAtom);
+  const user = db.householdMembers.find((m) => m.userId === id);
 
   if (!user) {
     console.warn(`Cannot find user with id: ${id}.`);
@@ -11,4 +11,4 @@ export default function useMemberAvatar(id: string) {
   }
 
   return user.avatar;
-};
+}
