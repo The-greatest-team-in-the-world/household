@@ -1,7 +1,5 @@
-import { mockdataAtom } from "@/providers/mockdata-provider";
+import useMemberAvatar from "@/hooks/use-member-avatar";
 import { ChoreCompletion } from "@/types/chore-completion";
-import getMemberAvatar from "@/utils/get-member-avatar";
-import { useAtomValue } from "jotai";
 import { StyleSheet, Text, View } from "react-native";
 import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
 
@@ -23,8 +21,6 @@ export default function PieChart({ chores, size }: Props) {
     return null;
   };
 
-  const db = useAtomValue(mockdataAtom);
-
   function getEffortPerUser() {
     const effortPerUser: Record<string, number> = {};
 
@@ -40,7 +36,7 @@ export default function PieChart({ chores, size }: Props) {
   }
 
   const series: Slice[] = Object.entries(getEffortPerUser()).map(([userId, effort]) => {
-    const avatar = getMemberAvatar(userId);
+    const avatar = useMemberAvatar(userId);
 
     const color = avatar.color
     const value = effort;

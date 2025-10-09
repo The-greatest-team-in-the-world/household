@@ -1,9 +1,8 @@
 import { mockdataAtom } from "@/providers/mockdata-provider";
 import { useAtomValue } from "jotai";
 
-export default function getMemberAvatar(id: string) {
+export default function useMemberAvatar(id: string) {
   const db = useAtomValue(mockdataAtom)
-
   const user = db.householdMembers.find(m => m.userId === id)
 
   if (!user) {
