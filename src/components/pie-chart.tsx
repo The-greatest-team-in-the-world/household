@@ -61,19 +61,18 @@ export default function PieChart({ chores, size }: Props) {
 
   return (
     <View style={s.container}>
-      <Text style={s.title}>{chores[0].choreName}</Text>
       <PieChartRN widthAndHeight={size} series={series} />
+      <Text style={s.title}>{chores[0].choreName}</Text>
     </View>
   )
 }
 
 const s = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
   },
   title: {
-    fontSize: 24,
     margin: 10,
+    fontWeight: 600,
   },
 })
