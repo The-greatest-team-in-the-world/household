@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 
 export default function LoginScreen() {
@@ -9,7 +10,17 @@ export default function LoginScreen() {
         alignItems: "center",
       }}
     >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+      <Text>Välkommen!</Text>
+      <Link
+        href="/day-view"
+        style={{
+          marginTop: 16,
+          color: "blue",
+          textDecorationLine: "underline",
+        }}
+      >
+        Go to Day View
+      </Link>
     </View>
   );
 }
