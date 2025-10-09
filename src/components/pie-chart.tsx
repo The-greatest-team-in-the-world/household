@@ -1,5 +1,5 @@
-import useMemberAvatar from "@/hooks/use-member-avatar";
 import { ChoreCompletion } from "@/types/chore-completion";
+import getMemberAvatar from "@/utils/get-member-avatar";
 import { StyleSheet, Text, View } from "react-native";
 import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
 
@@ -37,7 +37,7 @@ export default function PieChart({ chores, size }: Props) {
 
   const series: Slice[] = Object.entries(getEffortPerUser()).map(
     ([userId, effort]) => {
-      const avatar = useMemberAvatar(userId);
+      const avatar = getMemberAvatar(userId);
 
       const color = avatar.color;
       const value = effort;
