@@ -1,5 +1,6 @@
 import { mockdataAtom } from "@/providers/mockdata-provider";
 import { ChoreCompletion } from "@/types/chore-completion";
+import getMemberAvatar from "@/utils/get-member-avatar";
 import { useAtomValue } from "jotai";
 import { StyleSheet, Text, View } from "react-native";
 import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
@@ -23,17 +24,6 @@ export default function PieChart({ chores, size }: Props) {
   };
 
   const db = useAtomValue(mockdataAtom);
-
-  function getMemberAvatar(id: string) {
-    const user = db.householdMembers.find(m => m.userId === id)
-
-    if (!user) {
-      console.warn(`Cannot find user with id: ${id}.`);
-      return { color: "#000", emoji: "⚠️" };
-    }
-
-    return user.avatar;
-  };
 
   function getEffortPerUser() {
     const effortPerUser: Record<string, number> = {};
