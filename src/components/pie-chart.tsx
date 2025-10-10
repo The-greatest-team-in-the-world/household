@@ -44,7 +44,7 @@ export default function PieChart({ chores, size }: Props) {
       const label: SliceLabel = { text: avatar.emoji };
 
       return { color, value, label };
-    },
+    }
   );
 
   return (
