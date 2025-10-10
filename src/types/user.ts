@@ -1,10 +1,12 @@
+import { Timestamp } from "firebase/firestore";
+
 export type User = {
-  id: string;
+  id?: string;
   email: string;
   name: string;
   theme: "light" | "dark" | "auto";
   householdIds: string[];
   activeHouseholdId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };

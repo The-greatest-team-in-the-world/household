@@ -5,9 +5,11 @@ import { ChoreGroup } from "@/types/chore-group";
 import { Household } from "@/types/household";
 import { HouseholdMember } from "@/types/household-member";
 import { User } from "@/types/user";
+import { Timestamp } from "firebase/firestore";
 
 const now = new Date();
-const daysAgo = (d: number) => new Date(now.getTime() - d * 86400000);
+const daysAgo = (d: number) =>
+  Timestamp.fromDate(new Date(now.getTime() - d * 86400000));
 
 // --- USERS ---
 export const mockUsers: User[] = [
