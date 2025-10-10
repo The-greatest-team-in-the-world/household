@@ -1,5 +1,7 @@
+import { Timestamp } from "firebase/firestore";
+
 export type Chore = {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   frequency: number;
@@ -8,8 +10,8 @@ export type Chore = {
   imageUrl?: string;
   isArchived: boolean;
   createdByUserId: string;
-  lastCompletedAt?: Date;
+  lastCompletedAt?: Timestamp;
   lastCompletedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };

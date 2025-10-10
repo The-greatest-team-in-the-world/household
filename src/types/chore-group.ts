@@ -1,12 +1,14 @@
+import { Timestamp } from "firebase/firestore";
+
 export type ChoreGroup = {
-  id: string;
+  id?: string;
   name: string;
   choreIds: string[];
   rotationIntervalDays: number;
   userRotation: string[];
   currentRotationIndex: number;
-  lastRotationDate: Date;
+  lastRotationDate: Timestamp;
   createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };
