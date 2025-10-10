@@ -1,10 +1,12 @@
+import { Timestamp } from "firebase/firestore";
+
 export type ChoreCompletion = {
-  id: string;
+  id?: string;
   choreId: string;
   userId: string;
   userName: string;
   choreEffort: number;
   choreName: string;
-  completedAt: Date;
+  completedAt: Timestamp;
   notes?: string;
 };

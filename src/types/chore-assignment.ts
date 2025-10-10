@@ -1,12 +1,14 @@
+import { Timestamp } from "firebase/firestore";
+
 export type ChoreAssignment = {
-  id: string;
+  id?: string;
   choreId: string;
   userId: string;
   assignedBy: string;
-  dueDate?: Date;
+  dueDate?: Timestamp;
   isCompleted: boolean;
   choreName: string;
   userName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };
