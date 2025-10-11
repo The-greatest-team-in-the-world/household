@@ -1,5 +1,5 @@
 import { userAtom } from "@/data/auth-atoms";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { useAtom } from "jotai";
 import { Button, StyleSheet, Text, View } from "react-native";
 

@@ -1,5 +1,5 @@
-import { Link, router } from "expo-router";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { Link } from "expo-router";
+import { Button, Text, View } from "react-native";
 
 // Dagsvyn, vem är inloggad? sätt current user på en atom.
 // Lägg i ett globalt state med atom jotai.
