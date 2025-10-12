@@ -2,7 +2,7 @@ import { signOutAtom, userAtom } from "@/data/auth-atoms";
 import { Link, router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Surface } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const signOut = useSetAtom(signOutAtom);
@@ -18,21 +18,37 @@ export default function HouseholdsScreen() {
   };
 
   return (
-    <View>
-      <Text>hej {user[0]?.email} protected/index, households</Text>
-      <Link href="/(protected)/day-view" push asChild>
-        <Button style={styles.button}>Day-view</Button>
-      </Link>
-      <Button style={styles.button} onPress={onSignOut}>
-        Sign out
-      </Button>
+    <View style={styles.container}>
+      <Surface style={styles.surface} elevation={4}>
+        <Text>hej {user[0]?.email} protected/index, households</Text>
+      </Surface>
+      <View style={styles.buttonGroup}>
+        <Link href="/(protected)/day-view" push asChild>
+          <Button style={styles.button}>Day-view</Button>
+        </Link>
+        <Button style={styles.button} onPress={onSignOut}>
+          Sign out
+        </Button>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 30,
+    flex: 1,
+  },
+  surface: {
+    borderRadius: 20,
+    padding: 10,
+    flex: 1,
+  },
+  buttonGroup: {
+    padding: 15,
+    gap: 10,
+  },
   button: {
-    margin: 5,
     backgroundColor: "lightgrey",
     textDecorationColor: "none",
   },
