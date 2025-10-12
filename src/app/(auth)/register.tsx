@@ -33,7 +33,11 @@ export default function RegisterScreen() {
     setFirebaseError("");
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
       console.log("Registrerad", userCredential.user);
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -52,9 +56,14 @@ export default function RegisterScreen() {
       <View style={styles.container}>
         <Surface style={styles.surface} elevation={4}>
           <Text>Registrera dig!</Text>
-          <Image source={require("../../assets/images/react-logo.png")} style={styles.image} />
+          <Image
+            source={require("../../assets/images/react-logo.png")}
+            style={styles.image}
+          />
         </Surface>
-        {firebaseError && <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>}
+        {firebaseError && (
+          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -93,7 +102,11 @@ export default function RegisterScreen() {
         />
         {errors.password && <Text>{errors.password.message}</Text>}
 
-        <Button style={styles.button} disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
+        <Button
+          style={styles.button}
+          disabled={isSubmitting}
+          onPress={handleSubmit(onSubmit)}
+        >
           Submit
         </Button>
         <Link href="/(auth)/login" push asChild>

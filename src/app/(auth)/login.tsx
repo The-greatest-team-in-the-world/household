@@ -13,8 +13,12 @@ import { z } from "zod";
 // Lägg i ett globalt state med atom jotai.
 
 const credentials = z.object({
-  email: z.string({ required_error: "E-post krävs" }).email("Ange en giltig epost"),
-  password: z.string({ required_error: "Lösenord krävs" }).min(6, "Lösenordet måste vara minst 6 tecken"),
+  email: z
+    .string({ required_error: "E-post krävs" })
+    .email("Ange en giltig epost"),
+  password: z
+    .string({ required_error: "Lösenord krävs" })
+    .min(6, "Lösenordet måste vara minst 6 tecken"),
 });
 
 type FormFields = z.infer<typeof credentials>;
@@ -33,7 +37,11 @@ export default function LoginScreen() {
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
-      const loginUser = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const loginUser = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
       console.log("User just logged in: ", loginUser.user);
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -52,9 +60,14 @@ export default function LoginScreen() {
       <View style={styles.container}>
         <Surface style={styles.surface} elevation={4}>
           <Text>Välkommen till hushållet!</Text>
-          <Image source={require("../../assets/images/react-logo.png")} style={styles.image} />
+          <Image
+            source={require("../../assets/images/react-logo.png")}
+            style={styles.image}
+          />
         </Surface>
-        {firebaseError && <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>}
+        {firebaseError && (
+          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -92,7 +105,11 @@ export default function LoginScreen() {
           name="password"
         />
         {errors.password && <Text>{errors.password.message}</Text>}
-        <Button style={styles.button} disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
+        <Button
+          style={styles.button}
+          disabled={isSubmitting}
+          onPress={handleSubmit(onSubmit)}
+        >
           Login
         </Button>
         <Link href="/(auth)/register" push asChild>
