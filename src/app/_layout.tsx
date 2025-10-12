@@ -24,7 +24,7 @@ export default function RootLayout() {
   if (authState.isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-        <StatusBar style="dark" />
+        <StatusBar style="auto" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
@@ -34,12 +34,11 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={authState.isAuthenticated}>
           <Stack.Screen name="(protected)" />
         </Stack.Protected>
-
         <Stack.Protected guard={!authState.isAuthenticated}>
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
@@ -51,7 +50,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "lightgrey",
   },
   loadingContainer: {
     flex: 1,
