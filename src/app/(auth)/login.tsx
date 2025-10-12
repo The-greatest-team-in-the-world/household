@@ -9,8 +9,8 @@ import { Image, StyleSheet, TextInput, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button, Surface, Text } from "react-native-paper";
 import { z } from "zod";
-// Dagsvyn, vem är inloggad? sätt current user på en atom.
-// Lägg i ett globalt state med atom jotai.
+
+//https://github.com/APSL/react-native-keyboard-aware-scroll-view
 
 const credentials = z.object({
   email: z
@@ -59,12 +59,13 @@ export default function LoginScreen() {
     >
       <View style={styles.container}>
         <Surface style={styles.surface} elevation={4}>
-          <Text>Välkommen till hushållet!</Text>
+          <Text style={styles.infoText}>Välkommen till hushållet!</Text>
           <Image
-            source={require("../../assets/images/react-logo.png")}
+            source={require("../../assets/images/houseHoldTransparent.png")}
             style={styles.image}
           />
         </Surface>
+        <Text style={styles.infoText}>Logga in</Text>
         {firebaseError && (
           <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
         )}
@@ -74,7 +75,7 @@ export default function LoginScreen() {
             <View>
               <Text style={styles.inputTitle}>Epost: </Text>
               <TextInput
-                placeholder="Email"
+                placeholder="Epost"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -93,7 +94,7 @@ export default function LoginScreen() {
             <View>
               <Text style={styles.inputTitle}>Lösenord: </Text>
               <TextInput
-                placeholder="Password"
+                placeholder="Lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -105,15 +106,20 @@ export default function LoginScreen() {
           name="password"
         />
         {errors.password && <Text>{errors.password.message}</Text>}
+        <Link href={"/"}>
+          <Text style={styles.resetLinkText}>
+            Glömt ditt lösenord? Klicka här.
+          </Text>
+        </Link>
         <Button
           style={styles.button}
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         >
-          Login
+          Logga in
         </Button>
         <Link href="/(auth)/register" push asChild>
-          <Button style={styles.button}>register</Button>
+          <Button style={styles.button}>Skapa konto</Button>
         </Link>
       </View>
     </KeyboardAwareScrollView>
@@ -126,16 +132,21 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 20,
+    gap: 10,
   },
   surface: {
     alignItems: "center",
-    padding: 30,
-    margin: 15,
+    borderRadius: 20,
+    padding: 10,
   },
   image: {
     height: 200,
     width: "100%",
     resizeMode: "contain",
+  },
+  infoText: {
+    fontWeight: 700,
+    fontSize: 20,
   },
   inputTitle: {
     fontWeight: "700",
@@ -143,7 +154,11 @@ const styles = StyleSheet.create({
   inputField: {
     borderColor: "black",
     borderWidth: 1,
-    margin: 10,
+    borderRadius: 10,
+  },
+  resetLinkText: {
+    textAlign: "center",
+    textDecorationLine: "underline",
   },
   button: {
     margin: 5,
