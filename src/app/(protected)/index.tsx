@@ -20,7 +20,8 @@ export default function HouseholdsScreen() {
   return (
     <View style={styles.container}>
       <Surface style={styles.surface} elevation={4}>
-        <Text>hej {user[0]?.email} protected/index, households</Text>
+        <Text>Hej {user[0]?.displayName}</Text>
+        <Text>Epost: {user[0]?.email} från households/protected</Text>
       </Surface>
       <View style={styles.buttonGroup}>
         <Link href="/(protected)/day-view" push asChild>
