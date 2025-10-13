@@ -1,7 +1,8 @@
 import { Timestamp } from "firebase/firestore";
 
 export type HouseholdMember = {
-  userId: string;
+  id: string;
+  fireBaseUserId: string;
   householdId: string;
   status: "pending" | "active" | "left";
   isOwner: boolean;
@@ -14,7 +15,7 @@ export type HouseholdMember = {
     emoji: string;
     color: string;
   };
-  name: string;
+  nickName: string;
   joinedAt: Timestamp;
   updatedAt: Timestamp;
 };
