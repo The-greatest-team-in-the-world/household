@@ -1,4 +1,4 @@
-import { signOutAtom, userAtom } from "@/data/auth-atoms";
+import { signOutAtom, userAtom } from "@/atoms/auth-atoms";
 import { Link, router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { StyleSheet, Text, View } from "react-native";

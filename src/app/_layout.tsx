@@ -1,4 +1,4 @@
-import { authStateAtom, initAuthAtom } from "@/data/auth-atoms";
+import { authStateAtom, initAuthAtom } from "@/atoms/auth-atoms";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";

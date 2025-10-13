@@ -1,4 +1,4 @@
-import { authStateAtom } from "@/data/auth-atoms";
+import { authStateAtom } from "@/atoms/auth-atoms";
 import { Redirect, Stack } from "expo-router";
 import { useAtomValue } from "jotai";
 
