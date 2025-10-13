@@ -33,11 +33,11 @@ export default function DayViewScreen() {
 
       <ScrollView style={s.choreContainer}>
         {completedChores.map((completedChore) => {
-          const avatar = getMemberAvatar(completedChore.userId);
+          const avatar = getMemberAvatar(completedChore.id);
           return (
             <ChoreCard
               key={completedChore.id}
-              choreName={completedChore.choreName}
+              choreName={"Chore.name"}
               displayType="avatar"
               displayValue={avatar.emoji}
             />
