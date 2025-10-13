@@ -1,7 +1,11 @@
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword, getAuth, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  updateProfile,
+} from "firebase/auth";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, StyleSheet, TextInput, View } from "react-native";
@@ -10,9 +14,15 @@ import { Button, Surface, Text } from "react-native-paper";
 import { z } from "zod";
 
 const credentials = z.object({
-  displayName: z.string({ required_error: "Namn krävs" }).min(1, "Skriv in ditt namn"),
-  email: z.string({ required_error: "E-post krävs" }).email("Ange en giltig epost"),
-  password: z.string({ required_error: "Lösenord krävs" }).min(6, "Lösenordet måste vara minst 6 tecken"),
+  displayName: z
+    .string({ required_error: "Namn krävs" })
+    .min(1, "Skriv in ditt namn"),
+  email: z
+    .string({ required_error: "E-post krävs" })
+    .email("Ange en giltig epost"),
+  password: z
+    .string({ required_error: "Lösenord krävs" })
+    .min(6, "Lösenordet måste vara minst 6 tecken"),
 });
 
 type FormFields = z.infer<typeof credentials>;
@@ -33,12 +43,20 @@ export default function RegisterScreen() {
     setFirebaseError("");
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
       await updateProfile(userCredential.user, {
         displayName: data.displayName,
       });
 
-      console.log("Registrerad", userCredential.user.email, userCredential.user.displayName);
+      console.log(
+        "Registrerad",
+        userCredential.user.email,
+        userCredential.user.displayName,
+      );
     } catch (error) {
       if (error instanceof FirebaseError) {
         setFirebaseError(getRegisterErrorMessage(error.code));
@@ -56,10 +74,15 @@ export default function RegisterScreen() {
       <View style={styles.container}>
         <Surface style={styles.surface} elevation={4}>
           <Text style={styles.infoText}>Bli medlem!</Text>
-          <Image source={require("../../assets/images/houseHoldTransparent.png")} style={styles.image} />
+          <Image
+            source={require("../../assets/images/houseHoldTransparent.png")}
+            style={styles.image}
+          />
         </Surface>
         <Text style={styles.infoText}>Skapa konto</Text>
-        {firebaseError && <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>}
+        {firebaseError && (
+          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -116,7 +139,11 @@ export default function RegisterScreen() {
         />
         {errors.password && <Text>{errors.password.message}</Text>}
 
-        <Button style={styles.button} disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
+        <Button
+          style={styles.button}
+          disabled={isSubmitting}
+          onPress={handleSubmit(onSubmit)}
+        >
           Skapa konto
         </Button>
       </View>
