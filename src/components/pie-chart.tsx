@@ -1,10 +1,11 @@
+import { db } from "@/data/mock-db";
 import { ChoreCompletion } from "@/types/chore-completion";
 import getMemberAvatar from "@/utils/get-member-avatar";
 import { StyleSheet, Text, View } from "react-native";
 import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
 
 interface Props {
-  chores: ChoreCompletion[];
+  chores: ChoreCompletion[]; // array of completions for a single chore
   size: number;
   total?: boolean;
 }
@@ -16,7 +17,7 @@ interface Props {
  * @param size Diameter of the pie-chart.
  * @param total If this parameter is used, the Piechart will ignore the check for
  * multiple chores and instead render the total score for all chores with the title
- * set in "totalTitle". 
+ * set in "totalTitle".
  */
 export default function PieChart({ chores, size, total }: Props) {
   if (!chores || chores.length === 0) return null;
@@ -31,34 +32,36 @@ export default function PieChart({ chores, size, total }: Props) {
   function getEffortPerUser() {
     const effortPerUser: Record<string, number> = {};
 
-    for (const chore of chores) {
-      if (!effortPerUser[chore.userId]) {
-        effortPerUser[chore.userId] = 0;
-      }
+    const choreId = chores[0].choreId;
+    const chore = db.chores.find((c) => c.id === choreId);
+    const perCompletionEffort = chore?.effort ?? 1;
 
-      effortPerUser[chore.userId] += chore.choreEffort;
+    for (const completion of chores) {
+      const memberId = completion.houseHoldMemberId;
+      if (!effortPerUser[memberId]) effortPerUser[memberId] = 0;
+      effortPerUser[memberId] += perCompletionEffort;
     }
 
     return effortPerUser;
   }
 
   const series: Slice[] = Object.entries(getEffortPerUser()).map(
-    ([userId, effort]) => {
-      const avatar = getMemberAvatar(userId);
+    ([memberId, effort]) => {
+      const avatar = getMemberAvatar(memberId);
 
       const color = avatar.color;
       const value = effort;
       const label: SliceLabel = { text: avatar.emoji };
 
       return { color, value, label };
-    },
+    }
   );
 
   return (
     <View style={s.container}>
       <PieChartRN widthAndHeight={size} series={series} />
       <Text style={s.title}>
-        {total ? totalTitle : chores[0].choreName}
+        {db.chores.find((c) => c.id === chores[0].choreId)?.name ?? "Chore"}
       </Text>
     </View>
   );

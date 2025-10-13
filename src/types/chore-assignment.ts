@@ -1,14 +1,14 @@
 import { Timestamp } from "firebase/firestore";
 
 export type ChoreAssignment = {
-  id?: string;
+  id: string;
   choreId: string;
-  userId: string;
+  userId: string; // Firebase user ID
   assignedBy: string;
   dueDate?: Timestamp;
   isCompleted: boolean;
   choreName: string;
-  userName: string;
+  userName: string; // Firebase display name
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
