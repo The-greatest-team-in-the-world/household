@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export type ChoreGroup = {
-  id?: string;
+  id: string;
   name: string;
   choreIds: string[];
   rotationIntervalDays: number;

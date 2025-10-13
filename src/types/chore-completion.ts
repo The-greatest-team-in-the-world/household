@@ -1,12 +1,8 @@
 import { Timestamp } from "firebase/firestore";
 
 export type ChoreCompletion = {
-  id?: string;
+  id: string;
   choreId: string;
-  userId: string;
-  userName: string;
-  choreEffort: number;
-  choreName: string;
+  houseHoldMemberId: string;
   completedAt: Timestamp;
-  notes?: string;
 };
