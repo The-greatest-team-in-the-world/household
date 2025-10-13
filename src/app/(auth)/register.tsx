@@ -1,4 +1,6 @@
+import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FirebaseError } from "firebase/app";
 import {
@@ -6,28 +8,48 @@ import {
   getAuth,
   updateProfile,
 } from "firebase/auth";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Image, StyleSheet, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button, Surface, Text } from "react-native-paper";
 import { z } from "zod";
 
-const credentials = z.object({
-  displayName: z
-    .string({ required_error: "Namn krävs" })
-    .min(1, "Skriv in ditt namn"),
-  email: z
-    .string({ required_error: "E-post krävs" })
-    .email("Ange en giltig epost"),
-  password: z
-    .string({ required_error: "Lösenord krävs" })
-    .min(6, "Lösenordet måste vara minst 6 tecken"),
-});
+const credentials = z
+  .object({
+    displayName: z
+      .string({ required_error: "Namn krävs" })
+      .min(1, "Skriv in ditt namn"),
+    email: z
+      .string({ required_error: "E-post krävs" })
+      .email("Ange en giltig epost"),
+    password: z
+      .string({ required_error: "Lösenord krävs" })
+      .min(6, "Lösenordet måste vara minst 6 tecken"),
+    confirmPassword: z
+      .string({ required_error: "Lösenord krävs" })
+      .min(6, "Lösenordet måste vara minst 6 tecken"),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Lösenorden matchar inte.",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
 type FormFields = z.infer<typeof credentials>;
 
 export default function RegisterScreen() {
+  const { passwordVisibility, rightIcon, handlePasswordVisibility } =
+    useTogglePasswordVisibility();
+  const {
+    passwordVisibility: confirmPasswordVisibility,
+    rightIcon: confirmRightIcon,
+    handlePasswordVisibility: handlePasswordVisibility2,
+  } = useTogglePasswordVisibility();
   const [firebaseError, setFirebaseError] = useState("");
   const auth = getAuth();
   const {
@@ -60,6 +82,10 @@ export default function RegisterScreen() {
     } catch (error) {
       if (error instanceof FirebaseError) {
         setFirebaseError(getRegisterErrorMessage(error.code));
+        console.error("Firebase error:", error.code, error.message);
+      } else {
+        console.error("Oväntat fel vid registrering:", error);
+        setFirebaseError("Ett oväntat fel uppstod. Försök igen.");
       }
     }
   };
@@ -131,13 +157,54 @@ export default function RegisterScreen() {
                 onChangeText={onChange}
                 value={value}
                 style={styles.inputField}
-                secureTextEntry
+                secureTextEntry={passwordVisibility}
               />
+              <Pressable
+                onPress={handlePasswordVisibility}
+                style={styles.eyeIcon}
+              >
+                <MaterialCommunityIcons
+                  name={rightIcon}
+                  size={22}
+                  color="#232323"
+                />
+              </Pressable>
             </View>
           )}
           name="password"
         />
         {errors.password && <Text>{errors.password.message}</Text>}
+
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View>
+              <Text style={styles.inputTitle}>Upprepa lösenord: </Text>
+              <TextInput
+                placeholder="Upprepa lösenord"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.inputField}
+                secureTextEntry={confirmPasswordVisibility}
+              />
+              <Pressable
+                onPress={handlePasswordVisibility2}
+                style={styles.eyeIcon}
+              >
+                <MaterialCommunityIcons
+                  name={confirmRightIcon}
+                  size={22}
+                  color="#232323"
+                />
+              </Pressable>
+            </View>
+          )}
+          name="confirmPassword"
+        />
+        {errors.confirmPassword && (
+          <Text>{errors.confirmPassword.message}</Text>
+        )}
 
         <Button
           style={styles.button}
@@ -176,14 +243,23 @@ const styles = StyleSheet.create({
   inputTitle: {
     fontWeight: "700",
   },
-  inputField: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
-  },
   button: {
     margin: 5,
     backgroundColor: "lightgrey",
     textDecorationColor: "none",
+  },
+  inputContainer: {
+    position: "relative",
+  },
+  inputField: {
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingRight: 40,
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 30,
   },
 });
