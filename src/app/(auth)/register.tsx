@@ -48,7 +48,7 @@ export default function RegisterScreen() {
   const {
     passwordVisibility: confirmPasswordVisibility,
     rightIcon: confirmRightIcon,
-    handlePasswordVisibility: handlePasswordVisibility2,
+    handlePasswordVisibility: confirmHandlePasswordVisibility,
   } = useTogglePasswordVisibility();
   const [firebaseError, setFirebaseError] = useState("");
   const auth = getAuth();
@@ -158,6 +158,7 @@ export default function RegisterScreen() {
                 value={value}
                 style={styles.inputField}
                 secureTextEntry={passwordVisibility}
+                autoCapitalize="none"
               />
               <Pressable
                 onPress={handlePasswordVisibility}
@@ -165,7 +166,7 @@ export default function RegisterScreen() {
               >
                 <MaterialCommunityIcons
                   name={rightIcon}
-                  size={22}
+                  size={20}
                   color="#232323"
                 />
               </Pressable>
@@ -187,9 +188,10 @@ export default function RegisterScreen() {
                 value={value}
                 style={styles.inputField}
                 secureTextEntry={confirmPasswordVisibility}
+                autoCapitalize="none"
               />
               <Pressable
-                onPress={handlePasswordVisibility2}
+                onPress={confirmHandlePasswordVisibility}
                 style={styles.eyeIcon}
               >
                 <MaterialCommunityIcons
