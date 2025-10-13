@@ -14,7 +14,8 @@ interface Props {
  * Renders a pie-achrt for the specified chore.
  * @param chores May not contain chores with non matching ChoreIds without the use
  * of `total` parameter.
- * @param size Diameter of the pie-chart.
+ * @param size Diameter of the pie-chart. Used for widthAndHeight property of
+ * Piechart component.
  * @param total If this parameter is used, the Piechart will ignore the check for
  * multiple chores and instead render the total score for all chores with the title
  * set in "totalTitle".
@@ -61,7 +62,9 @@ export default function PieChart({ chores, size, total }: Props) {
     <View style={s.container}>
       <PieChartRN widthAndHeight={size} series={series} />
       <Text style={s.title}>
-        {db.chores.find((c) => c.id === chores[0].choreId)?.name ?? "Chore"}
+        {total
+          ? totalTitle
+          : db.chores.find((c) => c.id === chores[0].choreId)?.name ?? "fel"}
       </Text>
     </View>
   );
