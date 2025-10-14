@@ -1,55 +1,40 @@
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
-import { mockdataAtom } from "@/providers/mockdata-provider";
-import { Chore } from "@/types/chore";
-import getMemberAvatar from "@/utils/get-member-avatar";
-import { useAtomValue } from "jotai";
+import { useHouseholdData } from "@/hooks/useHouseholdData";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function DayViewScreen() {
-  const mockdata = useAtomValue(mockdataAtom);
-  const household = mockdata.households[0];
-  const completedChores = household.choreCompletions;
-  const completedChoreIds = new Set<string>(
-    completedChores.map((cc) => cc.choreId)
-  );
-  const notCompletedChores: Chore[] = household.chores.filter(
-    (chore) => chore.id && !completedChoreIds.has(chore.id)
+  const { chores, completions, members, isLoading } = useHouseholdData(
+    "household-team-greatest"
   );
 
-  const getDaysAgo = (chore: Chore): string => {
-    if (!chore.lastCompletedAt) return "0";
-
-    const diffMs =
-      new Date().getTime() - chore.lastCompletedAt.toDate().getTime();
-    return Math.floor(diffMs / 86400000).toString();
+  const getChoreName = (choreId: string): string => {
+    const chore = chores.find((c) => c.id === choreId);
+    return chore?.name || "Okänd syssla";
   };
+
+  if (isLoading) {
+    return (
+      <View style={s.loading}>
+        <ActivityIndicator animating={true} size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={s.container}>
       <View style={s.headerContainer}>
-        <Text style={s.header}>{household.name}</Text>
+        <Text style={s.header}>The Greatest Team Household</Text>
       </View>
 
       <ScrollView style={s.choreContainer}>
-        {completedChores.map((completedChore) => {
-          const avatar = getMemberAvatar(completedChore.id);
-          return (
-            <ChoreCard
-              key={completedChore.id}
-              choreName={"Chore.name"}
-              displayType="avatar"
-              displayValue={avatar.emoji}
-            />
-          );
-        })}
-
-        {notCompletedChores.map((chore) => (
+        {completions.map((completion) => (
           <ChoreCard
-            key={chore.id}
-            choreName={chore.name}
-            displayType="days"
-            displayValue={getDaysAgo(chore)}
+            key={completion.id}
+            choreName={getChoreName(completion.choreId)}
+            displayType="avatar"
+            displayValue={"hej"}
           />
         ))}
       </ScrollView>
@@ -73,6 +58,11 @@ export default function DayViewScreen() {
 }
 
 const s = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     padding: 10,
@@ -91,6 +81,6 @@ const s = StyleSheet.create({
     maxWidth: "100%",
   },
   header: {
-    fontSize: 45,
+    fontSize: 25,
   },
 });
