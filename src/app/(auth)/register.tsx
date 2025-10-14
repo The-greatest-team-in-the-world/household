@@ -12,9 +12,9 @@ import {
 import { useSetAtom } from "jotai";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Image, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text } from "react-native-paper";
+import { Button, Surface, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
 const credentials = z
@@ -256,14 +256,11 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   inputField: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
     paddingRight: 40,
   },
   eyeIcon: {
     position: "absolute",
-    right: 10,
-    top: 30,
+    right: 20,
+    top: 35,
   },
 });
