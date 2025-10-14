@@ -3,14 +3,6 @@ import type { Chore } from "@/types/chore";
 import type { ChoreCompletion } from "@/types/chore-completion";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Divider } from "react-native-paper";
-
-// Läs in rätt household (id) via atom?
-
-// Om chore är klar, hitta vilken user och hitta avatar och skriv ut den
-// Om chore inte är klar skriv ut hur många dagar sedan sysslan gjordes senast samt om den är försenad.
-
-// När en användare väljer en syssla ska beskrivningen av sysslan visas och det ska även med ett enkelt tryck gå att markera sysslan som gjord.
 
 export default function DayViewScreen() {
   const mockdata = useAtomValue(mockdataAtom);
