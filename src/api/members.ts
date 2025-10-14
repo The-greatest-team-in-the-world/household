@@ -7,19 +7,5 @@ export async function getMembers(
 ): Promise<HouseholdMember[]> {
   const membersRef = collection(db, "households", householdId, "members");
   const snapshot = await getDocs(membersRef);
-
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as HouseholdMember[];
-}
-
-export async function getAllMembers() {
-  const householdsRef = collection(db, "households");
-  const snapshot = await getDocs(householdsRef);
-
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as HouseholdMember[];
+  return snapshot.docs.map((doc) => doc.data() as HouseholdMember);
 }
