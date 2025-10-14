@@ -1,77 +1,96 @@
+import { CustomPaperButton } from "@/components/custom-paper-button";
+import ChoreCard from "@/components/day-view/chore-card";
 import { mockdataAtom } from "@/providers/mockdata-provider";
+import { Chore } from "@/types/chore";
+import getMemberAvatar from "@/utils/get-member-avatar";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Divider } from "react-native-paper";
-
-// Läs in rätt household (id) via atom?
-
-// Om chore är klar, hitta vilken user och hitta avatar och skriv ut den
-// Om chore inte är klar skriv ut hur många dagar sedan sysslan gjordes senast samt om den är försenad.
-
-// När en användare väljer en syssla ska beskrivningen av sysslan visas och det ska även med ett enkelt tryck gå att markera sysslan som gjord.
 
 export default function DayViewScreen() {
   const mockdata = useAtomValue(mockdataAtom);
-  const household = mockdata.households[0]; //hårdkodat till första hushållet, ta in via atom?
+  const household = mockdata.households[0];
+  const completedChores = household.choreCompletions;
+  const completedChoreIds = new Set<string>(
+    completedChores.map((cc) => cc.choreId),
+  );
+  const notCompletedChores: Chore[] = household.chores.filter(
+    (chore) => chore.id && !completedChoreIds.has(chore.id),
+  );
 
-  const todayChores = household.chores || [];
+  const getDaysAgo = (chore: Chore): string => {
+    if (!chore.lastCompletedAt) return "0";
+
+    const diffMs =
+      new Date().getTime() - chore.lastCompletedAt.toDate().getTime();
+    return Math.floor(diffMs / 86400000).toString();
+  };
 
   return (
-    <View style={s.Container}>
+    <View style={s.container}>
       <View style={s.headerContainer}>
         <Text style={s.header}>{household.name}</Text>
       </View>
+
       <ScrollView style={s.choreContainer}>
-        {todayChores.map((chore) => (
-          <View key={chore.id}>
-            <Text style={s.text}>{chore.name}</Text>
-            <Divider horizontalInset={false} bold={true} />
-          </View>
+        {completedChores.map((completedChore) => {
+          const avatar = getMemberAvatar(completedChore.id);
+          return (
+            <ChoreCard
+              key={completedChore.id}
+              choreName={"Chore.name"}
+              displayType="avatar"
+              displayValue={avatar.emoji}
+            />
+          );
+        })}
+
+        {notCompletedChores.map((chore) => (
+          <ChoreCard
+            key={chore.id}
+            choreName={chore.name}
+            displayType="days"
+            displayValue={getDaysAgo(chore)}
+          />
         ))}
       </ScrollView>
 
       <View style={s.buttonContainer}>
-        <Button
-          icon="format-list-group-plus"
-          mode="contained"
-          onPress={() => console.log("Lägg till Pressed")}
-        >
-          Lägg till
-        </Button>
-        <Button
-          icon="lead-pencil"
-          mode="contained"
-          onPress={() => console.log("ändra Pressed")}
-        >
-          Ändra
-        </Button>
+        <CustomPaperButton
+          icon="information-outline"
+          text="Mer info"
+          color="#06BA63"
+          onPress={() => console.log("Knapp tryckt")}
+        />
+        <CustomPaperButton
+          icon="account-details-outline"
+          text="Mina sysslor"
+          color="#06BA63"
+          onPress={() => console.log("Knapp tryckt")}
+        />
       </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  Container: {
+  container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   headerContainer: {
     alignItems: "center",
     padding: 20,
   },
   choreContainer: {
-    padding: 20,
-    gap: 10,
+    padding: 5,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
+    maxWidth: "100%",
   },
   header: {
     fontSize: 45,
-  },
-  text: {
-    fontSize: 15,
   },
 });
