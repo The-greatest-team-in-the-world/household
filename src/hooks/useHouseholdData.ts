@@ -4,8 +4,9 @@ import { getMembers } from "@/api/members";
 import { choresAtom } from "@/atoms/chore-atom";
 import { choreCompletions } from "@/atoms/chore-completion-atom";
 import { membersAtom } from "@/atoms/member-atom";
+import { isChoreCompleted } from "@/utils/chore-helpers";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export function useHouseholdData(householdId: string) {
   const setChores = useSetAtom(choresAtom);
@@ -38,8 +39,18 @@ export function useHouseholdData(householdId: string) {
     }
   }, [householdId, setChores, setCompletions, setMembers]);
 
+  const incompleteChores = useMemo(() => {
+    return chores.filter((chore) => {
+      const choreCompletions = completions.filter(
+        (c) => c.choreId === chore.id
+      );
+      return !isChoreCompleted(chore, choreCompletions);
+    });
+  }, [chores, completions]);
+
   return {
     chores,
+    incompleteChores,
     completions,
     members,
     isLoading:
