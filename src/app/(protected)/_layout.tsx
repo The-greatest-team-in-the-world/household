@@ -9,6 +9,7 @@ import { Redirect } from "expo-router";
 import { useAtomValue } from "jotai";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
+import HouseholdsScreen from ".";
 import StatisticsScreen from "./(statistics)/statistics";
 import DayViewScreen from "./day-view";
 
@@ -38,6 +39,11 @@ export default function ProtectedLayout() {
             tabBarStyle: { display: "none" },
           }}
         >
+          <Tab.Screen
+            name="Households"
+            component={HouseholdsScreen}
+            options={{ title: "Hushåll" }}
+          />
           <Tab.Screen
             name="DayView"
             component={DayViewScreen}
