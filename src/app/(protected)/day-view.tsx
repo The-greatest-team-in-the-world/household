@@ -14,7 +14,7 @@ export default function DayViewScreen() {
   const mockdata = useAtomValue(mockdataAtom);
   const household = mockdata.households[0]; //hårdkodat till första hushållet, ta in via atom?
 
-  const todayChores = household.chores || [];
+  const todayChores = mockdata.chores;
 
   return (
     <View style={s.Container}>
