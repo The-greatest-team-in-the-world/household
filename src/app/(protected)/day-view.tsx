@@ -11,10 +11,10 @@ export default function DayViewScreen() {
   const household = mockdata.households[0];
   const completedChores = household.choreCompletions;
   const completedChoreIds = new Set<string>(
-    completedChores.map((cc) => cc.choreId)
+    completedChores.map((cc) => cc.choreId),
   );
   const notCompletedChores: Chore[] = household.chores.filter(
-    (chore) => chore.id && !completedChoreIds.has(chore.id)
+    (chore) => chore.id && !completedChoreIds.has(chore.id),
   );
 
   const getDaysAgo = (chore: Chore): string => {
