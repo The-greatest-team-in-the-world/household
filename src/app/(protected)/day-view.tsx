@@ -1,4 +1,6 @@
 import { mockdataAtom } from "@/providers/mockdata-provider";
+import type { Chore } from "@/types/chore";
+import type { ChoreCompletion } from "@/types/chore-completion";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, Divider } from "react-native-paper";
@@ -16,18 +18,38 @@ export default function DayViewScreen() {
 
   const todayChores = mockdata.chores;
 
+  const completionsByChore = mockdata.choreCompletions.reduce<
+    Record<string, ChoreCompletion[]>
+  >((accumulator, completion) => {
+    if (!accumulator[completion.choreId]) {
+      accumulator[completion.choreId] = [];
+    }
+    accumulator[completion.choreId].push(completion);
+    return accumulator;
+  }, {});
+
   return (
     <View style={s.Container}>
       <View style={s.headerContainer}>
         <Text style={s.header}>{household.name}</Text>
       </View>
       <ScrollView style={s.choreContainer}>
-        {todayChores.map((chore) => (
-          <View key={chore.id}>
-            <Text style={s.text}>{chore.name}</Text>
-            <Divider horizontalInset={false} bold={true} />
-          </View>
-        ))}
+        {todayChores.map((chore: Chore) => {
+          const completedChores = completionsByChore[chore.id] ?? [];
+
+          return (
+            <View key={chore.id}>
+              <Text style={s.text}>{chore.name}</Text>
+              {completedChores.map((completedChore: ChoreCompletion) => (
+                <Text key={completedChore.id} style={s.subText}>
+                  Senast utförd:{" "}
+                  {completedChore.completedAt.toDate().toLocaleDateString()}
+                </Text>
+              ))}
+              <Divider horizontalInset={false} bold={true} />
+            </View>
+          );
+        })}
       </ScrollView>
 
       <View style={s.buttonContainer}>
@@ -73,5 +95,10 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 15,
+  },
+  subText: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
   },
 });
