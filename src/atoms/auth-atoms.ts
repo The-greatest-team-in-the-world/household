@@ -14,6 +14,14 @@ import { auth } from "../../firebase-config";
 export const userAtom = atom<User | null>(null);
 
 /**
+ * Write-only atom to update user profile
+ */
+export const updateUserAtom = atom(null, (get, set, user: User) => {
+  set(userAtom, user);
+  console.log("userAtom uppdaterad!");
+});
+
+/**
  * Atom that tracks auth loading state
  * true = checking auth state
  * false = auth state determined
@@ -36,6 +44,7 @@ export const authStateAtom = atom((get) => ({
  */
 export const initAuthAtom = atom(null, (get, set) => {
   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    console.log("onAuthStateChanged triggered", currentUser?.displayName);
     set(userAtom, currentUser);
     set(authLoadingAtom, false);
   });

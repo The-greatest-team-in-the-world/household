@@ -1,13 +1,15 @@
+import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getLoginErrorMessage } from "@/utils/firebase-errors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
 import { FirebaseError } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Image, StyleSheet, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text } from "react-native-paper";
+import { Button, Surface, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
 //https://github.com/APSL/react-native-keyboard-aware-scroll-view
@@ -24,6 +26,8 @@ const credentials = z.object({
 type FormFields = z.infer<typeof credentials>;
 
 export default function LoginScreen() {
+  const { passwordVisibility, rightIcon, handlePasswordVisibility } =
+    useTogglePasswordVisibility();
   const [firebaseError, setFirebaseError] = useState("");
   const auth = getAuth();
   const {
@@ -36,6 +40,8 @@ export default function LoginScreen() {
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    setFirebaseError("");
+
     try {
       const loginUser = await signInWithEmailAndPassword(
         auth,
@@ -46,6 +52,10 @@ export default function LoginScreen() {
     } catch (error) {
       if (error instanceof FirebaseError) {
         setFirebaseError(getLoginErrorMessage(error.code));
+        console.error("Firebase error:", error.code, error.message);
+      } else {
+        console.error("Oväntat fel vid inloggning:", error);
+        setFirebaseError("Ett oväntat fel uppstod. Försök igen.");
       }
     }
   };
@@ -99,8 +109,18 @@ export default function LoginScreen() {
                 onChangeText={onChange}
                 value={value}
                 style={styles.inputField}
-                secureTextEntry
+                secureTextEntry={passwordVisibility}
               />
+              <Pressable
+                onPress={handlePasswordVisibility}
+                style={styles.eyeIcon}
+              >
+                <MaterialCommunityIcons
+                  name={rightIcon}
+                  size={20}
+                  color="#232323"
+                />
+              </Pressable>
             </View>
           )}
           name="password"
@@ -152,9 +172,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   inputField: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
+    paddingRight: 40,
   },
   resetLinkText: {
     textAlign: "center",
@@ -164,5 +182,10 @@ const styles = StyleSheet.create({
     margin: 5,
     backgroundColor: "lightgrey",
     textDecorationColor: "none",
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 20,
+    top: 35,
   },
 });
