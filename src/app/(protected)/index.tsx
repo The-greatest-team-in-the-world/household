@@ -1,13 +1,12 @@
 import { signOutAtom, userAtom } from "@/atoms/auth-atoms";
 import { Link, router } from "expo-router";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Surface } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const signOut = useSetAtom(signOutAtom);
-  const user = useAtom(userAtom);
-
+  const user = useAtomValue(userAtom);
   const onSignOut = async () => {
     try {
       await signOut();
@@ -20,8 +19,8 @@ export default function HouseholdsScreen() {
   return (
     <View style={styles.container}>
       <Surface style={styles.surface} elevation={4}>
-        <Text>Hej {user[0]?.displayName}</Text>
-        <Text>Epost: {user[0]?.email} från households/protected</Text>
+        <Text>Hej {user?.displayName}</Text>
+        <Text>Epost: {user?.email} från households/protected</Text>
       </Surface>
       <View style={styles.buttonGroup}>
         <Link href="/(protected)/day-view" push asChild>
