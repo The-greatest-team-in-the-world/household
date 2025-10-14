@@ -1,3 +1,4 @@
+import { updateUserAtom } from "@/atoms/auth-atoms";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -8,7 +9,8 @@ import {
   getAuth,
   updateProfile,
 } from "firebase/auth";
-import React, { useState } from "react";
+import { useSetAtom } from "jotai";
+import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -43,6 +45,7 @@ const credentials = z
 type FormFields = z.infer<typeof credentials>;
 
 export default function RegisterScreen() {
+  const updateUser = useSetAtom(updateUserAtom);
   const { passwordVisibility, rightIcon, handlePasswordVisibility } =
     useTogglePasswordVisibility();
   const {
@@ -63,22 +66,21 @@ export default function RegisterScreen() {
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
-
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         data.email,
         data.password,
       );
+
       await updateProfile(userCredential.user, {
         displayName: data.displayName,
       });
 
-      console.log(
-        "Registrerad",
-        userCredential.user.email,
-        userCredential.user.displayName,
-      );
+      await userCredential.user.reload();
+      updateUser(auth.currentUser!);
+
+      console.log("Registrering klar:", auth.currentUser?.displayName);
     } catch (error) {
       if (error instanceof FirebaseError) {
         setFirebaseError(getRegisterErrorMessage(error.code));
