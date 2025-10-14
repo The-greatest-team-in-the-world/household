@@ -1,3 +1,14 @@
-export async function getMyHouseholds() {
-  // TODO: Implementera anrop till /households
-}
+import { db } from "@/../firebase-config";
+import { Household } from "@/types/household";
+import { collection, getDocs, query, where } from "firebase/firestore";
+
+export async function getUsersHouseholds(token: string): Promise<Household[]> {
+    const householdsRef = collection(db, "households");
+
+    const q = query(householdsRef, where("members", "array-contains", token));
+    const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Household));
+    }
+
+
