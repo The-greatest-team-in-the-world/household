@@ -1,10 +1,10 @@
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
 import { mockdataAtom } from "@/providers/mockdata-provider";
 import { Chore } from "@/types/chore";
 import getMemberAvatar from "@/utils/get-member-avatar";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-paper";
 
 export default function DayViewScreen() {
   const mockdata = useAtomValue(mockdataAtom);
@@ -55,20 +55,18 @@ export default function DayViewScreen() {
       </ScrollView>
 
       <View style={s.buttonContainer}>
-        <Button
-          icon="format-list-group-plus"
-          mode="contained"
-          onPress={() => console.log("Lägg till Pressed")}
-        >
-          Lägg till
-        </Button>
-        <Button
-          icon="lead-pencil"
-          mode="contained"
-          onPress={() => console.log("ändra Pressed")}
-        >
-          Ändra
-        </Button>
+        <CustomPaperButton
+          icon="information-outline"
+          text="Mer info"
+          color="#06BA63"
+          onPress={() => console.log("Knapp tryckt")}
+        />
+        <CustomPaperButton
+          icon="account-details-outline"
+          text="Mina sysslor"
+          color="#06BA63"
+          onPress={() => console.log("Knapp tryckt")}
+        />
       </View>
     </View>
   );
@@ -90,6 +88,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
+    maxWidth: "100%",
   },
   header: {
     fontSize: 45,
