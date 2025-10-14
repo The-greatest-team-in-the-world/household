@@ -1,56 +1,62 @@
-import { signOutAtom, userAtom } from "@/atoms/auth-atoms";
-import { Link, router } from "expo-router";
-import { useAtom, useSetAtom } from "jotai";
-import { StyleSheet, Text, View } from "react-native";
-import { Button, Surface } from "react-native-paper";
+import { mockdataAtom } from "@/providers/mockdata-provider";
+import { useAtomValue } from "jotai";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button } from "react-native-paper";
 
 export default function HouseholdsScreen() {
-  const signOut = useSetAtom(signOutAtom);
-  const user = useAtom(userAtom);
-
-  const onSignOut = async () => {
-    try {
-      await signOut();
-      router.replace("/(auth)/login");
-    } catch (error) {
-      console.error("Kunde inte logga ut:", error);
-    }
-  };
+  const mockdata = useAtomValue(mockdataAtom);
+  const households = mockdata.households;
 
   return (
-    <View style={styles.container}>
-      <Surface style={styles.surface} elevation={4}>
-        <Text>Hej {user[0]?.displayName}</Text>
-        <Text>Epost: {user[0]?.email} från households/protected</Text>
-      </Surface>
-      <View style={styles.buttonGroup}>
-        <Link href="/(protected)/day-view" push asChild>
-          <Button style={styles.button}>Day-view</Button>
-        </Link>
-        <Button style={styles.button} onPress={onSignOut}>
-          Sign out
+    <View style={s.Container}>
+      <View style={s.headerContainer}>
+        <Text style={s.header}>Dina hushåll</Text>
+      </View>
+      <ScrollView style={s.householdContainer}>
+        {households.map((household) => (
+          <View key={household.id}>
+            <Text style={s.text}>{household.name}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      <View style={s.buttonContainer}>
+        <Button
+          mode="contained"
+          onPress={() => console.log("Skapa nytt hushåll")}
+        >
+          Skapa nytt hushåll
         </Button>
+        <Button
+          mode="contained"
+          onPress={() => console.log("Gå med i hushåll")}
+        >Gå med i hushåll</Button>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 30,
+const s = StyleSheet.create({
+  Container: {
     flex: 1,
+    padding: 20,
   },
-  surface: {
-    borderRadius: 20,
-    padding: 10,
-    flex: 1,
+  headerContainer: {
+    alignItems: "center",
+    padding: 20,
   },
-  buttonGroup: {
-    padding: 15,
+  householdContainer: {
+    padding: 20,
     gap: 10,
   },
-  button: {
-    backgroundColor: "lightgrey",
-    textDecorationColor: "none",
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+  },
+  header: {
+    fontSize: 45,
+  },
+  text: {
+    fontSize: 15,
   },
 });
