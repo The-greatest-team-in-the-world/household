@@ -3,6 +3,7 @@ import type { Chore } from "@/types/chore";
 import type { ChoreCompletion } from "@/types/chore-completion";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Divider } from "react-native-paper";
 
 export default function DayViewScreen() {
   const mockdata = useAtomValue(mockdataAtom);
