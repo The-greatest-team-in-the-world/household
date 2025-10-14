@@ -11,6 +11,7 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import StatisticsScreen from "./(statistics)/statistics";
 import DayViewScreen from "./day-view";
+import HouseholdsScreen from ".";
 
 export default function ProtectedLayout() {
   const authState = useAtomValue(authStateAtom);
@@ -38,6 +39,11 @@ export default function ProtectedLayout() {
             tabBarStyle: { display: "none" },
           }}
         >
+            <Tab.Screen
+            name="Households"
+            component={HouseholdsScreen}
+            options={{ title: "Hushåll" }}
+          />
           <Tab.Screen
             name="DayView"
             component={DayViewScreen}
