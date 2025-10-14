@@ -65,7 +65,7 @@ export default function PieChart({
         : { text: "" };
 
       return { color, value, label };
-    }
+    },
   );
 
   return (
@@ -74,7 +74,7 @@ export default function PieChart({
       <Text style={[s.title, { fontSize: titleSize }]}>
         {total
           ? totalTitle
-          : db.chores.find((c) => c.id === chores[0].choreId)?.name ?? "fel"}
+          : (db.chores.find((c) => c.id === chores[0].choreId)?.name ?? "fel")}
       </Text>
     </View>
   );

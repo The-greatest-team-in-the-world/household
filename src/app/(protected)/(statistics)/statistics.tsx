@@ -11,14 +11,17 @@ export default function StatisticsScreen() {
   const pieChartSize = 100;
 
   const groupedChores: Record<string, ChoreCompletion[]> =
-    household.choreCompletions.reduce((acc, chore) => {
-      if (!acc[chore.choreId]) {
-        acc[chore.choreId] = [];
-      }
-      acc[chore.choreId].push(chore);
+    household.choreCompletions.reduce(
+      (acc, chore) => {
+        if (!acc[chore.choreId]) {
+          acc[chore.choreId] = [];
+        }
+        acc[chore.choreId].push(chore);
 
-      return acc;
-    }, {} as Record<string, ChoreCompletion[]>);
+        return acc;
+      },
+      {} as Record<string, ChoreCompletion[]>,
+    );
 
   const groupedChoresList = Object.values(groupedChores);
 
