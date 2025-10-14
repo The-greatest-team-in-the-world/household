@@ -5,10 +5,10 @@ export type ChoreGroup = {
   name: string;
   choreIds: string[];
   rotationIntervalDays: number;
-  userRotation: string[];
+  userRotation: string[] | null;
   currentRotationIndex: number;
-  lastRotationDate: Timestamp;
+  lastRotationDate: Timestamp | null;
   createdBy: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: Timestamp | null;
+  updatedAt: Timestamp | null;
 };
