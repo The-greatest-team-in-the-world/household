@@ -1,70 +1,81 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Card } from "react-native-paper";
 
-interface Props {
+type ChoreCardProps = {
   choreName: string;
   displayType: "avatar" | "days";
   displayValue: string;
-}
+  isOverdue?: boolean;
+  daysOverdue?: number;
+};
 
 export default function ChoreCard({
   choreName,
   displayType,
   displayValue,
-}: Props) {
+  isOverdue = false,
+  daysOverdue = 0,
+}: ChoreCardProps) {
   return (
-    <Card style={s.card}>
-      <Card.Content style={s.cardContent}>
-        <Text style={s.text}>{choreName}</Text>
-        {displayType === "avatar" ? (
-          <View style={s.avatarContainer}>
-            <Text style={s.avatarEmoji}>{displayValue}</Text>
-          </View>
-        ) : (
-          <View style={s.daysContainer}>
-            <Text style={s.daysText}>{displayValue}</Text>
-          </View>
-        )}
-      </Card.Content>
-    </Card>
+    <View style={s.container}>
+      <Text style={s.choreName}>{choreName}</Text>
+
+      {displayType === "avatar" ? (
+        <View style={s.avatarContainer}>
+          <Text style={s.avatar}>{displayValue}</Text>
+        </View>
+      ) : (
+        <View style={[s.daysContainer, isOverdue && s.daysContainerOverdue]}>
+          <Text style={[s.days, isOverdue && s.daysOverdue]}>
+            {isOverdue ? `-${daysOverdue}` : displayValue}
+          </Text>
+        </View>
+      )}
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  card: {
-    marginBottom: 8,
-    backgroundColor: "#ffffffff",
-  },
-  cardContent: {
+  container: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    backgroundColor: "#e2e2e2ff",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginBottom: 10,
   },
-  text: {
-    fontSize: 15,
+  choreName: {
+    fontSize: 16,
+    flex: 1,
   },
   avatarContainer: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#e0e0e0",
     justifyContent: "center",
     alignItems: "center",
   },
-  avatarEmoji: {
-    fontSize: 16,
+  avatar: {
+    fontSize: 24,
   },
   daysContainer: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: "#E0E0E0",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ffffffff",
     justifyContent: "center",
     alignItems: "center",
   },
-  daysText: {
-    fontSize: 14,
-    fontWeight: "bold",
+  daysContainerOverdue: {
+    backgroundColor: "#d32f2f",
+  },
+  days: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  daysOverdue: {
+    color: "#ffffff",
   },
 });
