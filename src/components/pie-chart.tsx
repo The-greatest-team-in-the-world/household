@@ -7,6 +7,8 @@ import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
 interface Props {
   chores: ChoreCompletion[]; // array of completions for a single chore
   size: number;
+  iconSize?: number;
+  titleSize?: number;
   total?: boolean;
 }
 
@@ -20,7 +22,13 @@ interface Props {
  * multiple chores and instead render the total score for all chores with the title
  * set in "totalTitle".
  */
-export default function PieChart({ chores, size, total }: Props) {
+export default function PieChart({
+  chores,
+  size,
+  iconSize,
+  titleSize,
+  total,
+}: Props) {
   if (!chores || chores.length === 0) return null;
 
   if (!chores.every((c) => c.choreId === chores[0].choreId) && !total) {
@@ -52,7 +60,9 @@ export default function PieChart({ chores, size, total }: Props) {
 
       const color = avatar.color;
       const value = effort;
-      const label: SliceLabel = { text: avatar.emoji };
+      const label: SliceLabel = total
+        ? { text: avatar.emoji, fontSize: iconSize ?? 24 }
+        : { text: "" };
 
       return { color, value, label };
     }
@@ -61,7 +71,7 @@ export default function PieChart({ chores, size, total }: Props) {
   return (
     <View style={s.container}>
       <PieChartRN widthAndHeight={size} series={series} />
-      <Text style={s.title}>
+      <Text style={[s.title, { fontSize: titleSize }]}>
         {total
           ? totalTitle
           : db.chores.find((c) => c.id === chores[0].choreId)?.name ?? "fel"}
@@ -75,7 +85,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    margin: 10,
-    fontWeight: "600",
+    textAlign: "center",
+    fontWeight: "500",
   },
 });
