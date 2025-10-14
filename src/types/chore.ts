@@ -4,13 +4,13 @@ export type Chore = {
   id: string;
   name: string;
   description: string;
-  frequency: number;
+  frequency: number | null;
   effort: number;
-  audioUrl?: string;
-  imageUrl?: string;
+  audioUrl: string | null;
+  imageUrl: string | null;
   isArchived: boolean;
-  lastCompletedAt?: Timestamp;
-  lastCompletedBy?: string;
+  lastCompletedAt: Timestamp | null;
+  lastCompletedBy: string | null;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
