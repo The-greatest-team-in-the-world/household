@@ -6,10 +6,10 @@ export type HouseholdMember = {
   status: "pending" | "active" | "left";
   isOwner: boolean;
   isPaused: boolean;
-  pausePeriods: Array<{
+  pausePeriods: {
     startDate: Timestamp | null;
     endDate: Timestamp | null;
-  }>;
+  }[];
   avatar: {
     emoji: string;
     color: string;
