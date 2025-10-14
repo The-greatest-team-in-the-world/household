@@ -46,7 +46,7 @@ export default function PieChart({
     const perCompletionEffort = chore?.effort ?? 1;
 
     for (const completion of chores) {
-      const memberId = completion.houseHoldMemberId;
+      const memberId = completion.userId;
       if (!effortPerUser[memberId]) effortPerUser[memberId] = 0;
       effortPerUser[memberId] += perCompletionEffort;
     }

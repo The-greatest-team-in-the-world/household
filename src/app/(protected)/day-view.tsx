@@ -9,6 +9,8 @@ export default function DayViewScreen() {
     "household-team-greatest"
   );
 
+  console.log("members:", members); //TA BORT
+
   const getChoreName = (choreId: string): string => {
     const chore = chores.find((c) => c.id === choreId);
     return chore?.name || "Okänd syssla";
@@ -27,7 +29,6 @@ export default function DayViewScreen() {
       <View style={s.headerContainer}>
         <Text style={s.header}>The Greatest Team Household</Text>
       </View>
-
       <ScrollView style={s.choreContainer}>
         {completions.map((completion) => (
           <ChoreCard
@@ -65,22 +66,30 @@ const s = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
   },
   headerContainer: {
     alignItems: "center",
     padding: 20,
   },
   choreContainer: {
-    padding: 5,
+    padding: 20,
+    gap: 10,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
-    maxWidth: "100%",
   },
   header: {
     fontSize: 25,
+  },
+  text: {
+    fontSize: 15,
+  },
+  subText: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
   },
 });
