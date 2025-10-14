@@ -1,16 +1,15 @@
 import { Timestamp } from "firebase/firestore";
 
 export type HouseholdMember = {
-  id: string;
-  fireBaseUserId: string;
+  userId: string;
   householdId: string;
   status: "pending" | "active" | "left";
   isOwner: boolean;
   isPaused: boolean;
   pausePeriods: {
-    startDate: Timestamp;
+    startDate: Timestamp | null;
     endDate: Timestamp | null;
-  };
+  }[];
   avatar: {
     emoji: string;
     color: string;
