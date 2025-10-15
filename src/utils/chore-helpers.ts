@@ -7,7 +7,7 @@ import { Timestamp } from "firebase/firestore";
  */
 export function isChoreCompleted(
   chore: Chore,
-  completions: ChoreCompletion[]
+  completions: ChoreCompletion[],
 ): boolean {
   if (completions.length === 0) {
     return false;
@@ -36,7 +36,7 @@ export function isChoreCompleted(
  */
 export function getDaysSinceLastCompletion(
   chore: Chore,
-  completions: ChoreCompletion[]
+  completions: ChoreCompletion[],
 ): number {
   if (completions.length === 0) {
     const daysSinceCreated =
@@ -63,7 +63,7 @@ export function getDaysSinceLastCompletion(
  */
 export function getDaysOverdue(
   chore: Chore,
-  completions: ChoreCompletion[]
+  completions: ChoreCompletion[],
 ): number {
   if (chore.frequency === null || completions.length === 0) {
     return 0;

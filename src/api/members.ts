@@ -3,7 +3,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase-config";
 
 export async function getMembers(
-  householdId: string
+  householdId: string,
 ): Promise<HouseholdMember[]> {
   const membersRef = collection(db, "households", householdId, "members");
   const snapshot = await getDocs(membersRef);

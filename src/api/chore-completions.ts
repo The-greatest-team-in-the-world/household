@@ -3,13 +3,13 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase-config";
 
 export async function getAllCompletions(
-  householdId: string
+  householdId: string,
 ): Promise<ChoreCompletion[]> {
   const completionsRef = collection(
     db,
     "households",
     householdId,
-    "completions"
+    "completions",
   );
   const snapshot = await getDocs(completionsRef);
 

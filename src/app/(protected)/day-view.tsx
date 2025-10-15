@@ -51,7 +51,7 @@ export default function DayViewScreen() {
     const daysOverdue = getDaysOverdue(chore, choreCompletions);
     const daysSinceCompletion = getDaysSinceLastCompletion(
       chore,
-      choreCompletions
+      choreCompletions,
     );
 
     return (

@@ -2,7 +2,7 @@ import { HouseholdMember } from "@/types/household-member";
 
 export default function getMemberAvatar(
   members: HouseholdMember[],
-  userId: string
+  userId: string,
 ) {
   if (!members || members.length === 0) {
     return { color: "#000", emoji: "⚠️" };
