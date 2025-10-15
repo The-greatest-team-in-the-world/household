@@ -19,7 +19,7 @@ export async function getUsersHouseholds(uid: string): Promise<Household[]> {
   const snapshot = await getDocs(q);
 
   return snapshot.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() } as Household),
+    (doc) => ({ id: doc.id, ...doc.data() }) as Household,
   );
 }
 
