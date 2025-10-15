@@ -2,7 +2,7 @@ import { getAllCompletions } from "@/api/chore-completions";
 import { getChores } from "@/api/chores";
 import { getMembers } from "@/api/members";
 import { choresAtom } from "@/atoms/chore-atom";
-import { choreCompletions } from "@/atoms/chore-completion-atom";
+import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { membersAtom } from "@/atoms/member-atom";
 import { isChoreCompleted } from "@/utils/chore-helpers";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -10,11 +10,11 @@ import { useEffect, useMemo } from "react";
 
 export function useHouseholdData(householdId: string) {
   const setChores = useSetAtom(choresAtom);
-  const setCompletions = useSetAtom(choreCompletions);
+  const setCompletions = useSetAtom(choreCompletionsAtom);
   const setMembers = useSetAtom(membersAtom);
 
   const chores = useAtomValue(choresAtom);
-  const completions = useAtomValue(choreCompletions);
+  const completions = useAtomValue(choreCompletionsAtom);
   const members = useAtomValue(membersAtom);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export function useHouseholdData(householdId: string) {
   const incompleteChores = useMemo(() => {
     return chores.filter((chore) => {
       const choreCompletions = completions.filter(
-        (c) => c.choreId === chore.id,
+        (c) => c.choreId === chore.id
       );
       return !isChoreCompleted(chore, choreCompletions);
     });
