@@ -1,6 +1,14 @@
 import { HouseholdMember } from "@/types/household-member";
-import { collection, getDocs } from "firebase/firestore";
+import { getAuth } from "@firebase/auth";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../../firebase-config";
+
+const auth = getAuth();
 
 export async function getMembers(
   householdId: string,
@@ -8,4 +16,27 @@ export async function getMembers(
   const membersRef = collection(db, "households", householdId, "members");
   const snapshot = await getDocs(membersRef);
   return snapshot.docs.map((doc) => doc.data() as HouseholdMember);
+}
+
+export async function addNewMemberToHousehold(
+  householdId: string,
+  avatar: { emoji: string; color: string },
+  nickName: string,
+  isPaused: boolean,
+  isOwner: boolean,
+  status: string,
+) {
+  // Skapa subcollection: households/{householdId}/members
+  await addDoc(collection(db, "households", householdId, "members"), {
+    userId: auth.currentUser?.uid,
+    status: status,
+    isOwner: isOwner,
+    isPaused: isPaused,
+    pausePeriods: [],
+    avatar: avatar,
+    nickName: nickName,
+    joinedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
+  });
 }

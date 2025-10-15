@@ -33,6 +33,7 @@ export default function RootLayout() {
   }
 
   return (
+    // Byta till user ist för isAuthenticated?
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
