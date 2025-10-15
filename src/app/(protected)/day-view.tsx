@@ -1,72 +1,132 @@
-import { mockdataAtom } from "@/providers/mockdata-provider";
-import type { Chore } from "@/types/chore";
-import type { ChoreCompletion } from "@/types/chore-completion";
-import { useAtomValue } from "jotai";
+import { CustomPaperButton } from "@/components/custom-paper-button";
+import ChoreCard from "@/components/day-view/chore-card";
+import { useHouseholdData } from "@/hooks/useHouseholdData";
+import { Chore } from "@/types/chore";
+import { ChoreCompletion } from "@/types/chore-completion";
+import {
+  getDaysOverdue,
+  getDaysSinceLastCompletion,
+} from "@/utils/chore-helpers";
+import getMemberAvatar from "@/utils/get-member-avatar";
+import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Divider } from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
+
+const mockHouseholdId = "household-team-greatest";
 
 export default function DayViewScreen() {
-  const mockdata = useAtomValue(mockdataAtom);
-  const household = mockdata.households[0]; //hårdkodat till första hushållet, ta in via atom?
+  const { chores, completions, incompleteChores, members, isLoading } =
+    useHouseholdData(mockHouseholdId);
 
-  const todayChores = mockdata.chores;
+  const todaysCompletions = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const completionsByChore = mockdata.choreCompletions.reduce<
-    Record<string, ChoreCompletion[]>
-  >((accumulator, completion) => {
-    if (!accumulator[completion.choreId]) {
-      accumulator[completion.choreId] = [];
-    }
-    accumulator[completion.choreId].push(completion);
-    return accumulator;
-  }, {});
+    return completions.filter((completion) => {
+      const completedDate = completion.completedAt.toDate();
+      completedDate.setHours(0, 0, 0, 0);
+      return completedDate.getTime() === today.getTime();
+    });
+  }, [completions]);
+
+  const getChoreName = (choreId: string): string => {
+    const chore = chores.find((c) => c.id === choreId);
+    return chore?.name || "Okänd syssla";
+  };
+
+  const renderCompletedChore = (completion: ChoreCompletion) => {
+    const avatar = getMemberAvatar(members, completion.userId);
+    return (
+      <ChoreCard
+        key={completion.id}
+        choreName={getChoreName(completion.choreId)}
+        displayType="avatar"
+        displayValue={avatar.emoji}
+      />
+    );
+  };
+
+  const renderIncompleteChore = (chore: Chore) => {
+    const choreCompletions = completions.filter((c) => c.choreId === chore.id);
+    const daysOverdue = getDaysOverdue(chore, choreCompletions);
+    const daysSinceCompletion = getDaysSinceLastCompletion(
+      chore,
+      choreCompletions,
+    );
+
+    return (
+      <ChoreCard
+        key={chore.id}
+        choreName={chore.name}
+        displayType="days"
+        displayValue={daysSinceCompletion.toString()}
+        isOverdue={daysOverdue > 0}
+        daysOverdue={daysOverdue}
+      />
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <View style={s.loading}>
+        <ActivityIndicator animating={true} size="large" />
+      </View>
+    );
+  }
 
   return (
-    <View style={s.Container}>
+    <View style={s.container}>
       <View style={s.headerContainer}>
-        <Text style={s.header}>{household.name}</Text>
+        <Text style={s.subheader}>
+          {todaysCompletions.length} klara • {incompleteChores.length} kvar
+        </Text>
       </View>
-      <ScrollView style={s.choreContainer}>
-        {todayChores.map((chore: Chore) => {
-          const completedChores = completionsByChore[chore.id] ?? [];
 
-          return (
-            <View key={chore.id}>
-              <Text style={s.text}>{chore.name}</Text>
-              {completedChores.map((completedChore: ChoreCompletion) => (
-                <Text key={completedChore.id} style={s.subText}>
-                  Senast utförd:{" "}
-                  {completedChore.completedAt.toDate().toLocaleDateString()}
-                </Text>
-              ))}
-              <Divider horizontalInset={false} bold={true} />
-            </View>
-          );
-        })}
+      <ScrollView contentContainerStyle={s.choreContentContainer}>
+        {incompleteChores.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Behöver göras</Text>
+            {incompleteChores.map(renderIncompleteChore)}
+          </View>
+        )}
+        {todaysCompletions.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Klart för idag ✓</Text>
+            {todaysCompletions.map(renderCompletedChore)}
+          </View>
+        )}
+        {todaysCompletions.length === 0 && incompleteChores.length === 0 && (
+          <View style={s.emptyState}>
+            <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
+          </View>
+        )}
       </ScrollView>
 
       <View style={s.buttonContainer}>
-        <Button
-          icon="format-list-group-plus"
-          mode="contained"
-          onPress={() => console.log("Lägg till Pressed")}
-        >
-          Lägg till
-        </Button>
-        <Button
-          icon="lead-pencil"
-          mode="contained"
-          onPress={() => console.log("ändra Pressed")}
-        >
-          Ändra
-        </Button>
+        <CustomPaperButton
+          icon="information-outline"
+          text="Mer info"
+          color="#06BA63"
+          onPress={() => console.log("Mer info")}
+        />
+        <CustomPaperButton
+          icon="account-details-outline"
+          text="Mina sysslor"
+          color="#06BA63"
+          onPress={() => console.log("Mina sysslor")}
+        />
       </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  Container: {
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
     flex: 1,
     padding: 20,
   },
@@ -74,24 +134,42 @@ const s = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  choreContainer: {
-    padding: 20,
-    gap: 10,
+  header: {
+    fontSize: 25,
+    fontWeight: "600",
+  },
+  subheader: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    marginLeft: 5,
+  },
+  choreContentContainer: {
+    gap: 5,
+    paddingHorizontal: 5,
+    paddingBottom: 20,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    color: "#666",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
-  },
-  header: {
-    fontSize: 45,
-  },
-  text: {
-    fontSize: 15,
-  },
-  subText: {
-    fontSize: 12,
-    color: "#555",
-    marginTop: 4,
+    paddingBottom: 20,
   },
 });

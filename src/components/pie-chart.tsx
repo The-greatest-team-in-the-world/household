@@ -56,7 +56,7 @@ export default function PieChart({
 
   const series: Slice[] = Object.entries(getEffortPerUser()).map(
     ([memberId, effort]) => {
-      const avatar = getMemberAvatar(memberId);
+      const avatar = getMemberAvatar([], memberId);
 
       const color = avatar.color;
       const value = effort;
