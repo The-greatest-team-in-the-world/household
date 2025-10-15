@@ -50,9 +50,9 @@ const s = StyleSheet.create({
     flex: 1,
   },
   avatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: "#e0e0e0",
     justifyContent: "center",
     alignItems: "center",
@@ -61,9 +61,9 @@ const s = StyleSheet.create({
     fontSize: 24,
   },
   daysContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: "#ffffffff",
     justifyContent: "center",
     alignItems: "center",
@@ -72,7 +72,7 @@ const s = StyleSheet.create({
     backgroundColor: "#d32f2f",
   },
   days: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "600",
   },
   daysOverdue: {

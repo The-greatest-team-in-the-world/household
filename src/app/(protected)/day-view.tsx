@@ -15,7 +15,7 @@ import { ActivityIndicator } from "react-native-paper";
 const mockHouseholdId = "household-team-greatest";
 
 export default function DayViewScreen() {
-  const { chores, completions, members, incompleteChores, isLoading } =
+  const { chores, completions, incompleteChores, members, isLoading } =
     useHouseholdData(mockHouseholdId);
 
   const todaysCompletions = useMemo(() => {
@@ -83,19 +83,18 @@ export default function DayViewScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.choreContentContainer}>
-        {/* Klara sysslor för idag */}
-        {todaysCompletions.length > 0 && (
-          <View style={s.section}>
-            <Text style={s.sectionTitle}>Klart för idag ✓</Text>
-            {todaysCompletions.map(renderCompletedChore)}
-          </View>
-        )}
-
         {/* Oklara sysslor */}
         {incompleteChores.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Behöver göras</Text>
             {incompleteChores.map(renderIncompleteChore)}
+          </View>
+        )}
+        {/* Klara sysslor för idag */}
+        {todaysCompletions.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Klart för idag ✓</Text>
+            {todaysCompletions.map(renderCompletedChore)}
           </View>
         )}
 

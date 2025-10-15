@@ -1,16 +1,7 @@
-// export default function getMemberAvatar(id: string) {
-//   const member = db.householdMembers.find((m) => m.id === id);
-//   if (!member) {
-//     console.warn(`Cannot find household member with id: ${id}.`);
-//     return { color: "#000", emoji: "⚠️" };
-//   }
-//   return member.avatar;
-// }
-
 import { HouseholdMember } from "@/types/household-member";
 
 export default function getMemberAvatar(
-  members: HouseholdMember[] | undefined,
+  members: HouseholdMember[],
   userId: string
 ) {
   if (!members || members.length === 0) {
