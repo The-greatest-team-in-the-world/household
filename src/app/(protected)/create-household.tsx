@@ -1,28 +1,36 @@
-import { userAtom } from "@/atoms/auth-atoms";
+import { createNewHousehold } from "@/api/households";
+import { addNewMemberToHousehold } from "@/api/members";
+import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
+import { avatarColors } from "@/data/avatar-index";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAtom } from "jotai";
-import { useState } from "react";
+import { router } from "expo-router";
+import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { TextInput, Text } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
+const avatarEmojis = Object.keys(avatarColors) as [
+  keyof typeof avatarColors,
+  ...(keyof typeof avatarColors)[],
+];
+
+const newHouseHold = z.object({
+  householdName: z.string().min(1, "Namnge hushållet"),
+  avatar: z.enum(avatarEmojis, {
+    errorMap: () => ({ message: "Välj en avatar" }),
+  }),
+  nickName: z.string().min(1, "Ange ett smeknamn"),
+});
+
+type FormFields = z.infer<typeof newHouseHold>;
+
 export default function CreateHousholdScreen() {
-  const user = useAtom(userAtom);
-  const [error, setError] = useState("");
-
-  const newHouseHold = z.object({
-    householdName: z.string().min(1, "Namnge hushållet"),
-    avatar: z.string().nonempty(),
-    nickName: z.string().min(1),
-  });
-
-  type FormFields = z.infer<typeof newHouseHold>;
-
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({
     resolver: zodResolver(newHouseHold),
@@ -30,7 +38,25 @@ export default function CreateHousholdScreen() {
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
-    setError("");
+    try {
+      const householdId = await createNewHousehold(data.householdName);
+      await addNewMemberToHousehold(
+        householdId,
+        {
+          emoji: data.avatar,
+          // Slå upp färgen från avatarColors-objektet baserat på vald emoji (Gippyhjälp)
+          color: avatarColors[data.avatar as keyof typeof avatarColors],
+        },
+        data.nickName,
+        false, // isPaused
+        true, // IsOwner
+        "active", // Status
+      );
+      reset();
+      router.replace("/(protected)");
+    } catch (error) {
+      console.error("Error creating household:", error);
+    }
   };
 
   return (
@@ -45,13 +71,12 @@ export default function CreateHousholdScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text>Hushållets namn</Text>
+              <Text style={s.title}>Hushållets namn:</Text>
               <TextInput
                 placeholder="Hushållets namn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={s.inputField}
                 autoCapitalize="words"
               />
             </View>
@@ -63,13 +88,12 @@ export default function CreateHousholdScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text>Smeknamn</Text>
+              <Text style={s.title}>Smeknamn:</Text>
               <TextInput
                 placeholder="Smeknamn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={s.inputField}
                 autoCapitalize="words"
               />
             </View>
@@ -79,9 +103,22 @@ export default function CreateHousholdScreen() {
         {errors.nickName && <Text>{errors.nickName.message}</Text>}
         <Controller
           control={control}
-          render={({ field: { onChange, onBlur, value } }) => <View></View>}
+          render={({ field: { onChange, value } }) => (
+            <View>
+              <Text style={s.title}>Välj din avatar:</Text>
+              <AvatarPressablePicker onChange={onChange} value={value} />
+            </View>
+          )}
           name="avatar"
         />
+        {errors.avatar && <Text>{errors.avatar.message}</Text>}
+        <Button
+          mode="contained"
+          disabled={isSubmitting}
+          onPress={handleSubmit(onSubmit)}
+        >
+          Skapa
+        </Button>
       </View>
     </KeyboardAwareScrollView>
   );
@@ -95,15 +132,9 @@ const s = StyleSheet.create({
     padding: 20,
     gap: 10,
   },
-  surface: {
-    alignItems: "center",
-    borderRadius: 20,
-    padding: 10,
-  },
-  inputField: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingRight: 40,
+  title: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    fontWeight: 700,
   },
 });
