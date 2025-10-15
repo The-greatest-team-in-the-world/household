@@ -211,7 +211,7 @@ export default function RegisterScreen() {
         )}
 
         <Button
-          style={styles.button}
+          mode="contained"
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         >
@@ -246,11 +246,6 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     fontWeight: "700",
-  },
-  button: {
-    margin: 5,
-    backgroundColor: "lightgrey",
-    textDecorationColor: "none",
   },
   inputContainer: {
     position: "relative",

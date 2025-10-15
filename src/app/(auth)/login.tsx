@@ -109,6 +109,7 @@ export default function LoginScreen() {
                 onChangeText={onChange}
                 value={value}
                 style={styles.inputField}
+                autoCapitalize="none"
                 secureTextEntry={passwordVisibility}
               />
               <Pressable
@@ -132,14 +133,14 @@ export default function LoginScreen() {
           </Text>
         </Link>
         <Button
-          style={styles.button}
+          mode="contained"
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         >
           Logga in
         </Button>
-        <Link href="/(auth)/register" push asChild>
-          <Button style={styles.button}>Skapa konto</Button>
+        <Link href="/(auth)/register" replace asChild>
+          <Button mode="contained">Skapa konto</Button>
         </Link>
       </View>
     </KeyboardAwareScrollView>
@@ -177,11 +178,6 @@ const styles = StyleSheet.create({
   resetLinkText: {
     textAlign: "center",
     textDecorationLine: "underline",
-  },
-  button: {
-    margin: 5,
-    backgroundColor: "lightgrey",
-    textDecorationColor: "none",
   },
   eyeIcon: {
     position: "absolute",
