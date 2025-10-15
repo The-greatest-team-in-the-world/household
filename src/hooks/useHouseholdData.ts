@@ -42,7 +42,7 @@ export function useHouseholdData(householdId: string) {
   const incompleteChores = useMemo(() => {
     return chores.filter((chore) => {
       const choreCompletions = completions.filter(
-        (c) => c.choreId === chore.id
+        (c) => c.choreId === chore.id,
       );
       return !isChoreCompleted(chore, choreCompletions);
     });
