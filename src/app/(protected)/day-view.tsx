@@ -83,22 +83,18 @@ export default function DayViewScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.choreContentContainer}>
-        {/* Oklara sysslor */}
         {incompleteChores.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Behöver göras</Text>
             {incompleteChores.map(renderIncompleteChore)}
           </View>
         )}
-        {/* Klara sysslor för idag */}
         {todaysCompletions.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Klart för idag ✓</Text>
             {todaysCompletions.map(renderCompletedChore)}
           </View>
         )}
-
-        {/* Tom lista */}
         {todaysCompletions.length === 0 && incompleteChores.length === 0 && (
           <View style={s.emptyState}>
             <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
