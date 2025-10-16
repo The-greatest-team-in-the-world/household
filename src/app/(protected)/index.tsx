@@ -1,8 +1,10 @@
+import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
+import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 import { useNavigation } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
@@ -13,6 +15,8 @@ export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
+  const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
+  const user = useAtomValue(userAtom);
   //const router = useRouter();
 
   const navigation = useNavigation<any>();
@@ -21,8 +25,14 @@ export default function HouseholdsScreen() {
     getHouseholds();
   }, [getHouseholds]);
 
-  function handleSelectHousehold(h: any) {
+  async function handleSelectHousehold(h: any) {
     setCurrentHousehold(h);
+
+    // Hämta den specifika medlemmen baserat på userId
+    if (user) {
+      await getMemberByUserId({ householdId: h.id, userId: user.uid });
+    }
+
     //router.push("/(protected)/day-view");
     navigation.navigate("DayView");
   }
