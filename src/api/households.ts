@@ -3,6 +3,7 @@ import { Household } from "@/types/household";
 import { HouseholdMember } from "@/types/household-member";
 import {
   collectionGroup,
+  doc,
   getDoc,
   getDocs,
   query,
@@ -18,19 +19,26 @@ export async function getUsersHouseholds(
 
   if (snap.empty) return [];
 
+  // Extrahera householdIds från member-data
+  const membersByHouseholdId = new Map<string, HouseholdMember>();
+  snap.docs.forEach((mdoc) => {
+    const memberData = mdoc.data() as HouseholdMember;
+    membersByHouseholdId.set(memberData.householdId, memberData);
+  });
+
+  // Hämta alla households
+  const householdIds = Array.from(membersByHouseholdId.keys());
   const households = await Promise.all(
-    snap.docs.map(async (mdoc) => {
-      const memberData = mdoc.data() as HouseholdMember;
-      const householdRef = mdoc.ref.parent.parent;
-      if (!householdRef) return null;
-      const hsnap = await getDoc(householdRef);
-      return hsnap.exists()
-        ? ({
-            id: hsnap.id,
-            ...hsnap.data(),
-            isOwner: memberData.isOwner,
-          } as Household & { isOwner: boolean })
-        : null;
+    householdIds.map(async (hId) => {
+      const hsnap = await getDoc(doc(db, "households", hId));
+      if (!hsnap.exists()) return null;
+
+      const memberData = membersByHouseholdId.get(hId)!;
+      return {
+        id: hsnap.id,
+        ...hsnap.data(),
+        isOwner: memberData.isOwner,
+      } as Household & { isOwner: boolean };
     }),
   );
 
