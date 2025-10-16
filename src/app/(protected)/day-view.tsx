@@ -1,3 +1,4 @@
+import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
@@ -8,15 +9,18 @@ import {
   getDaysSinceLastCompletion,
 } from "@/utils/chore-helpers";
 import getMemberAvatar from "@/utils/get-member-avatar";
+import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 
-const mockHouseholdId = "household-team-greatest";
-
 export default function DayViewScreen() {
+  const currentHousehold = useAtomValue(currentHouseholdAtom);
+
+  const householdId = currentHousehold?.id;
+
   const { chores, completions, incompleteChores, members, isLoading } =
-    useHouseholdData(mockHouseholdId);
+    useHouseholdData(householdId || "");
 
   const todaysCompletions = useMemo(() => {
     const today = new Date();
@@ -39,6 +43,7 @@ export default function DayViewScreen() {
     return (
       <ChoreCard
         key={completion.id}
+        choreId={completion.choreId}
         choreName={getChoreName(completion.choreId)}
         displayType="avatar"
         displayValue={avatar.emoji}
@@ -57,6 +62,7 @@ export default function DayViewScreen() {
     return (
       <ChoreCard
         key={chore.id}
+        choreId={chore.id}
         choreName={chore.name}
         displayType="days"
         displayValue={daysSinceCompletion.toString()}
