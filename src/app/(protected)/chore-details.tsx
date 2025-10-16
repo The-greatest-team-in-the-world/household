@@ -1,16 +1,25 @@
+import { addChoreCompletion, getAllCompletions } from "@/api/chore-completions";
 import { selectedChoreAtom } from "@/atoms/chore-atom";
+import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text } from "react-native-paper";
+
+// När man trycker bakåtknapp landar vi inte på day-view utan hushållsvyn
 
 export default function ChoreDetailsScreen() {
   const selectedChore = useAtomValue(selectedChoreAtom);
   const currentUser = useAtomValue(currentHouseholdMember);
+  const setCompletions = useSetAtom(choreCompletionsAtom);
+  const householdId = currentUser?.householdId || "";
 
-  const handlePressDone = () => {
-    console.log("Markera som klar");
+  const handlePressDone = async (choreId: string) => {
+    await addChoreCompletion(householdId, choreId);
+    // Hämta om alla completions efter tillägg
+    const updatedCompletions = await getAllCompletions(householdId);
+    setCompletions(updatedCompletions);
   };
   const handlePressDelete = () => {
     console.log("Ta bort syssla");
@@ -41,7 +50,7 @@ export default function ChoreDetailsScreen() {
       <View style={s.buttonsContainer}>
         {currentUser?.isOwner && (
           <CustomPaperButton
-            onPress={handlePressDone}
+            onPress={() => handlePressDone(selectedChore!.id)}
             text="Markera som klar"
             icon="check"
             color="#06BA63"

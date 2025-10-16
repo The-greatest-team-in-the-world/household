@@ -1,6 +1,11 @@
 import { ChoreCompletion } from "@/types/chore-completion";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  serverTimestamp,
+} from "firebase/firestore";
+import { auth, db } from "../../firebase-config";
 
 export async function getAllCompletions(
   householdId: string,
@@ -17,4 +22,20 @@ export async function getAllCompletions(
     id: doc.id,
     ...doc.data(),
   })) as ChoreCompletion[];
+}
+
+export async function addChoreCompletion(householdId: string, choreId: string) {
+  const completionsRef = collection(
+    db,
+    "households",
+    householdId,
+    "completions",
+  );
+  await addDoc(completionsRef, {
+    choreId: choreId,
+    userId: auth.currentUser?.uid,
+    completedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
 }
