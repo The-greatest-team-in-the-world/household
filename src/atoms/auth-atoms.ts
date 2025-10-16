@@ -50,17 +50,3 @@ export const initAuthAtom = atom(null, (get, set) => {
   });
   return unsubscribe;
 });
-
-/**
- * Write-only atom to sign out
- * Handles Firebase sign out and resets auth state
- */
-export const signOutAtom = atom(null, async (get, set) => {
-  try {
-    await firebaseSignOut(auth);
-    set(userAtom, null);
-  } catch (error) {
-    console.error("Sign out error:", error);
-    throw error;
-  }
-});
