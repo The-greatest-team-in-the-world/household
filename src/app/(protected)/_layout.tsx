@@ -11,6 +11,7 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import HouseholdsScreen from ".";
 import StatisticsScreen from "./(statistics)/statistics";
+import ChoreDetailsScreen from "./chore-details";
 import DayViewScreen from "./day-view";
 
 export default function ProtectedLayout() {
@@ -48,6 +49,11 @@ export default function ProtectedLayout() {
             name="DayView"
             component={DayViewScreen}
             options={{ title: "Idag" }}
+          />
+          <Tab.Screen
+            name="chore-details"
+            component={ChoreDetailsScreen}
+            options={{ title: "Syssla Detaljer" }}
           />
           <Tab.Screen
             name="(statistics)/statistics"
