@@ -11,7 +11,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { Button, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
-const avatarEmojis = Object.keys(avatarColors) as [
+export const avatarEmojis = Object.keys(avatarColors) as [
   keyof typeof avatarColors,
   ...(keyof typeof avatarColors)[],
 ];

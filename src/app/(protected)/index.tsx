@@ -3,7 +3,7 @@ import {
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
-import { useNavigation } from "expo-router";
+import { useNavigation, router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -42,15 +42,15 @@ export default function HouseholdsScreen() {
       <View style={s.buttonContainer}>
         <Button
           mode="contained"
-          onPress={() => console.log("Skapa nytt hushåll")}
+          onPress={() => router.push("/(protected)/join-household")}
         >
-          Skapa nytt hushåll
+          joina
         </Button>
         <Button
           mode="contained"
-          onPress={() => console.log("Gå med i hushåll")}
+          onPress={() => router.push("/(protected)/create-household")}
         >
-          Gå med i hushåll
+          skapa
         </Button>
       </View>
     </View>
