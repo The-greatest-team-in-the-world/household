@@ -3,7 +3,7 @@ import { Household } from "@/types/household";
 import { getAuth } from "@firebase/auth";
 import { HouseholdMember } from "@/types/household-member";
 import {
-    collectionGroup,
+  collectionGroup,
   doc,
   getDoc,
   addDoc,
@@ -15,7 +15,6 @@ import {
 } from "firebase/firestore";
 
 const auth = getAuth();
-
 
 export async function getUsersHouseholds(
   uid: string,
