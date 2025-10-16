@@ -1,10 +1,10 @@
+import { signInUser } from "@/api/auth";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getLoginErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
-import { FirebaseError } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
@@ -29,7 +29,6 @@ export default function LoginScreen() {
   const { passwordVisibility, rightIcon, handlePasswordVisibility } =
     useTogglePasswordVisibility();
   const [firebaseError, setFirebaseError] = useState("");
-  const auth = getAuth();
   const {
     control,
     handleSubmit,
@@ -42,22 +41,15 @@ export default function LoginScreen() {
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
 
-    try {
-      const loginUser = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password,
-      );
-      console.log("User just logged in: ", loginUser.user);
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        setFirebaseError(getLoginErrorMessage(error.code));
-        console.error("Firebase error:", error.code, error.message);
-      } else {
-        console.error("Oväntat fel vid inloggning:", error);
-        setFirebaseError("Ett oväntat fel uppstod. Försök igen.");
-      }
+    const result = await signInUser(data);
+
+    if (!result.success || !result.user) {
+      const errorCode = result.error?.code || "unknown";
+      setFirebaseError(getLoginErrorMessage(errorCode));
+      return;
     }
+
+    console.log("Inloggad", result.user.email);
   };
 
   return (
@@ -109,6 +101,7 @@ export default function LoginScreen() {
                 onChangeText={onChange}
                 value={value}
                 style={styles.inputField}
+                autoCapitalize="none"
                 secureTextEntry={passwordVisibility}
               />
               <Pressable
@@ -132,14 +125,14 @@ export default function LoginScreen() {
           </Text>
         </Link>
         <Button
-          style={styles.button}
+          mode="contained"
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         >
           Logga in
         </Button>
-        <Link href="/(auth)/register" push asChild>
-          <Button style={styles.button}>Skapa konto</Button>
+        <Link href="/(auth)/register" replace asChild>
+          <Button mode="contained">Skapa konto</Button>
         </Link>
       </View>
     </KeyboardAwareScrollView>
@@ -177,11 +170,6 @@ const styles = StyleSheet.create({
   resetLinkText: {
     textAlign: "center",
     textDecorationLine: "underline",
-  },
-  button: {
-    margin: 5,
-    backgroundColor: "lightgrey",
-    textDecorationColor: "none",
   },
   eyeIcon: {
     position: "absolute",

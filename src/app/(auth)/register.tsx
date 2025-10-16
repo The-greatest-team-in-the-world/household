@@ -1,14 +1,10 @@
+import { registerUser } from "@/api/auth";
 import { updateUserAtom } from "@/atoms/auth-atoms";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FirebaseError } from "firebase/app";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  updateProfile,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useSetAtom } from "jotai";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -45,7 +41,6 @@ const credentials = z
 type FormFields = z.infer<typeof credentials>;
 
 export default function RegisterScreen() {
-  const updateUser = useSetAtom(updateUserAtom);
   const { passwordVisibility, rightIcon, handlePasswordVisibility } =
     useTogglePasswordVisibility();
   const {
@@ -54,7 +49,6 @@ export default function RegisterScreen() {
     handlePasswordVisibility: confirmHandlePasswordVisibility,
   } = useTogglePasswordVisibility();
   const [firebaseError, setFirebaseError] = useState("");
-  const auth = getAuth();
   const {
     control,
     handleSubmit,
@@ -66,30 +60,16 @@ export default function RegisterScreen() {
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password,
-      );
 
-      await updateProfile(userCredential.user, {
-        displayName: data.displayName,
-      });
+    const result = await registerUser(data);
 
-      await userCredential.user.reload();
-      updateUser(auth.currentUser!);
-
-      console.log("Registrering klar:", auth.currentUser?.displayName);
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        setFirebaseError(getRegisterErrorMessage(error.code));
-        console.error("Firebase error:", error.code, error.message);
-      } else {
-        console.error("Oväntat fel vid registrering:", error);
-        setFirebaseError("Ett oväntat fel uppstod. Försök igen.");
-      }
+    if (!result.success || !result.user) {
+      const errorCode = result.error?.code || "unknown";
+      setFirebaseError(getRegisterErrorMessage(errorCode));
+      return;
     }
+
+    console.log("Registrerad", result.user.email, result.user.displayName);
   };
 
   return (
@@ -211,7 +191,7 @@ export default function RegisterScreen() {
         )}
 
         <Button
-          style={styles.button}
+          mode="contained"
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         >
@@ -246,11 +226,6 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     fontWeight: "700",
-  },
-  button: {
-    margin: 5,
-    backgroundColor: "lightgrey",
-    textDecorationColor: "none",
   },
   inputContainer: {
     position: "relative",
