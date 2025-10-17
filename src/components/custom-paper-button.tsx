@@ -8,6 +8,7 @@ interface CustomPaperButtonProps {
   color: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
 }
 
 export const CustomPaperButton = ({
@@ -16,6 +17,7 @@ export const CustomPaperButton = ({
   color,
   onPress,
   style,
+  disabled = false,
 }: CustomPaperButtonProps) => {
   return (
     <Button
@@ -23,6 +25,7 @@ export const CustomPaperButton = ({
       icon={icon}
       buttonColor={color}
       onPress={onPress}
+      disabled={disabled}
       style={[{ margin: 10, borderRadius: 8, minWidth: 100 }, style]}
       contentStyle={{ paddingVertical: 8 }}
     >
