@@ -7,6 +7,7 @@ import { ChoreCompletion } from "@/types/chore-completion";
 import {
   getDaysOverdue,
   getDaysSinceLastCompletion,
+  getTodaysCompletions,
 } from "@/utils/chore-helpers";
 import getMemberAvatar from "@/utils/get-member-avatar";
 import { useAtomValue } from "jotai";
@@ -23,15 +24,9 @@ export default function DayViewScreen() {
     useHouseholdData(householdId || "");
 
   const todaysCompletions = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return completions.filter((completion) => {
-      const completedDate = completion.completedAt.toDate();
-      completedDate.setHours(0, 0, 0, 0);
-      return completedDate.getTime() === today.getTime();
-    });
-  }, [completions]);
+    if (!householdId) return [];
+    return getTodaysCompletions(completions);
+  }, [completions, householdId]);
 
   const getChoreName = (choreId: string): string => {
     const chore = chores.find((c) => c.id === choreId);
@@ -112,14 +107,14 @@ export default function DayViewScreen() {
         <CustomPaperButton
           icon="information-outline"
           text="Mer info"
-          color="#06BA63"
           onPress={() => console.log("Mer info")}
+          mode="outlined"
         />
         <CustomPaperButton
           icon="account-details-outline"
           text="Mina sysslor"
-          color="#06BA63"
           onPress={() => console.log("Mina sysslor")}
+          mode="outlined"
         />
       </View>
     </View>
