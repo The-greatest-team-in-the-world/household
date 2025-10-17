@@ -4,7 +4,7 @@ import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
 import { avatarColors } from "@/data/avatar-index";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Household } from "@/types/household";
-import { Avatar } from "@/types/household-member";
+import { Avatar, HouseholdMember } from "@/types/household-member";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -34,6 +34,7 @@ export default function JoinHouseholdScreen() {
   const [filteredAvatars, setFilteredAvatars] = useState<Avatar[]>([]);
   const [household, setHousehold] = useState<Household | null>(null);
   const [codeInput, setCodeInput] = useState("");
+
   const {
     control,
     handleSubmit,
@@ -59,11 +60,11 @@ export default function JoinHouseholdScreen() {
         setHousehold(null);
         return;
       }
-      // Annars sök efter hushåll efter delay, och om det finns retunera det
+      // Annars sök efter hushåll efter delay, och om det finns retunera det.
       setLoading(true);
       const result = await getHouseholdByCode(debouncedInput);
-      console.log("result är:", result);
       setHousehold(result);
+      // Gör en sökning på userid så att man inte inte kan lägga till sig flera gånger på ett och samma hushåll
 
       // Använd hushållet och sortera bort upptagna emojis
       if (result) {
@@ -96,6 +97,7 @@ export default function JoinHouseholdScreen() {
         "pending",
       );
       reset();
+      console.log("Användare skapad!");
       router.replace("/(protected)");
     } catch (error) {
       console.error("Error adding member:", error);
@@ -134,7 +136,12 @@ export default function JoinHouseholdScreen() {
         {loading && <Text>Söker...</Text>}
 
         {!loading && household && (
-          <Text style={s.foundHousehold}>Success!: {household.name}</Text>
+          <>
+            <View>
+              <Text style={s.foundHousehold}>Hushåll hittat:</Text>
+              <Text style={s.foundHousehold}>{household.name}</Text>
+            </View>
+          </>
         )}
 
         {!loading &&
