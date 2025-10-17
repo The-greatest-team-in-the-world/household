@@ -38,6 +38,10 @@ export const AvatarPressablePicker = ({
               value.emoji !== renderItem.item.emoji && {
                 opacity: 0.3,
               },
+            value &&
+              value.emoji == renderItem.item.emoji && {
+                borderWidth: 2,
+              },
           ]}
           onPress={() => onChange(renderItem.item)}
         >
