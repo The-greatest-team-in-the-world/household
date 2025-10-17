@@ -1,18 +1,7 @@
 import { authStateAtom } from "@/atoms/auth-atoms";
 import { db } from "@/data/mock-db";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import {
-  NavigationContainer,
-  NavigationIndependentTree,
-} from "@react-navigation/native";
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { useAtomValue } from "jotai";
-import { StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
-import HouseholdsScreen from ".";
-import StatisticsScreen from "./(statistics)/statistics";
-import ChoreDetailsScreen from "./chore-details";
-import DayViewScreen from "./day-view";
 
 export default function ProtectedLayout() {
   const authState = useAtomValue(authStateAtom);
@@ -27,50 +16,15 @@ export default function ProtectedLayout() {
 
   if (!household) return null;
 
-  const Tab = createMaterialTopTabNavigator();
-
   return (
-    <NavigationIndependentTree>
-      <NavigationContainer>
-        <View>
-          <Text style={s.header}>{household.name}</Text>
-        </View>
-        <Tab.Navigator
-          screenOptions={{
-            tabBarStyle: { display: "none" },
-          }}
-        >
-          <Tab.Screen
-            name="Households"
-            component={HouseholdsScreen}
-            options={{ title: "Hushåll" }}
-          />
-          <Tab.Screen
-            name="DayView"
-            component={DayViewScreen}
-            options={{ title: "Idag" }}
-          />
-          <Tab.Screen
-            name="chore-details"
-            component={ChoreDetailsScreen}
-            options={{ title: "Syssla Detaljer" }}
-          />
-          <Tab.Screen
-            name="(statistics)/statistics"
-            component={StatisticsScreen}
-            options={{ title: "Statistics" }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </NavigationIndependentTree>
+    <Stack>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(top-tabs)" />
+      <Stack.Screen name="chore-details" />
+      <Stack.Screen name="create-chore" />
+      <Stack.Screen name="create-household" />
+      <Stack.Screen name="join-household" />
+      <Stack.Screen name="user-profile" />
+    </Stack>
   );
 }
-
-const s = StyleSheet.create({
-  header: {
-    textAlign: "center",
-    fontSize: 24,
-    fontWeight: "600",
-    margin: 10,
-  },
-});

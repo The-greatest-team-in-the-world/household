@@ -4,6 +4,9 @@ import { getAuth } from "@firebase/auth";
 import {
   addDoc,
   collection,
+  collectionGroup,
+  doc,
+  getDoc,
   getDocs,
   query,
   serverTimestamp,
@@ -12,14 +15,48 @@ import {
 
 const auth = getAuth();
 
-export async function getUsersHouseholds(uid: string): Promise<Household[]> {
-  const householdsRef = collection(db, "households");
+export async function getUsersHouseholds(
+  uid: string,
+): Promise<(Household & { isOwner: boolean })[]> {
+  const snap = await getDocs(
+    query(collectionGroup(db, "members"), where("userId", "==", uid)),
+  );
 
-  const q = query(householdsRef, where("ownerIds", "array-contains", uid));
-  const snapshot = await getDocs(q);
+  if (snap.empty) return [];
 
-  return snapshot.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() }) as Household,
+  // Extrahera householdIds från member-data
+  const membersByHouseholdId = new Map<string, { isOwner: boolean }>();
+  snap.docs.forEach((mdoc) => {
+    const data = mdoc.data();
+    const householdId = data.householdId;
+    if (householdId && typeof householdId === "string") {
+      membersByHouseholdId.set(householdId, { isOwner: data.isOwner });
+    }
+  });
+
+  // Hämta alla households
+  const householdIds = Array.from(membersByHouseholdId.keys());
+  const households = await Promise.all(
+    householdIds.map(async (hId) => {
+      const hsnap = await getDoc(doc(db, "households", hId));
+      if (!hsnap.exists()) return null;
+
+      const memberData = membersByHouseholdId.get(hId)!;
+      const hdata = hsnap.data();
+      return {
+        id: hsnap.id,
+        name: hdata.name,
+        code: hdata.code,
+        ownerIds: hdata.ownerIds,
+        createdAt: hdata.createdAt,
+        updatedAt: hdata.updatedAt,
+        isOwner: memberData.isOwner,
+      } as Household & { isOwner: boolean };
+    }),
+  );
+
+  return households.filter(
+    (h): h is Household & { isOwner: boolean } => h !== null,
   );
 }
 
@@ -36,13 +73,33 @@ export async function createNewHousehold(name: string): Promise<string> {
 
 export async function getHouseholdByCode(code: string) {
   const q = query(collection(db, "households"), where("code", "==", code));
-  return await getDocs(q);
+  const snapshot = await getDocs(q);
+
+  const firstDoc = snapshot.docs[0];
+  if (!firstDoc) {
+    return null;
+  }
+
+  const data = firstDoc.data();
+  return {
+    id: firstDoc.id,
+    name: data.name,
+    code: data.code,
+    ownerIds: data.ownerIds,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  } as Household;
+}
+
+export async function householdCodeExists(code: string): Promise<boolean> {
+  const q = query(collection(db, "households"), where("code", "==", code));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
 }
 
 async function houseCodeGenerator(length: number = 6): Promise<string> {
   const base32Chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let result = "";
-  let isCodeTaken = true;
 
   do {
     result = "";
@@ -50,9 +107,7 @@ async function houseCodeGenerator(length: number = 6): Promise<string> {
       const randomIndex = Math.floor(Math.random() * base32Chars.length);
       result += base32Chars[randomIndex];
     }
-    const codeResult = await getHouseholdByCode(result);
-    isCodeTaken = !codeResult.empty;
-  } while (isCodeTaken);
+  } while (await householdCodeExists(result));
 
   return result;
 }

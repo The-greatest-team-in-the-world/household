@@ -1,12 +1,15 @@
-export const avatarColors = {
-  "🦊": "#E97424",
-  "🐷": "#F4A6B0",
-  "🐸": "#8ED973",
-  "🐥": "#FFD74A",
-  "🐙": "#C063A8",
-  "🐬": "#2996BD",
-  "🦉": "#8B6E4E",
-  "🦄": "#C8A2FF",
-} as const;
+export type Avatar = {
+  emoji: string;
+  color: string;
+};
 
-// const color = avatarColors["🐷"]; // "#F4A6B0"
+export const avatarColors: Avatar[] = [
+  { emoji: "🦊", color: "#E97424" },
+  { emoji: "🐷", color: "#F4A6B0" },
+  { emoji: "🐸", color: "#8ED973" },
+  { emoji: "🐥", color: "#FFD74A" },
+  { emoji: "🐙", color: "#C063A8" },
+  { emoji: "🐬", color: "#2996BD" },
+  { emoji: "🦉", color: "#8B6E4E" },
+  { emoji: "🦄", color: "#C8A2FF" },
+];

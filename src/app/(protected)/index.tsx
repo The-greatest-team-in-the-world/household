@@ -1,3 +1,4 @@
+import { signOutUser } from "@/api/auth";
 import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
@@ -5,7 +6,8 @@ import {
   householdsAtom,
 } from "@/atoms/household-atom";
 import { getMemberByUserIdAtom } from "@/atoms/member-atom";
-import { useNavigation } from "expo-router";
+
+import { router, useNavigation } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -34,7 +36,11 @@ export default function HouseholdsScreen() {
     }
 
     //router.push("/(protected)/day-view");
-    navigation.navigate("DayView");
+  }
+
+  async function handleSignOut() {
+    await signOutUser();
+    router.replace("/(auth)/login");
   }
 
   return (
@@ -42,9 +48,13 @@ export default function HouseholdsScreen() {
       <View style={s.headerContainer}>
         <Text style={s.header}>Dina hushåll</Text>
       </View>
+
       <ScrollView style={s.householdContainer}>
         {(households ?? []).map((h) => (
-          <Pressable key={h.id} onPress={() => handleSelectHousehold(h)}>
+          <Pressable
+            key={h.id}
+            onPress={() => router.push("/(protected)/(top-tabs)/day-view")}
+          >
             <Text style={s.text}>{h.name}</Text>
           </Pressable>
         ))}
@@ -52,15 +62,18 @@ export default function HouseholdsScreen() {
       <View style={s.buttonContainer}>
         <Button
           mode="contained"
-          onPress={() => console.log("Skapa nytt hushåll")}
+          onPress={() => router.push("/(protected)/join-household")}
         >
-          Skapa nytt hushåll
+          joina
         </Button>
         <Button
           mode="contained"
-          onPress={() => console.log("Gå med i hushåll")}
+          onPress={() => router.push("/(protected)/create-household")}
         >
-          Gå med i hushåll
+          skapa
+        </Button>
+        <Button mode="contained" onPress={handleSignOut}>
+          signout
         </Button>
       </View>
     </View>
@@ -76,19 +89,30 @@ const s = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  householdContainer: {
-    padding: 20,
-    gap: 10,
-  },
   buttonContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "center",
-    gap: 10,
+    gap: 20,
   },
   header: {
     fontSize: 45,
   },
   text: {
-    fontSize: 15,
+    fontSize: 20,
   },
+  householdContainer: { paddingHorizontal: 16, marginBottom: 20 },
+  surface: {
+    borderRadius: 10,
+    marginBottom: 10,
+    overflow: "hidden",
+  },
+  surfaceInner: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  icon: { opacity: 0.8 },
+  itemText: { fontSize: 16 },
 });
