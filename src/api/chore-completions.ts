@@ -2,6 +2,8 @@ import { ChoreCompletion } from "@/types/chore-completion";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   serverTimestamp,
 } from "firebase/firestore";
@@ -40,7 +42,46 @@ export async function addChoreCompletion(householdId: string, choreId: string) {
     choreId: choreId,
     userId: auth.currentUser?.uid,
     completedAt: serverTimestamp(),
-    createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function deleteChoreCompletion(
+  householdId: string,
+  choreId: string,
+  userId: string,
+) {
+  const completionsRef = collection(
+    db,
+    "households",
+    householdId,
+    "completions",
+  );
+
+  // Hämta dagens datum
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Hämta alla completions
+  const snapshot = await getDocs(completionsRef);
+
+  // Hitta completion som matchar choreId, userId och är från idag
+  const completionToDelete = snapshot.docs.find((doc) => {
+    const data = doc.data();
+    const completionDate = data.completedAt.toDate();
+    completionDate.setHours(0, 0, 0, 0);
+
+    return (
+      data.choreId === choreId &&
+      data.userId === userId &&
+      completionDate.getTime() === today.getTime()
+    );
+  });
+
+  // Ta bort completion om den hittas
+  if (completionToDelete) {
+    await deleteDoc(
+      doc(db, "households", householdId, "completions", completionToDelete.id),
+    );
+  }
 }
