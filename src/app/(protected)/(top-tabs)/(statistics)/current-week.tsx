@@ -1,16 +1,21 @@
+import { choresAtom } from "@/atoms/chore-atom";
+import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
+import { membersAtom } from "@/atoms/member-atom";
 import PieChart from "@/components/pie-chart";
-import { db } from "@/data/mock-db";
 import { ChoreCompletion } from "@/types/chore-completion";
+import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function StatisticsScreen() {
-  const household = db.households.find((h) => h.id === "house-ankeborg");
+  const allCompletions = useAtomValue(choreCompletionsAtom);
+  const members = useAtomValue(membersAtom);
+  const chores = useAtomValue(choresAtom);
 
-  if (!household) return null;
+  console.log("ANTAL CHORECOMPLETIONS: " + allCompletions.length);
+
+  const choreCompletions = allCompletions;
 
   const pieChartSize = 100;
-
-  const choreCompletions = db.choreCompletions;
 
   const groupedChores: Record<string, ChoreCompletion[]> =
     choreCompletions.reduce<Record<string, ChoreCompletion[]>>((acc, chore) => {
@@ -29,7 +34,9 @@ export default function StatisticsScreen() {
       <View style={s.chartContainerTotal}>
         <PieChart
           total
-          chores={choreCompletions}
+          completedChores={choreCompletions}
+          chores={chores}
+          members={members}
           size={250}
           iconSize={24}
           titleSize={18}
@@ -42,7 +49,13 @@ export default function StatisticsScreen() {
               key={group[0].choreId}
               style={[s.pieChart, { width: pieChartSize }]}
             >
-              <PieChart chores={group} size={pieChartSize} titleSize={12} />
+              <PieChart
+                completedChores={group}
+                chores={chores}
+                members={members}
+                size={pieChartSize}
+                titleSize={12}
+              />
             </View>
           );
         })}
