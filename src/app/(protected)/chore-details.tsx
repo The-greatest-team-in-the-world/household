@@ -88,7 +88,7 @@ export default function ChoreDetailsScreen() {
               name="name"
               rules={{ required: "Namn är obligatoriskt" }}
               render={({ field: { onChange, onBlur, value } }) => (
-                <View style={s.inputContainer}>
+                <View>
                   <TextInput
                     label="Namn"
                     value={value}
@@ -109,7 +109,7 @@ export default function ChoreDetailsScreen() {
               name="description"
               rules={{ required: "Beskrivning är obligatoriskt" }}
               render={({ field: { onChange, onBlur, value } }) => (
-                <View style={s.inputContainer}>
+                <View>
                   <TextInput
                     label="Beskrivning"
                     value={value}
@@ -137,7 +137,7 @@ export default function ChoreDetailsScreen() {
                 min: { value: 1, message: "Frekvens måste vara minst 1" },
               }}
               render={({ field: { onChange, onBlur, value } }) => (
-                <View style={s.inputContainer}>
+                <View>
                   <TextInput
                     label="Återkommer var (dagar)"
                     value={value?.toString() || ""}
