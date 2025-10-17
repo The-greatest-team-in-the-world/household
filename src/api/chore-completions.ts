@@ -13,8 +13,13 @@ export async function getAllCompletions(
   );
   const snapshot = await getDocs(completionsRef);
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as ChoreCompletion[];
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      choreId: data.choreId,
+      userId: data.userId,
+      completedAt: data.completedAt,
+    } as ChoreCompletion;
+  });
 }
