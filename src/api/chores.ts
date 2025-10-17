@@ -1,5 +1,12 @@
 import { Chore } from "@/types/chore";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase-config";
 
 export async function getChores(householdId: string): Promise<Chore[]> {
@@ -27,4 +34,16 @@ export async function getChoreById(
   }
 
   return null;
+}
+
+export async function updateChore(
+  householdId: string,
+  choreId: string,
+  data: Partial<Pick<Chore, "name" | "description" | "frequency" | "effort">>,
+): Promise<void> {
+  const choreRef = doc(db, "households", householdId, "chores", choreId);
+  await updateDoc(choreRef, {
+    ...data,
+    updatedAt: Timestamp.now(),
+  });
 }
