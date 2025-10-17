@@ -4,6 +4,7 @@ import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, StyleSheet, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
 
 type ChoreFormData = {
@@ -80,94 +81,99 @@ export default function ChoreDetailsScreen() {
             <Icon source="trash-can-outline" color="000" size={20} />
           </Pressable>
         </View>
-        <View style={s.formContainer}>
-          <Controller
-            control={control}
-            name="name"
-            rules={{ required: "Namn är obligatoriskt" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={s.inputContainer}>
-                <TextInput
-                  label="Namn"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  error={!!errors.name}
-                />
-                {errors.name && (
-                  <Text style={s.errorText}>{errors.name.message}</Text>
-                )}
-              </View>
-            )}
-          />
+        <KeyboardAwareScrollView>
+          <View style={s.formContainer}>
+            <Controller
+              control={control}
+              name="name"
+              rules={{ required: "Namn är obligatoriskt" }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={s.inputContainer}>
+                  <TextInput
+                    label="Namn"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    mode="outlined"
+                    error={!!errors.name}
+                  />
+                  {errors.name && (
+                    <Text style={s.errorText}>{errors.name.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="description"
-            rules={{ required: "Beskrivning är obligatoriskt" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={s.inputContainer}>
-                <TextInput
-                  label="Beskrivning"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  multiline
-                  numberOfLines={4}
-                  error={!!errors.description}
-                />
-                {errors.description && (
-                  <Text style={s.errorText}>{errors.description.message}</Text>
-                )}
-              </View>
-            )}
-          />
+            <Controller
+              control={control}
+              name="description"
+              rules={{ required: "Beskrivning är obligatoriskt" }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={s.inputContainer}>
+                  <TextInput
+                    label="Beskrivning"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    mode="outlined"
+                    multiline
+                    numberOfLines={4}
+                    error={!!errors.description}
+                  />
+                  {errors.description && (
+                    <Text style={s.errorText}>
+                      {errors.description.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="frequency"
-            rules={{
-              required: "Frekvens är obligatoriskt",
-              min: { value: 1, message: "Frekvens måste vara minst 1" },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={s.inputContainer}>
-                <TextInput
-                  label="Återkommer var (dagar)"
-                  value={value?.toString() || ""}
-                  onChangeText={(text) => onChange(parseInt(text) || 0)}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  error={!!errors.frequency}
-                />
-                {errors.frequency && (
-                  <Text style={s.errorText}>{errors.frequency.message}</Text>
-                )}
-              </View>
-            )}
-          />
+            <Controller
+              control={control}
+              name="frequency"
+              rules={{
+                required: "Frekvens är obligatoriskt",
+                min: { value: 1, message: "Frekvens måste vara minst 1" },
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={s.inputContainer}>
+                  <TextInput
+                    label="Återkommer var (dagar)"
+                    value={value?.toString() || ""}
+                    onChangeText={(text) => onChange(parseInt(text) || 0)}
+                    onBlur={onBlur}
+                    mode="outlined"
+                    keyboardType="numeric"
+                    error={!!errors.frequency}
+                  />
+                  {errors.frequency && (
+                    <Text style={s.errorText}>{errors.frequency.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="effort"
-            render={({ field: { onChange, value } }) => (
-              <View style={s.inputContainer}>
-                <SegmentedButtonsComponent
-                  value={value?.toString() || ""}
-                  onValueChange={(newValue) =>
-                    onChange(parseInt(newValue) || 0)
-                  }
-                />
-                {errors.effort && (
-                  <Text style={s.errorText}>{errors.effort.message}</Text>
-                )}
-              </View>
-            )}
-          />
-        </View>
+            <Controller
+              control={control}
+              name="effort"
+              render={({ field: { onChange, value } }) => (
+                <View style={s.inputContainer}>
+                  <Text style={s.text}>Värde (poäng)</Text>
+                  <SegmentedButtonsComponent
+                    value={value?.toString() || ""}
+                    onValueChange={(newValue) =>
+                      onChange(parseInt(newValue) || 0)
+                    }
+                  />
+                  {errors.effort && (
+                    <Text style={s.errorText}>{errors.effort.message}</Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+        </KeyboardAwareScrollView>
       </View>
 
       <View style={s.saveCancelButtonsContainer}>
@@ -305,6 +311,7 @@ const s = StyleSheet.create({
   },
   inputContainer: {
     gap: 4,
+    width: "100%",
   },
   errorText: {
     color: "#d03f3fff",
