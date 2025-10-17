@@ -1,9 +1,11 @@
+import { signOutUser } from "@/api/auth";
 import {
   currentHouseholdAtom,
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
-import { useNavigation, router } from "expo-router";
+
+import { router, useNavigation } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -24,7 +26,11 @@ export default function HouseholdsScreen() {
   function handleSelectHousehold(h: any) {
     setCurrentHousehold(h);
     //router.push("/(protected)/day-view");
-    navigation.navigate("DayView");
+  }
+
+  async function handleSignOut() {
+    await signOutUser();
+    router.replace("/(auth)/login");
   }
 
   return (
@@ -34,7 +40,10 @@ export default function HouseholdsScreen() {
       </View>
       <ScrollView style={s.householdContainer}>
         {(households ?? []).map((h) => (
-          <Pressable key={h.id} onPress={() => handleSelectHousehold(h)}>
+          <Pressable
+            key={h.id}
+            onPress={() => router.push("/(protected)/(top-tabs)/day-view")}
+          >
             <Text style={s.text}>{h.name}</Text>
           </Pressable>
         ))}
@@ -51,6 +60,9 @@ export default function HouseholdsScreen() {
           onPress={() => router.push("/(protected)/create-household")}
         >
           skapa
+        </Button>
+        <Button mode="contained" onPress={handleSignOut}>
+          signout
         </Button>
       </View>
     </View>

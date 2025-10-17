@@ -1,8 +1,12 @@
 import { getHouseholdByCode } from "@/api/households";
+import { addNewMemberToHousehold, getMembers } from "@/api/members";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
+import { avatarColors } from "@/data/avatar-index";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Household } from "@/types/household";
+import { Avatar } from "@/types/household-member";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
@@ -16,16 +20,18 @@ const details = z.object({
     .string({ required_error: "Ange en kod" })
     .min(6, "Ange en kod men minst 6 tecken"),
   avatar: z.enum(avatarEmojis, {
-    errorMap: () => ({ message: "Välj en avatar" }),
+    errorMap: () => ({ message: "Välj en avatar!" }),
   }),
   nickName: z
-    .string({ required_error: "Ange ett smeknamn" })
-    .min(1, "Ditt smeknamn måste innehålla minst en bokstav"),
+    .string({ required_error: "Ange ett smeknamn!" })
+    .min(1, "Ditt smeknamn måste innehålla minst 1 bokstav"),
 });
 
 type FormFields = z.infer<typeof details>;
+
 export default function JoinHouseholdScreen() {
   const [loading, setLoading] = useState(false);
+  const [filteredAvatars, setFilteredAvatars] = useState<Avatar[]>([]);
   const [household, setHousehold] = useState<Household | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const {
@@ -38,8 +44,17 @@ export default function JoinHouseholdScreen() {
   const debouncedInput = useDebounce(codeInput, 1000);
 
   useEffect(() => {
+    async function filterAvatars(household: Household) {
+      const members = await getMembers(household.id);
+      const avatars = members.map((a) => a.avatar.emoji);
+
+      // Filter retunerar de avatarer där predicatet blir true, dvs de som inte finns i familjen
+      // De som finns i familjen kommer att retunera false
+      return avatarColors.filter((a) => !avatars.includes(a.emoji));
+    }
+
     const fetchHousehold = async () => {
-      // Är debounceinput tom eller har färre än 6 tecken gör ingenting
+      // Är debounce-input tom eller har färre än 6 tecken sätt till null
       if (!debouncedInput || debouncedInput.length < 6) {
         setHousehold(null);
         return;
@@ -49,13 +64,43 @@ export default function JoinHouseholdScreen() {
       const result = await getHouseholdByCode(debouncedInput);
       console.log("result är:", result);
       setHousehold(result);
+
+      // Använd hushållet och sortera bort upptagna emojis
+      if (result) {
+        setFilteredAvatars(await filterAvatars(result));
+      }
       setLoading(false);
     };
 
     fetchHousehold();
   }, [debouncedInput]);
 
-  const onSubmit: SubmitHandler<FormFields> = () => {};
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    // Kontrollera att household och household.id finns
+    if (!household || !household.id) {
+      return;
+    }
+
+    const selectedAvatar = avatarColors.find((a) => a.emoji === data.avatar);
+    if (!selectedAvatar) {
+      return;
+    }
+
+    try {
+      await addNewMemberToHousehold(
+        household.id,
+        selectedAvatar,
+        data.nickName,
+        false,
+        false,
+        "pending",
+      );
+      reset();
+      router.replace("/(protected)");
+    } catch (error) {
+      console.error("Error adding member:", error);
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -64,7 +109,7 @@ export default function JoinHouseholdScreen() {
       enableOnAndroid={true}
       extraScrollHeight={20}
     >
-      <View>
+      <View style={s.formContainer}>
         <Controller
           control={control}
           render={({ field: { onBlur, onChange, value } }) => (
@@ -89,9 +134,7 @@ export default function JoinHouseholdScreen() {
         {loading && <Text>Söker...</Text>}
 
         {!loading && household && (
-          <Text style={s.foundHousehold}>
-            Hushåll hittades: {household.name}
-          </Text>
+          <Text style={s.foundHousehold}>Success!: {household.name}</Text>
         )}
 
         {!loading &&
@@ -128,7 +171,11 @@ export default function JoinHouseholdScreen() {
               render={({ field: { onChange, value } }) => (
                 <View>
                   <Text style={s.title}>Välj din avatar: </Text>
-                  <AvatarPressablePicker onChange={onChange} value={value} />
+                  <AvatarPressablePicker
+                    onChange={(avatar) => onChange(avatar.emoji)}
+                    value={avatarColors.find((a) => a.emoji === value)}
+                    avatars={filteredAvatars}
+                  />
                 </View>
               )}
               name="avatar"
@@ -136,7 +183,11 @@ export default function JoinHouseholdScreen() {
             {errors.avatar && (
               <Text style={s.errorText}>{errors.avatar.message}</Text>
             )}
-            <Button mode="contained" onPress={handleSubmit(onSubmit)}>
+            <Button
+              disabled={isSubmitting}
+              mode="contained"
+              onPress={handleSubmit(onSubmit)}
+            >
               Gå med!
             </Button>
           </View>

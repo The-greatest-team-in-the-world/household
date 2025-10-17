@@ -1,4 +1,4 @@
-import { HouseholdMember } from "@/types/household-member";
+import { Avatar, HouseholdMember } from "@/types/household-member";
 import { getAuth } from "@firebase/auth";
 import {
   addDoc,
@@ -20,7 +20,7 @@ export async function getMembers(
 
 export async function addNewMemberToHousehold(
   householdId: string,
-  avatar: { emoji: string; color: string },
+  avatar: Avatar,
   nickName: string,
   isPaused: boolean,
   isOwner: boolean,

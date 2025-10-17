@@ -11,17 +11,22 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { Button, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
-export const avatarEmojis = Object.keys(avatarColors) as [
-  keyof typeof avatarColors,
-  ...(keyof typeof avatarColors)[],
+// Extraherar alla emojis från avatarColors-arrayen för validering
+export const avatarEmojis = avatarColors.map((a) => a.emoji) as [
+  string,
+  ...string[],
 ];
 
 const newHouseHold = z.object({
-  householdName: z.string().min(1, "Namnge hushållet"),
+  householdName: z
+    .string({ required_error: "Namnge hushållet!" })
+    .min(1, "Namnet måste vara minst 1 tecken!"),
   avatar: z.enum(avatarEmojis, {
-    errorMap: () => ({ message: "Välj en avatar" }),
+    errorMap: () => ({ message: "Välj en avatar!" }),
   }),
-  nickName: z.string().min(1, "Ange ett smeknamn"),
+  nickName: z
+    .string({ required_error: "Ange ett smeknamn!" })
+    .min(1, "Ditt smeknamn måste vara minst 1 tecken!"),
 });
 
 type FormFields = z.infer<typeof newHouseHold>;
@@ -40,13 +45,15 @@ export default function CreateHousholdScreen() {
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       const householdId = await createNewHousehold(data.householdName);
+      // Hitta avatar-objektet som matchar vald emoji
+      const selectedAvatar = avatarColors.find((a) => a.emoji === data.avatar);
+      if (!selectedAvatar) {
+        return;
+      }
+
       await addNewMemberToHousehold(
         householdId,
-        {
-          emoji: data.avatar,
-          // Slå upp färgen från avatarColors-objektet baserat på vald emoji (Gippyhjälp)
-          color: avatarColors[data.avatar as keyof typeof avatarColors],
-        },
+        selectedAvatar,
         data.nickName,
         false, // isPaused
         true, // IsOwner
@@ -83,7 +90,9 @@ export default function CreateHousholdScreen() {
           )}
           name="householdName"
         />
-        {errors.householdName && <Text>{errors.householdName.message}</Text>}
+        {errors.householdName && (
+          <Text style={s.errorText}>{errors.householdName.message}</Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -100,18 +109,26 @@ export default function CreateHousholdScreen() {
           )}
           name="nickName"
         />
-        {errors.nickName && <Text>{errors.nickName.message}</Text>}
+        {errors.nickName && (
+          <Text style={s.errorText}>{errors.nickName.message}</Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, value } }) => (
             <View>
               <Text style={s.title}>Välj din avatar:</Text>
-              <AvatarPressablePicker onChange={onChange} value={value} />
+              <AvatarPressablePicker
+                onChange={(avatar) => onChange(avatar.emoji)}
+                value={avatarColors.find((a) => a.emoji === value)}
+                avatars={avatarColors}
+              />
             </View>
           )}
           name="avatar"
         />
-        {errors.avatar && <Text>{errors.avatar.message}</Text>}
+        {errors.avatar && (
+          <Text style={s.errorText}>{errors.avatar.message}</Text>
+        )}
         <Button
           mode="contained"
           disabled={isSubmitting}
@@ -136,5 +153,10 @@ const s = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     fontWeight: 700,
+  },
+  errorText: {
+    fontSize: 15,
+    fontWeight: 700,
+    color: "red",
   },
 });

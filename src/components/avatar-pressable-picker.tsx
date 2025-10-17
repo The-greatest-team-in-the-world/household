@@ -1,30 +1,32 @@
-import { avatarColors } from "@/data/avatar-index";
+import { Avatar } from "@/types/household-member";
 import { Dimensions, FlatList, Pressable, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 
 interface AvatarPressableProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: Avatar | undefined;
+  onChange: (value: Avatar) => void;
+  avatars: Avatar[];
 }
-
-//https://reactnative.dev/docs/dimensions + gippy, kolla upp mer!
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const BUTTON_SIZE = (SCREEN_WIDTH - 80) / 4; // 80 = padding + margins
 
 export const AvatarPressablePicker = ({
   onChange,
   value,
+  avatars,
 }: AvatarPressableProps) => {
+  //https://reactnative.dev/docs/dimensions kolla upp mer!
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+  const BUTTON_SIZE = (SCREEN_WIDTH - 80) / 4; // 80 = padding + margins
+
   return (
     <FlatList
-      data={Object.entries(avatarColors)}
+      data={avatars}
       numColumns={4}
-      keyExtractor={([emoji]) => emoji}
-      renderItem={({ item: [emoji, color] }) => (
+      keyExtractor={(e) => e.emoji}
+      renderItem={(renderItem) => (
         <Pressable
           style={[
             {
-              backgroundColor: color,
+              backgroundColor: renderItem.item.color,
               width: BUTTON_SIZE,
               height: BUTTON_SIZE,
               borderRadius: 15,
@@ -33,15 +35,13 @@ export const AvatarPressablePicker = ({
             },
             // Om en avatar är vald OCH det inte är denna → tona ner
             value &&
-              value !== emoji && {
+              value.emoji !== renderItem.item.emoji && {
                 opacity: 0.3,
               },
           ]}
-          onPress={(e) => {
-            onChange(emoji);
-          }}
+          onPress={() => onChange(renderItem.item)}
         >
-          <Text style={s.avatarEmoji}>{emoji}</Text>
+          <Text style={s.avatarEmoji}>{renderItem.item.emoji}</Text>
         </Pressable>
       )}
       columnWrapperStyle={s.row}

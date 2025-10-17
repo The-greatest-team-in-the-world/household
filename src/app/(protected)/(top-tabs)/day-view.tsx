@@ -1,4 +1,3 @@
-import { signInUser, signOutUser } from "@/api/auth";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
@@ -9,10 +8,9 @@ import {
   getDaysSinceLastCompletion,
 } from "@/utils/chore-helpers";
 import getMemberAvatar from "@/utils/get-member-avatar";
-import { Link, router } from "expo-router";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
 
 const mockHouseholdId = "household-team-greatest";
 
@@ -118,9 +116,6 @@ export default function DayViewScreen() {
           onPress={() => console.log("Mina sysslor")}
         />
       </View>
-      <Link href="/(protected)/chore-details" replace asChild>
-        <Button mode="contained">detail screen</Button>
-      </Link>
     </View>
   );
 }
