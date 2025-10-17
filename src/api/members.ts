@@ -29,6 +29,7 @@ export async function addNewMemberToHousehold(
   // Skapa subcollection: households/{householdId}/members
   await addDoc(collection(db, "households", householdId, "members"), {
     userId: auth.currentUser?.uid,
+    householdId: householdId,
     status: status,
     isOwner: isOwner,
     isPaused: isPaused,
