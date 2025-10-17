@@ -1,3 +1,4 @@
+import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
@@ -6,28 +7,26 @@ import { ChoreCompletion } from "@/types/chore-completion";
 import {
   getDaysOverdue,
   getDaysSinceLastCompletion,
+  getTodaysCompletions,
 } from "@/utils/chore-helpers";
 import getMemberAvatar from "@/utils/get-member-avatar";
+import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 
-const mockHouseholdId = "household-team-greatest";
-
 export default function DayViewScreen() {
+  const currentHousehold = useAtomValue(currentHouseholdAtom);
+
+  const householdId = currentHousehold?.id;
+
   const { chores, completions, incompleteChores, members, isLoading } =
-    useHouseholdData(mockHouseholdId);
+    useHouseholdData(householdId || "");
 
   const todaysCompletions = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return completions.filter((completion) => {
-      const completedDate = completion.completedAt.toDate();
-      completedDate.setHours(0, 0, 0, 0);
-      return completedDate.getTime() === today.getTime();
-    });
-  }, [completions]);
+    if (!householdId) return [];
+    return getTodaysCompletions(completions);
+  }, [completions, householdId]);
 
   const getChoreName = (choreId: string): string => {
     const chore = chores.find((c) => c.id === choreId);
@@ -39,6 +38,7 @@ export default function DayViewScreen() {
     return (
       <ChoreCard
         key={completion.id}
+        choreId={completion.choreId}
         choreName={getChoreName(completion.choreId)}
         displayType="avatar"
         displayValue={avatar.emoji}
@@ -57,6 +57,7 @@ export default function DayViewScreen() {
     return (
       <ChoreCard
         key={chore.id}
+        choreId={chore.id}
         choreName={chore.name}
         displayType="days"
         displayValue={daysSinceCompletion.toString()}
@@ -106,14 +107,14 @@ export default function DayViewScreen() {
         <CustomPaperButton
           icon="information-outline"
           text="Mer info"
-          color="#06BA63"
           onPress={() => console.log("Mer info")}
+          mode="outlined"
         />
         <CustomPaperButton
           icon="account-details-outline"
           text="Mina sysslor"
-          color="#06BA63"
           onPress={() => console.log("Mina sysslor")}
+          mode="outlined"
         />
       </View>
     </View>

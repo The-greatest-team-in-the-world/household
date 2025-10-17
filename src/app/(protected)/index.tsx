@@ -1,31 +1,36 @@
 import { signOutUser } from "@/api/auth";
+import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
+import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Surface } from "react-native-paper";
+import { Button } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
-  //const router = useRouter();
-
-  const navigation = useNavigation<any>();
+  const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
+  const user = useAtomValue(userAtom);
 
   useEffect(() => {
     getHouseholds();
   }, [getHouseholds]);
 
-  function handleSelectHousehold(h: any) {
+  async function handleSelectHousehold(h: any) {
+    if (user) {
+      await getMemberByUserId({ householdId: h.id, userId: user.uid });
+    }
     setCurrentHousehold(h);
-    //router.push("/(protected)/day-view");
+
+    router.push("/(protected)/(top-tabs)/day-view");
   }
 
   async function handleSignOut() {
@@ -41,10 +46,7 @@ export default function HouseholdsScreen() {
 
       <ScrollView style={s.householdContainer}>
         {(households ?? []).map((h) => (
-          <Pressable
-            key={h.id}
-            onPress={() => router.push("/(protected)/(top-tabs)/day-view")}
-          >
+          <Pressable key={h.id} onPress={() => handleSelectHousehold(h)}>
             <Text style={s.text}>{h.name}</Text>
           </Pressable>
         ))}
