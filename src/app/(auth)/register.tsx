@@ -1,11 +1,9 @@
 import { registerUser } from "@/api/auth";
-import { updateUserAtom } from "@/atoms/auth-atoms";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getAuth } from "firebase/auth";
-import { useSetAtom } from "jotai";
+import { Link } from "expo-router";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
@@ -74,20 +72,20 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={s.scrollContent}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid={true}
       extraScrollHeight={20}
     >
-      <View style={styles.container}>
-        <Surface style={styles.surface} elevation={4}>
-          <Text style={styles.infoText}>Bli medlem!</Text>
+      <View style={s.container}>
+        <Surface style={s.surface} elevation={4}>
+          <Text style={s.infoText}>Bli medlem!</Text>
           <Image
             source={require("../../assets/images/houseHoldTransparent.png")}
-            style={styles.image}
+            style={s.image}
           />
         </Surface>
-        <Text style={styles.infoText}>Skapa konto</Text>
+        <Text style={s.infoText}>Skapa konto</Text>
         {firebaseError && (
           <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
         )}
@@ -95,13 +93,13 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Namn: </Text>
+              <Text style={s.inputTitle}>Namn: </Text>
               <TextInput
                 placeholder="Namn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 autoCapitalize="words"
               />
             </View>
@@ -113,13 +111,13 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Epost: </Text>
+              <Text style={s.inputTitle}>Epost: </Text>
               <TextInput
                 placeholder="Epost"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -132,20 +130,17 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Lösenord: </Text>
+              <Text style={s.inputTitle}>Lösenord: </Text>
               <TextInput
                 placeholder="Lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 secureTextEntry={passwordVisibility}
                 autoCapitalize="none"
               />
-              <Pressable
-                onPress={handlePasswordVisibility}
-                style={styles.eyeIcon}
-              >
+              <Pressable onPress={handlePasswordVisibility} style={s.eyeIcon}>
                 <MaterialCommunityIcons
                   name={rightIcon}
                   size={20}
@@ -162,19 +157,19 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Upprepa lösenord: </Text>
+              <Text style={s.inputTitle}>Upprepa lösenord: </Text>
               <TextInput
                 placeholder="Upprepa lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 secureTextEntry={confirmPasswordVisibility}
                 autoCapitalize="none"
               />
               <Pressable
                 onPress={confirmHandlePasswordVisibility}
-                style={styles.eyeIcon}
+                style={s.eyeIcon}
               >
                 <MaterialCommunityIcons
                   name={confirmRightIcon}
@@ -189,20 +184,24 @@ export default function RegisterScreen() {
         {errors.confirmPassword && (
           <Text>{errors.confirmPassword.message}</Text>
         )}
-
-        <Button
-          mode="contained"
-          disabled={isSubmitting}
-          onPress={handleSubmit(onSubmit)}
-        >
-          Skapa konto
-        </Button>
+        <View style={s.actions}>
+          <Button
+            mode="contained"
+            disabled={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+          >
+            Skapa konto
+          </Button>
+          <Link href="/(auth)/login">
+            <Text style={s.login}>Redan medlem? logga in här.</Text>
+          </Link>
+        </View>
       </View>
     </KeyboardAwareScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
@@ -232,10 +231,22 @@ const styles = StyleSheet.create({
   },
   inputField: {
     paddingRight: 40,
+    height: 50,
   },
   eyeIcon: {
     position: "absolute",
     right: 20,
     top: 35,
+  },
+  login: {
+    textAlign: "center",
+    textDecorationLine: "underline",
+    fontWeight: 700,
+    fontSize: 15,
+    paddingTop: 10,
+  },
+  actions: {
+    padding: 20,
+    gap: 15,
   },
 });

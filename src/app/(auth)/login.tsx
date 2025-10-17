@@ -54,20 +54,20 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={s.scrollContent}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid={true}
       extraScrollHeight={20}
     >
-      <View style={styles.container}>
-        <Surface style={styles.surface} elevation={4}>
-          <Text style={styles.infoText}>Välkommen till hushållet!</Text>
+      <View style={s.container}>
+        <Surface style={s.surface} elevation={4}>
+          <Text style={s.infoText}>Välkommen till hushållet!</Text>
           <Image
             source={require("../../assets/images/houseHoldTransparent.png")}
-            style={styles.image}
+            style={s.image}
           />
         </Surface>
-        <Text style={styles.infoText}>Logga in</Text>
+        <Text style={s.infoText}>Logga in</Text>
         {firebaseError && (
           <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
         )}
@@ -75,13 +75,13 @@ export default function LoginScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Epost: </Text>
+              <Text style={s.inputTitle}>Epost: </Text>
               <TextInput
                 placeholder="Epost"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -94,20 +94,17 @@ export default function LoginScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Lösenord: </Text>
+              <Text style={s.inputTitle}>Lösenord: </Text>
               <TextInput
                 placeholder="Lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 autoCapitalize="none"
                 secureTextEntry={passwordVisibility}
               />
-              <Pressable
-                onPress={handlePasswordVisibility}
-                style={styles.eyeIcon}
-              >
+              <Pressable onPress={handlePasswordVisibility} style={s.eyeIcon}>
                 <MaterialCommunityIcons
                   name={rightIcon}
                   size={20}
@@ -119,33 +116,30 @@ export default function LoginScreen() {
           name="password"
         />
         {errors.password && <Text>{errors.password.message}</Text>}
-        <Link href={"/"}>
-          <Text style={styles.resetLinkText}>
-            Glömt ditt lösenord? Klicka här.
-          </Text>
-        </Link>
-        <Button
-          mode="contained"
-          disabled={isSubmitting}
-          onPress={handleSubmit(onSubmit)}
-        >
-          Logga in
-        </Button>
-        <Link href="/(auth)/register" replace asChild>
-          <Button mode="contained">Skapa konto</Button>
-        </Link>
+        <View style={s.actions}>
+          <Button
+            mode="contained"
+            disabled={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+          >
+            Logga in
+          </Button>
+          <Link href="/(auth)/register">
+            <Text style={s.createAccount}>Inte medlem? Skapa konto här.</Text>
+          </Link>
+        </View>
       </View>
     </KeyboardAwareScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
   container: {
     padding: 20,
-    gap: 10,
+    gap: 15,
   },
   surface: {
     alignItems: "center",
@@ -166,6 +160,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     paddingRight: 40,
+    height: 50,
   },
   resetLinkText: {
     textAlign: "center",
@@ -175,5 +170,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     top: 35,
+  },
+  createAccount: {
+    textAlign: "center",
+    textDecorationLine: "underline",
+    fontWeight: 700,
+    fontSize: 15,
+    paddingTop: 10,
+  },
+  actions: {
+    padding: 20,
+    gap: 15,
   },
 });
