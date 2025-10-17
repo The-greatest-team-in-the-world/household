@@ -158,7 +158,7 @@ export default function ChoreDetailsScreen() {
               control={control}
               name="effort"
               render={({ field: { onChange, value } }) => (
-                <View style={s.inputContainer}>
+                <View>
                   <Text style={s.text}>Värde (poäng)</Text>
                   <SegmentedButtonsComponent
                     value={value?.toString() || ""}
@@ -308,10 +308,6 @@ const s = StyleSheet.create({
   formContainer: {
     gap: 16,
     marginTop: 16,
-  },
-  inputContainer: {
-    gap: 4,
-    width: "100%",
   },
   errorText: {
     color: "#d03f3fff",
