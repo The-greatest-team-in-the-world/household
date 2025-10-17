@@ -116,7 +116,7 @@ export default function ChoreDetailsScreen() {
                     onChangeText={onChange}
                     onBlur={onBlur}
                     mode="outlined"
-                    multiline
+                    multiline={true}
                     numberOfLines={4}
                     error={!!errors.description}
                   />
@@ -132,20 +132,23 @@ export default function ChoreDetailsScreen() {
             <Controller
               control={control}
               name="frequency"
-              rules={{
-                required: "Frekvens är obligatoriskt",
-                min: { value: 1, message: "Frekvens måste vara minst 1" },
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <View>
-                  <TextInput
-                    label="Återkommer var (dagar)"
+                  <Text style={s.editText}>Återkommer var (dagar)</Text>
+                  <SegmentedButtonsComponent
                     value={value?.toString() || ""}
-                    onChangeText={(text) => onChange(parseInt(text) || 0)}
-                    onBlur={onBlur}
-                    mode="outlined"
-                    keyboardType="numeric"
-                    error={!!errors.frequency}
+                    onValueChange={(newValue) =>
+                      onChange(parseInt(newValue) || 0)
+                    }
+                    options={[
+                      { value: "1", label: "1" },
+                      { value: "2", label: "2" },
+                      { value: "3", label: "3" },
+                      { value: "4", label: "4" },
+                      { value: "5", label: "5" },
+                      { value: "6", label: "6" },
+                      { value: "7", label: "7" },
+                    ]}
                   />
                   {errors.frequency && (
                     <Text style={s.errorText}>{errors.frequency.message}</Text>
@@ -159,7 +162,7 @@ export default function ChoreDetailsScreen() {
               name="effort"
               render={({ field: { onChange, value } }) => (
                 <View>
-                  <Text style={s.text}>Värde (poäng)</Text>
+                  <Text style={s.editText}>Värde (poäng)</Text>
                   <SegmentedButtonsComponent
                     value={value?.toString() || ""}
                     onValueChange={(newValue) =>
@@ -299,6 +302,11 @@ const s = StyleSheet.create({
   text: {
     fontSize: 18,
     padding: 2,
+  },
+  editText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 5,
   },
   titleText: {
     fontSize: 18,
