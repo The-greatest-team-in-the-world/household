@@ -1,13 +1,12 @@
 import { db } from "@/../firebase-config";
 import { Household } from "@/types/household";
 import { getAuth } from "@firebase/auth";
-import { HouseholdMember } from "@/types/household-member";
 import {
+  addDoc,
+  collection,
   collectionGroup,
   doc,
   getDoc,
-  addDoc,
-  collection,
   getDocs,
   query,
   serverTimestamp,
@@ -26,10 +25,13 @@ export async function getUsersHouseholds(
   if (snap.empty) return [];
 
   // Extrahera householdIds från member-data
-  const membersByHouseholdId = new Map<string, HouseholdMember>();
+  const membersByHouseholdId = new Map<string, { isOwner: boolean }>();
   snap.docs.forEach((mdoc) => {
-    const memberData = mdoc.data() as HouseholdMember;
-    membersByHouseholdId.set(memberData.householdId, memberData);
+    const data = mdoc.data();
+    const householdId = data.householdId;
+    if (householdId && typeof householdId === "string") {
+      membersByHouseholdId.set(householdId, { isOwner: data.isOwner });
+    }
   });
 
   // Hämta alla households
@@ -40,9 +42,14 @@ export async function getUsersHouseholds(
       if (!hsnap.exists()) return null;
 
       const memberData = membersByHouseholdId.get(hId)!;
+      const hdata = hsnap.data();
       return {
         id: hsnap.id,
-        ...hsnap.data(),
+        name: hdata.name,
+        code: hdata.code,
+        ownerIds: hdata.ownerIds,
+        createdAt: hdata.createdAt,
+        updatedAt: hdata.updatedAt,
         isOwner: memberData.isOwner,
       } as Household & { isOwner: boolean };
     }),
@@ -68,13 +75,19 @@ export async function getHouseholdByCode(code: string) {
   const q = query(collection(db, "households"), where("code", "==", code));
   const snapshot = await getDocs(q);
 
-  if (snapshot.empty) {
+  const firstDoc = snapshot.docs[0];
+  if (!firstDoc) {
     return null;
   }
 
+  const data = firstDoc.data();
   return {
-    id: snapshot.docs[0].id,
-    ...snapshot.docs[0].data(),
+    id: firstDoc.id,
+    name: data.name,
+    code: data.code,
+    ownerIds: data.ownerIds,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
   } as Household;
 }
 
