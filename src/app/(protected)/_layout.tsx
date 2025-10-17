@@ -1,5 +1,4 @@
 import { authStateAtom } from "@/atoms/auth-atoms";
-import { db } from "@/data/mock-db";
 import { Redirect, Stack } from "expo-router";
 import { useAtomValue } from "jotai";
 
@@ -11,10 +10,6 @@ export default function ProtectedLayout() {
   if (!authState.isAuthenticated) {
     return <Redirect href="../(auth)/login" />;
   }
-
-  const household = db.households.find((h) => h.id === "house-ankeborg");
-
-  if (!household) return null;
 
   return (
     <Stack>
