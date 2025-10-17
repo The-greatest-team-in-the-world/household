@@ -143,6 +143,7 @@ const s = StyleSheet.create({
   },
   surface: {
     alignItems: "center",
+    elevation: 4,
     borderRadius: 20,
     padding: 10,
   },

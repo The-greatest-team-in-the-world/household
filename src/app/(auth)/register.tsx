@@ -213,6 +213,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     borderRadius: 20,
     padding: 10,
+    elevation: 4,
   },
   image: {
     height: 200,
