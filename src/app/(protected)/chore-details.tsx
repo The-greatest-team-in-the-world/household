@@ -1,14 +1,20 @@
-import { addChoreCompletion, getAllCompletions } from "@/api/chore-completions";
+import {
+  addChoreCompletion,
+  deleteChoreCompletion,
+  getAllCompletions,
+} from "@/api/chore-completions";
 import { updateChore } from "@/api/chores";
 import { selectedChoreAtom } from "@/atoms/chore-atom";
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
+import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
+import { isChoreCompletedToday } from "@/utils/chore-helpers";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
-import { Divider, Surface, Text, TextInput } from "react-native-paper";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
 
 // När man trycker bakåtknapp landar vi inte på day-view utan hushållsvyn
 
@@ -21,11 +27,27 @@ type ChoreFormData = {
 
 export default function ChoreDetailsScreen() {
   const selectedChore = useAtomValue(selectedChoreAtom);
-  const currentUser = useAtomValue(currentHouseholdMember);
+  const currentMember = useAtomValue(currentHouseholdMember);
+  const choreCompletions = useAtomValue(choreCompletionsAtom);
   const setCompletions = useSetAtom(choreCompletionsAtom);
-  const householdId = currentUser?.householdId || "";
+  const setSelectedChore = useSetAtom(selectedChoreAtom);
+  const householdId = currentMember?.householdId || "";
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  // Kolla om sysslan är klar baserat på dagens completions
+  useEffect(() => {
+    if (!selectedChore || !currentMember) return;
+
+    const isCompleted = isChoreCompletedToday(
+      selectedChore.id,
+      currentMember.userId,
+      choreCompletions,
+    );
+
+    setIsCompleted(isCompleted);
+  }, [selectedChore, currentMember, choreCompletions]);
 
   const {
     control,
@@ -36,15 +58,30 @@ export default function ChoreDetailsScreen() {
       name: selectedChore?.name || "",
       description: selectedChore?.description || "",
       frequency: selectedChore?.frequency || 0,
-      effort: selectedChore?.effort || 0,
+      effort: selectedChore?.effort || 1,
     },
   });
 
-  const handlePressDone = async (choreId: string) => {
-    await addChoreCompletion(householdId, choreId);
-    const updatedCompletions = await getAllCompletions(householdId);
-    setCompletions(updatedCompletions);
-    // TODO : Navigera tillbaka till day-view
+  // console.log("is owner:", currentMember?.isOwner);
+
+  const handleToggleCompletion = async (choreId: string) => {
+    if (!currentMember) return;
+
+    if (!isCompleted) {
+      // Markera som klar
+      console.log("Markera som klar");
+      await addChoreCompletion(householdId, choreId);
+      const updatedCompletions = await getAllCompletions(householdId);
+      setCompletions(updatedCompletions);
+      setIsCompleted(true);
+    } else {
+      // Ta bort klarmarkering
+      console.log("Ta bort klarmarkering");
+      await deleteChoreCompletion(householdId, choreId, currentMember.userId);
+      const updatedCompletions = await getAllCompletions(householdId);
+      setCompletions(updatedCompletions);
+      setIsCompleted(false);
+    }
   };
 
   const handlePressDelete = () => {
@@ -70,8 +107,17 @@ export default function ChoreDetailsScreen() {
         frequency: data.frequency,
         effort: data.effort,
       });
+
+      // Uppdatera selectedChore atom med nya värden
+      setSelectedChore({
+        ...selectedChore,
+        name: data.name,
+        description: data.description,
+        frequency: data.frequency,
+        effort: data.effort,
+      });
+
       setIsEditing(false);
-      // TODO: Update the atom or refetch the chore data
     } catch (error) {
       console.error("Error updating chore:", error);
     } finally {
@@ -82,7 +128,12 @@ export default function ChoreDetailsScreen() {
   return isEditing ? (
     <Surface style={s.container} elevation={4}>
       <View style={s.contentContainer}>
-        <Text style={s.choreName}>{selectedChore?.name}</Text>
+        <View style={s.choreNameContainer}>
+          <Text style={s.choreName}>{selectedChore?.name}</Text>
+          <Pressable onPress={handlePressDelete}>
+            <Icon source="trash-can-outline" color="000" size={20} />
+          </Pressable>
+        </View>
         <View style={s.formContainer}>
           <Controller
             control={control}
@@ -156,20 +207,13 @@ export default function ChoreDetailsScreen() {
           <Controller
             control={control}
             name="effort"
-            rules={{
-              required: "Värde är obligatoriskt",
-              min: { value: 1, message: "Värde måste vara minst 1" },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
+            render={({ field: { onChange, value } }) => (
               <View style={s.inputContainer}>
-                <TextInput
-                  label="Värde"
+                <SegmentedButtonsComponent
                   value={value?.toString() || ""}
-                  onChangeText={(text) => onChange(parseInt(text) || 0)}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  error={!!errors.effort}
+                  onValueChange={(newValue) =>
+                    onChange(parseInt(newValue) || 0)
+                  }
                 />
                 {errors.effort && (
                   <Text style={s.errorText}>{errors.effort.message}</Text>
@@ -180,22 +224,20 @@ export default function ChoreDetailsScreen() {
         </View>
       </View>
 
-      <View style={s.buttonsContainer}>
+      <View style={s.editButtonsContainer}>
         <CustomPaperButton
           onPress={handleSubmit(onSubmit)}
-          text="Spara ändringar"
+          text="Spara"
           icon="content-save"
-          color="#06BA63"
-          style={{ minWidth: 220 }}
           disabled={isSubmitting}
+          mode="contained"
         />
         <CustomPaperButton
           onPress={handleCancelEdit}
           text="Avbryt"
           icon="close"
-          color="#808080"
-          style={{ minWidth: 220 }}
           disabled={isSubmitting}
+          mode="outlined"
         />
       </View>
     </Surface>
@@ -204,7 +246,11 @@ export default function ChoreDetailsScreen() {
       <View style={s.contentContainer}>
         <View style={s.choreNameContainer}>
           <Text style={s.choreName}>{selectedChore?.name}</Text>
-          {currentUser?.isOwner && <Text style={s.choreName}>👑</Text>}
+          {currentMember?.isOwner && (
+            <Pressable onPress={handlePressEdit}>
+              <Icon source="file-document-edit-outline" color="000" size={20} />
+            </Pressable>
+          )}
         </View>
         <Divider />
         <View style={s.secondContainer}>
@@ -225,32 +271,20 @@ export default function ChoreDetailsScreen() {
           <Divider />
         </View>
       </View>
-      <View style={s.buttonsContainer}>
-        <CustomPaperButton // TODO om sysslan inte är klar redan visa knapp för att markera som klar
-          onPress={() => handlePressDone(selectedChore!.id)}
-          text="Markera som klar"
+      <View style={s.doneEditButtonsContainer}>
+        <CustomPaperButton
+          onPress={() => handleToggleCompletion(selectedChore!.id)}
+          text="Inte klar"
           icon="check"
-          color="#06BA63"
-          style={{ minWidth: 220 }}
+          disabled={isSubmitting}
+          mode="outlined"
+          style={{ minWidth: "100%" }}
+          isToggle={true}
+          isToggled={isCompleted}
+          toggledIcon="check-circle"
+          toggledText="Klar"
+          toggledMode="contained"
         />
-        {currentUser?.isOwner && (
-          <CustomPaperButton
-            onPress={handlePressDelete}
-            text="Ta bort syssla"
-            icon="trash-can"
-            color="#d03f3fff"
-            style={{ minWidth: 220 }}
-          />
-        )}
-        {currentUser?.isOwner && (
-          <CustomPaperButton
-            onPress={handlePressEdit}
-            text="Redigera"
-            icon="application-edit"
-            color="#3179ffff"
-            style={{ minWidth: 220 }}
-          />
-        )}
       </View>
     </Surface>
   );
@@ -268,8 +302,14 @@ const s = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  buttonsContainer: {
-    alignItems: "center",
+  doneEditButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+  },
+  editButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 10,
   },
   button: {
@@ -309,11 +349,12 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 18,
+    padding: 2,
   },
   titleText: {
     fontSize: 18,
+    padding: 2,
     fontWeight: "bold",
-    marginBottom: 16,
   },
   formContainer: {
     gap: 16,
