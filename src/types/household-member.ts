@@ -1,5 +1,10 @@
 import { Timestamp } from "firebase/firestore";
 
+export interface Avatar {
+  emoji: string;
+  color: string;
+}
+
 export type HouseholdMember = {
   userId: string;
   householdId: string;
@@ -10,10 +15,7 @@ export type HouseholdMember = {
     startDate: Timestamp | null;
     endDate: Timestamp | null;
   }[];
-  avatar: {
-    emoji: string;
-    color: string;
-  };
+  avatar: Avatar;
   nickName: string;
   joinedAt: Timestamp;
   updatedAt: Timestamp;

@@ -1,9 +1,11 @@
+import { signOutUser } from "@/api/auth";
 import {
   currentHouseholdAtom,
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
-import { useNavigation } from "expo-router";
+
+import { router, useNavigation } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -24,7 +26,11 @@ export default function HouseholdsScreen() {
   function handleSelectHousehold(h: any) {
     setCurrentHousehold(h);
     //router.push("/(protected)/day-view");
-    navigation.navigate("DayView");
+  }
+
+  async function handleSignOut() {
+    await signOutUser();
+    router.replace("/(auth)/login");
   }
 
   return (
@@ -35,28 +41,29 @@ export default function HouseholdsScreen() {
 
       <ScrollView style={s.householdContainer}>
         {(households ?? []).map((h) => (
-          <Surface key={h.id} style={s.surface} elevation={1}>
-            <Pressable
-              onPress={() => handleSelectHousehold(h)}
-              style={s.surfaceInner}
-            >
-              <Text style={s.itemText}>{h.name}</Text>
-            </Pressable>
-          </Surface>
+          <Pressable
+            key={h.id}
+            onPress={() => router.push("/(protected)/(top-tabs)/day-view")}
+          >
+            <Text style={s.text}>{h.name}</Text>
+          </Pressable>
         ))}
       </ScrollView>
       <View style={s.buttonContainer}>
         <Button
           mode="contained"
-          onPress={() => console.log("Skapa nytt hushåll")}
+          onPress={() => router.push("/(protected)/join-household")}
         >
-          Skapa nytt hushåll
+          joina
         </Button>
         <Button
           mode="contained"
-          onPress={() => console.log("Gå med i hushåll")}
+          onPress={() => router.push("/(protected)/create-household")}
         >
-          Gå med i hushåll
+          skapa
+        </Button>
+        <Button mode="contained" onPress={handleSignOut}>
+          signout
         </Button>
       </View>
     </View>

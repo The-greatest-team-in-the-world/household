@@ -66,13 +66,27 @@ export async function createNewHousehold(name: string): Promise<string> {
 
 export async function getHouseholdByCode(code: string) {
   const q = query(collection(db, "households"), where("code", "==", code));
-  return await getDocs(q);
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  return {
+    id: snapshot.docs[0].id,
+    ...snapshot.docs[0].data(),
+  } as Household;
+}
+
+export async function householdCodeExists(code: string): Promise<boolean> {
+  const q = query(collection(db, "households"), where("code", "==", code));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
 }
 
 async function houseCodeGenerator(length: number = 6): Promise<string> {
   const base32Chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let result = "";
-  let isCodeTaken = true;
 
   do {
     result = "";
@@ -80,9 +94,7 @@ async function houseCodeGenerator(length: number = 6): Promise<string> {
       const randomIndex = Math.floor(Math.random() * base32Chars.length);
       result += base32Chars[randomIndex];
     }
-    const codeResult = await getHouseholdByCode(result);
-    isCodeTaken = !codeResult.empty;
-  } while (isCodeTaken);
+  } while (await householdCodeExists(result));
 
   return result;
 }
