@@ -19,7 +19,7 @@ import { z } from "zod";
 const details = z.object({
   code: z
     .string({ required_error: "Ange en kod" })
-    .min(6, "Ange en kod men minst 6 tecken"),
+    .min(6, "Ange en kod med 6 tecken"),
   avatar: z.enum(avatarEmojis, {
     errorMap: () => ({ message: "Välj en avatar!" }),
   }),
@@ -37,56 +37,59 @@ export default function JoinHouseholdScreen() {
   const [household, setHousehold] = useState<Household | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [isMember, setIsMember] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({ resolver: zodResolver(details) });
 
   const debouncedInput = useDebounce(codeInput, 1000);
 
   useEffect(() => {
-    async function filterAvatars(household: Household) {
-      const members = await getMembers(household.id);
-      const avatars = members.map((a) => a.avatar.emoji);
-
-      // Filter retunerar de avatarer där predicatet blir true, dvs de som inte finns i familjen
-      // De som finns i familjen kommer att retunera false
-      return avatarColors.filter((a) => !avatars.includes(a.emoji));
-    }
-
     const fetchHousehold = async () => {
-      // Är debounce-input tom eller har färre än 6 tecken sätt till null
+      // Finns ingen, eller för kort, input så nollställs states. Endast sökfältet visas.
       if (!debouncedInput || debouncedInput.length < 6) {
+        setLoading(false);
         setHousehold(null);
+        setIsMember(false);
+        setHasSearched(false);
         return;
       }
-      // Annars sök efter hushåll efter delay, och om det finns retunera det.
+      // Annars så nollställs states och laddning startar för att hämta hushåll från db med angiven kod.
       setLoading(true);
-      const result = await getHouseholdByCode(debouncedInput);
-      setHousehold(result);
+      setHousehold(null);
+      setIsMember(false);
+      try {
+        const result = await getHouseholdByCode(debouncedInput);
+        setHousehold(result);
 
-      // Använd hushållet och sortera bort upptagna emojis
-      if (result) {
-        setFilteredAvatars(await filterAvatars(result));
-        // Hämta info om medlemmar i hushållet för att se om inloggad användare redan är medlem.
-        const membersList = await getMembers(result.id);
-        console.log("lista med medlemmar:", membersList);
-        setIsMember(
-          user != null && membersList.map((m) => m.userId).includes(user.uid),
-        );
-        console.log(
-          "JOINA HUSHÅLL --> Fanns medlem i hushållet?:",
-          isMember,
-          result?.name,
-        );
+        if (result) {
+          // Hämta info om medlemmar i hushållet för att se om inloggad användare redan är medlem.
+          // Filtrera bort upptagna avatarer
+          const membersList = await getMembers(result.id);
+          const avatars = membersList.map((a) => a.avatar.emoji);
+          setFilteredAvatars(
+            avatarColors.filter((a) => !avatars.includes(a.emoji)),
+          );
+
+          setIsMember(
+            user != null && membersList.map((m) => m.userId).includes(user.uid),
+          );
+        }
+        // Vänta med att rendera saker tills en sökning är klar. Detta för att förhindra att saker renderas vid fel tillfälle ⚡.
+        setHasSearched(true);
+      } catch (error) {
+        console.error("Error fetching household:", error);
+        // Spara även vid error så att meddelande  setLastSearchedCode(debouncedInput);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchHousehold();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedInput]);
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
@@ -114,20 +117,22 @@ export default function JoinHouseholdScreen() {
         `Din förfrågan till ${household.name} har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`,
       );
 
-      console.log("Användare skapad!");
       router.replace("/(protected)");
     } catch (error) {
       console.error("Error adding member:", error);
     }
   };
 
-  const isAlreadyMember = !loading && household && isMember;
-  const isHouseholdFound =
-    debouncedInput.length >= 6 && !loading && debouncedInput && household;
+  const isAlreadyMember =
+    !loading && hasSearched && household != null && isMember;
 
-  const isNotMemberInFoundHousehold = !loading && household && !isMember;
-  const IsHouseholdNotFound =
-    debouncedInput.length >= 6 && !loading && debouncedInput && !household;
+  const isHouseholdFound = !loading && hasSearched && household != null;
+
+  const isNotMemberInFoundHousehold =
+    !loading && hasSearched && household != null && !isMember;
+
+  const isHouseholdNotFound = !loading && hasSearched && household == null;
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={s.scrollContent}
@@ -163,7 +168,7 @@ export default function JoinHouseholdScreen() {
                 value={value || ""}
                 placeholder="Skriv in din hushållskod här..."
                 autoCapitalize="characters"
-                maxLength={8}
+                maxLength={6}
               />
             </View>
           )}
@@ -180,6 +185,7 @@ export default function JoinHouseholdScreen() {
         {isAlreadyMember && (
           <Text style={s.errorText}>Du är redan medlem i detta hushåll!</Text>
         )}
+
         {isHouseholdFound && (
           <>
             <View>
@@ -189,7 +195,7 @@ export default function JoinHouseholdScreen() {
           </>
         )}
 
-        {IsHouseholdNotFound && (
+        {isHouseholdNotFound && (
           <View>
             <Text style={s.errorText}>Hushållet kunde inte hittas.</Text>
             <Text style={s.errorText}>Har du skrivit in rätt kod?</Text>
