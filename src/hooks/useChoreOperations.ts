@@ -1,0 +1,103 @@
+import {
+  addChoreCompletion,
+  deleteChoreCompletion,
+  getAllCompletions,
+} from "@/api/chore-completions";
+import { updateChore } from "@/api/chores";
+import { choresAtom, selectedChoreAtom } from "@/atoms/chore-atom";
+import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
+import { currentHouseholdMember } from "@/atoms/member-atom";
+import { Chore } from "@/types/chore";
+import { isChoreCompletedToday } from "@/utils/chore-helpers";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useState } from "react";
+
+type UpdateChoreData = {
+  name: string;
+  description: string;
+  frequency: number;
+  effort: number;
+};
+
+export function useChoreOperations() {
+  const selectedChore = useAtomValue(selectedChoreAtom);
+  const currentMember = useAtomValue(currentHouseholdMember);
+  const choreCompletions = useAtomValue(choreCompletionsAtom);
+  const chores = useAtomValue(choresAtom);
+  const setCompletions = useSetAtom(choreCompletionsAtom);
+  const setSelectedChore = useSetAtom(selectedChoreAtom);
+  const setChores = useSetAtom(choresAtom);
+
+  const householdId = currentMember?.householdId || "";
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  useEffect(() => {
+    if (!selectedChore || !currentMember) return;
+
+    const completed = isChoreCompletedToday(
+      selectedChore.id,
+      currentMember.userId,
+      choreCompletions,
+    );
+
+    setIsCompleted(completed);
+  }, [selectedChore, currentMember, choreCompletions]);
+
+  const toggleCompletion = async (choreId: string) => {
+    if (!currentMember) return;
+
+    if (!isCompleted) {
+      await addChoreCompletion(householdId, choreId);
+      const updatedCompletions = await getAllCompletions(householdId);
+      setCompletions(updatedCompletions);
+      setIsCompleted(true);
+    } else {
+      await deleteChoreCompletion(householdId, choreId, currentMember.userId);
+      const updatedCompletions = await getAllCompletions(householdId);
+      setCompletions(updatedCompletions);
+      setIsCompleted(false);
+    }
+  };
+
+  const updateChoreData = async (data: UpdateChoreData) => {
+    if (!selectedChore) return;
+
+    await updateChore(householdId, selectedChore.id, {
+      name: data.name,
+      description: data.description,
+      frequency: data.frequency,
+      effort: data.effort,
+    });
+
+    const updatedChore: Chore = {
+      ...selectedChore,
+      name: data.name,
+      description: data.description,
+      frequency: data.frequency,
+      effort: data.effort,
+    };
+
+    setSelectedChore(updatedChore);
+
+    setChores(
+      chores.map((chore) =>
+        chore.id === selectedChore.id ? updatedChore : chore,
+      ),
+    );
+  };
+
+  const deleteChore = async (choreId: string) => {
+    // TODO: Implementera delete funktionalitet
+    console.log("Ta bort syssla:", choreId);
+  };
+
+  return {
+    selectedChore,
+    currentMember,
+    householdId,
+    isCompleted,
+    toggleCompletion,
+    updateChoreData,
+    deleteChore,
+  };
+}

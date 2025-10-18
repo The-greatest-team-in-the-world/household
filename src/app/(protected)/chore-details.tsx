@@ -1,22 +1,11 @@
-import {
-  addChoreCompletion,
-  deleteChoreCompletion,
-  getAllCompletions,
-} from "@/api/chore-completions";
-import { updateChore } from "@/api/chores";
-import { selectedChoreAtom } from "@/atoms/chore-atom";
-import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
-import { currentHouseholdMember } from "@/atoms/member-atom";
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
-import { isChoreCompletedToday } from "@/utils/chore-helpers";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, StyleSheet, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
-
-// När man trycker bakåtknapp landar vi inte på day-view utan hushållsvyn
 
 type ChoreFormData = {
   name: string;
@@ -26,32 +15,22 @@ type ChoreFormData = {
 };
 
 export default function ChoreDetailsScreen() {
-  const selectedChore = useAtomValue(selectedChoreAtom);
-  const currentMember = useAtomValue(currentHouseholdMember);
-  const choreCompletions = useAtomValue(choreCompletionsAtom);
-  const setCompletions = useSetAtom(choreCompletionsAtom);
-  const setSelectedChore = useSetAtom(selectedChoreAtom);
-  const householdId = currentMember?.householdId || "";
+  const {
+    selectedChore,
+    currentMember,
+    isCompleted,
+    toggleCompletion,
+    updateChoreData,
+    deleteChore,
+  } = useChoreOperations();
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-
-  // Kolla om sysslan är klar baserat på dagens completions
-  useEffect(() => {
-    if (!selectedChore || !currentMember) return;
-
-    const isCompleted = isChoreCompletedToday(
-      selectedChore.id,
-      currentMember.userId,
-      choreCompletions,
-    );
-
-    setIsCompleted(isCompleted);
-  }, [selectedChore, currentMember, choreCompletions]);
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ChoreFormData>({
     defaultValues: {
@@ -62,38 +41,21 @@ export default function ChoreDetailsScreen() {
     },
   });
 
-  // console.log("is owner:", currentMember?.isOwner);
-
-  const handleToggleCompletion = async (choreId: string) => {
-    if (!currentMember) return;
-
-    if (!isCompleted) {
-      // Markera som klar
-      console.log("Markera som klar");
-      await addChoreCompletion(householdId, choreId);
-      const updatedCompletions = await getAllCompletions(householdId);
-      setCompletions(updatedCompletions);
-      setIsCompleted(true);
-    } else {
-      // Ta bort klarmarkering
-      console.log("Ta bort klarmarkering");
-      await deleteChoreCompletion(householdId, choreId, currentMember.userId);
-      const updatedCompletions = await getAllCompletions(householdId);
-      setCompletions(updatedCompletions);
-      setIsCompleted(false);
+  useEffect(() => {
+    if (selectedChore) {
+      reset({
+        name: selectedChore.name,
+        description: selectedChore.description,
+        frequency: selectedChore.frequency || 0,
+        effort: selectedChore.effort,
+      });
     }
-  };
+  }, [selectedChore, reset]);
 
   const handlePressDelete = () => {
-    console.log("Ta bort syssla");
-  };
-
-  const handlePressEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
+    if (selectedChore) {
+      deleteChore(selectedChore.id);
+    }
   };
 
   const onSubmit = async (data: ChoreFormData) => {
@@ -101,22 +63,7 @@ export default function ChoreDetailsScreen() {
 
     setIsSubmitting(true);
     try {
-      await updateChore(householdId, selectedChore.id, {
-        name: data.name,
-        description: data.description,
-        frequency: data.frequency,
-        effort: data.effort,
-      });
-
-      // Uppdatera selectedChore atom med nya värden
-      setSelectedChore({
-        ...selectedChore,
-        name: data.name,
-        description: data.description,
-        frequency: data.frequency,
-        effort: data.effort,
-      });
-
+      await updateChoreData(data);
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating chore:", error);
@@ -134,97 +81,105 @@ export default function ChoreDetailsScreen() {
             <Icon source="trash-can-outline" color="000" size={20} />
           </Pressable>
         </View>
-        <View style={s.formContainer}>
-          <Controller
-            control={control}
-            name="name"
-            rules={{ required: "Namn är obligatoriskt" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={s.inputContainer}>
-                <TextInput
-                  label="Namn"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  error={!!errors.name}
-                />
-                {errors.name && (
-                  <Text style={s.errorText}>{errors.name.message}</Text>
-                )}
-              </View>
-            )}
-          />
+        <KeyboardAwareScrollView>
+          <View style={s.formContainer}>
+            <Controller
+              control={control}
+              name="name"
+              rules={{ required: "Namn är obligatoriskt" }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    label="Namn"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    mode="outlined"
+                    error={!!errors.name}
+                  />
+                  {errors.name && (
+                    <Text style={s.errorText}>{errors.name.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="description"
-            rules={{ required: "Beskrivning är obligatoriskt" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={s.inputContainer}>
-                <TextInput
-                  label="Beskrivning"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  multiline
-                  numberOfLines={4}
-                  error={!!errors.description}
-                />
-                {errors.description && (
-                  <Text style={s.errorText}>{errors.description.message}</Text>
-                )}
-              </View>
-            )}
-          />
+            <Controller
+              control={control}
+              name="description"
+              rules={{ required: "Beskrivning är obligatoriskt" }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    label="Beskrivning"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    mode="outlined"
+                    multiline={true}
+                    numberOfLines={4}
+                    error={!!errors.description}
+                  />
+                  {errors.description && (
+                    <Text style={s.errorText}>
+                      {errors.description.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="frequency"
-            rules={{
-              required: "Frekvens är obligatoriskt",
-              min: { value: 1, message: "Frekvens måste vara minst 1" },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={s.inputContainer}>
-                <TextInput
-                  label="Återkommer var (dagar)"
-                  value={value?.toString() || ""}
-                  onChangeText={(text) => onChange(parseInt(text) || 0)}
-                  onBlur={onBlur}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  error={!!errors.frequency}
-                />
-                {errors.frequency && (
-                  <Text style={s.errorText}>{errors.frequency.message}</Text>
-                )}
-              </View>
-            )}
-          />
+            <Controller
+              control={control}
+              name="frequency"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text style={s.editText}>Återkommer var (dagar)</Text>
+                  <SegmentedButtonsComponent
+                    value={value?.toString() || ""}
+                    onValueChange={(newValue) =>
+                      onChange(parseInt(newValue) || 0)
+                    }
+                    options={[
+                      { value: "1", label: "1" },
+                      { value: "2", label: "2" },
+                      { value: "3", label: "3" },
+                      { value: "4", label: "4" },
+                      { value: "5", label: "5" },
+                      { value: "6", label: "6" },
+                      { value: "7", label: "7" },
+                    ]}
+                  />
+                  {errors.frequency && (
+                    <Text style={s.errorText}>{errors.frequency.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="effort"
-            render={({ field: { onChange, value } }) => (
-              <View style={s.inputContainer}>
-                <SegmentedButtonsComponent
-                  value={value?.toString() || ""}
-                  onValueChange={(newValue) =>
-                    onChange(parseInt(newValue) || 0)
-                  }
-                />
-                {errors.effort && (
-                  <Text style={s.errorText}>{errors.effort.message}</Text>
-                )}
-              </View>
-            )}
-          />
-        </View>
+            <Controller
+              control={control}
+              name="effort"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text style={s.editText}>Värde (poäng)</Text>
+                  <SegmentedButtonsComponent
+                    value={value?.toString() || ""}
+                    onValueChange={(newValue) =>
+                      onChange(parseInt(newValue) || 0)
+                    }
+                  />
+                  {errors.effort && (
+                    <Text style={s.errorText}>{errors.effort.message}</Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+        </KeyboardAwareScrollView>
       </View>
 
-      <View style={s.editButtonsContainer}>
+      <View style={s.saveCancelButtonsContainer}>
         <CustomPaperButton
           onPress={handleSubmit(onSubmit)}
           text="Spara"
@@ -233,7 +188,7 @@ export default function ChoreDetailsScreen() {
           mode="contained"
         />
         <CustomPaperButton
-          onPress={handleCancelEdit}
+          onPress={() => setIsEditing(false)}
           text="Avbryt"
           icon="close"
           disabled={isSubmitting}
@@ -247,7 +202,7 @@ export default function ChoreDetailsScreen() {
         <View style={s.choreNameContainer}>
           <Text style={s.choreName}>{selectedChore?.name}</Text>
           {currentMember?.isOwner && (
-            <Pressable onPress={handlePressEdit}>
+            <Pressable onPress={() => setIsEditing(true)}>
               <Icon source="file-document-edit-outline" color="000" size={20} />
             </Pressable>
           )}
@@ -271,9 +226,9 @@ export default function ChoreDetailsScreen() {
           <Divider />
         </View>
       </View>
-      <View style={s.doneEditButtonsContainer}>
+      <View style={s.doneButtonsContainer}>
         <CustomPaperButton
-          onPress={() => handleToggleCompletion(selectedChore!.id)}
+          onPress={() => toggleCompletion(selectedChore!.id)}
           text="Inte klar"
           icon="check"
           disabled={isSubmitting}
@@ -302,18 +257,15 @@ const s = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  doneEditButtonsContainer: {
+  doneButtonsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
   },
-  editButtonsContainer: {
+  saveCancelButtonsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
-  },
-  button: {
-    minWidth: 200,
   },
   choreNameContainer: {
     alignItems: "center",
@@ -351,6 +303,11 @@ const s = StyleSheet.create({
     fontSize: 18,
     padding: 2,
   },
+  editText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
   titleText: {
     fontSize: 18,
     padding: 2,
@@ -359,9 +316,6 @@ const s = StyleSheet.create({
   formContainer: {
     gap: 16,
     marginTop: 16,
-  },
-  inputContainer: {
-    gap: 4,
   },
   errorText: {
     color: "#d03f3fff",
