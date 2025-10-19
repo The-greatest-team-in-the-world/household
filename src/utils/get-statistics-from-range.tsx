@@ -1,10 +1,10 @@
 import { ChoreCompletion } from "@/types/chore-completion";
 
-export function getChoresByCurrentWeek(chores: ChoreCompletion[]) {
+export function getChoresFromCurrentWeek(chores: ChoreCompletion[]) {
   return chores.filter((c) => c.completedAt.toDate() >= getThisWeekStart());
 }
 
-export function getChoresByLastWeek(chores: ChoreCompletion[]) {
+export function getChoresFromLastWeek(chores: ChoreCompletion[]) {
   return chores.filter(
     (c) =>
       c.completedAt.toDate() >= getLastWeekStart() &&
@@ -12,16 +12,28 @@ export function getChoresByLastWeek(chores: ChoreCompletion[]) {
   );
 }
 
-export function getChoresByThisMonth(chores: ChoreCompletion[]) {
+export function getChoresFromCurrentMonth(chores: ChoreCompletion[]) {
   return chores.filter((c) => c.completedAt.toDate() >= getThisMonthStart());
 }
 
-export function getChoresByLastMonth(chores: ChoreCompletion[]) {
+export function getChoresFromLastMonth(chores: ChoreCompletion[]) {
   return chores.filter(
     (c) =>
       c.completedAt.toDate() >= getLastMonthStart() &&
       c.completedAt.toDate() < getThisMonthStart(),
   );
+}
+
+export function getChoresFromLastXDays(
+  chores: ChoreCompletion[],
+  days: number,
+) {
+  const today = new Date();
+  const startDate = new Date(today);
+
+  startDate.setDate(today.getDate() - days);
+
+  return chores.filter((c) => c.completedAt.toDate() >= startDate);
 }
 
 function getThisWeekStart() {
