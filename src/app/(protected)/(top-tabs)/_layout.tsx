@@ -15,7 +15,7 @@ export default function TabsLayout() {
         name="day-view"
         options={{ title: household?.name ?? "Fel" }}
       />
-      <MaterialTopTabs.Screen name="(statistics)/current-week" />
+      <MaterialTopTabs.Screen name="(statistics)" />
     </MaterialTopTabs>
   );
 }
