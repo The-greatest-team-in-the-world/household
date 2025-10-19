@@ -17,8 +17,14 @@ export default function ProtectedLayout() {
       <Stack.Screen name="(top-tabs)" />
       <Stack.Screen name="chore-details" />
       <Stack.Screen name="create-chore" />
-      <Stack.Screen name="create-household" />
-      <Stack.Screen name="join-household" />
+      <Stack.Screen
+        name="create-household"
+        options={{ title: "Skapa hushåll" }}
+      />
+      <Stack.Screen
+        name="join-household"
+        options={{ title: "Anslut till hushåll" }}
+      />
       <Stack.Screen name="user-profile" />
     </Stack>
   );

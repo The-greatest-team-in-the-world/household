@@ -84,3 +84,42 @@ export function getDaysOverdue(
 
   return Math.max(0, Math.floor(daysDiff));
 }
+
+/**
+ * Kollar om en specifik syssla är klarmarkerad idag för en viss användare
+ */
+export function isChoreCompletedToday(
+  choreId: string,
+  userId: string,
+  completions: ChoreCompletion[],
+): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return completions.some((completion) => {
+    const completionDate = completion.completedAt.toDate();
+    completionDate.setHours(0, 0, 0, 0);
+
+    return (
+      completion.choreId === choreId &&
+      completion.userId === userId &&
+      completionDate.getTime() === today.getTime()
+    );
+  });
+}
+
+/**
+ * Hämtar dagens completions
+ */
+export function getTodaysCompletions(
+  completions: ChoreCompletion[],
+): ChoreCompletion[] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return completions.filter((completion) => {
+    const completedDate = completion.completedAt.toDate();
+    completedDate.setHours(0, 0, 0, 0);
+    return completedDate.getTime() === today.getTime();
+  });
+}

@@ -1,6 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { getChoreById } from "@/api/chores";
+import { selectedChoreAtom } from "@/atoms/chore-atom";
+import { currentHouseholdAtom } from "@/atoms/household-atom";
+import { useNavigation } from "@react-navigation/native";
+import { useAtomValue, useSetAtom } from "jotai";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type ChoreCardProps = {
+  choreId: string;
   choreName: string;
   displayType: "avatar" | "days";
   displayValue: string;
@@ -9,28 +15,53 @@ type ChoreCardProps = {
 };
 
 export default function ChoreCard({
+  choreId,
   choreName,
   displayType,
   displayValue,
   isOverdue = false,
   daysOverdue = 0,
 }: ChoreCardProps) {
-  return (
-    <View style={s.container}>
-      <Text style={s.choreName}>{choreName}</Text>
+  const navigation = useNavigation<any>();
+  const setSelectedChore = useSetAtom(selectedChoreAtom);
+  const currentHousehold = useAtomValue(currentHouseholdAtom);
+  const householdId = currentHousehold?.id;
 
-      {displayType === "avatar" ? (
-        <View style={s.avatarContainer}>
-          <Text style={s.avatar}>{displayValue}</Text>
-        </View>
-      ) : (
-        <View style={[s.daysContainer, isOverdue && s.daysContainerOverdue]}>
-          <Text style={[s.days, isOverdue && s.daysOverdue]}>
-            {isOverdue ? `-${daysOverdue}` : displayValue}
-          </Text>
-        </View>
-      )}
-    </View>
+  const handlePress = () => {
+    if (!householdId) {
+      console.error("No household ID available");
+      return;
+    }
+    getChore();
+    navigation.navigate("chore-details");
+  };
+
+  const getChore = () => {
+    if (!householdId) return;
+    getChoreById(householdId, choreId).then((chore) => {
+      console.log("Fetched chore:", chore);
+      setSelectedChore(chore);
+    });
+  };
+
+  return (
+    <Pressable onPress={handlePress}>
+      <View style={s.container}>
+        <Text style={s.choreName}>{choreName}</Text>
+
+        {displayType === "avatar" ? (
+          <View style={s.avatarContainer}>
+            <Text style={s.avatar}>{displayValue}</Text>
+          </View>
+        ) : (
+          <View style={[s.daysContainer, isOverdue && s.daysContainerOverdue]}>
+            <Text style={[s.days, isOverdue && s.daysOverdue]}>
+              {isOverdue ? `-${daysOverdue}` : displayValue}
+            </Text>
+          </View>
+        )}
+      </View>
+    </Pressable>
   );
 }
 

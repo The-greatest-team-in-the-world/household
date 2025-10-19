@@ -1,24 +1,25 @@
 import { getHouseholdByCode } from "@/api/households";
 import { addNewMemberToHousehold, getMembers } from "@/api/members";
+import { userAtom } from "@/atoms/auth-atoms";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
-import { avatarColors } from "@/data/avatar-index";
+import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Household } from "@/types/household";
 import { Avatar } from "@/types/household-member";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Surface, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
-import { avatarEmojis } from "./create-household";
 
 const details = z.object({
   code: z
     .string({ required_error: "Ange en kod" })
-    .min(6, "Ange en kod men minst 6 tecken"),
+    .min(6, "Ange en kod med 6 tecken"),
   avatar: z.enum(avatarEmojis, {
     errorMap: () => ({ message: "Välj en avatar!" }),
   }),
@@ -30,49 +31,65 @@ const details = z.object({
 type FormFields = z.infer<typeof details>;
 
 export default function JoinHouseholdScreen() {
+  const user = useAtomValue(userAtom);
   const [loading, setLoading] = useState(false);
   const [filteredAvatars, setFilteredAvatars] = useState<Avatar[]>([]);
   const [household, setHousehold] = useState<Household | null>(null);
   const [codeInput, setCodeInput] = useState("");
+  const [isMember, setIsMember] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({ resolver: zodResolver(details) });
 
   const debouncedInput = useDebounce(codeInput, 1000);
 
   useEffect(() => {
-    async function filterAvatars(household: Household) {
-      const members = await getMembers(household.id);
-      const avatars = members.map((a) => a.avatar.emoji);
-
-      // Filter retunerar de avatarer där predicatet blir true, dvs de som inte finns i familjen
-      // De som finns i familjen kommer att retunera false
-      return avatarColors.filter((a) => !avatars.includes(a.emoji));
-    }
-
     const fetchHousehold = async () => {
-      // Är debounce-input tom eller har färre än 6 tecken sätt till null
+      // Finns ingen, eller för kort, input så nollställs states. Endast sökfältet visas.
       if (!debouncedInput || debouncedInput.length < 6) {
+        setLoading(false);
         setHousehold(null);
+        setIsMember(false);
+        setHasSearched(false);
         return;
       }
-      // Annars sök efter hushåll efter delay, och om det finns retunera det
+      // Annars så nollställs states och laddning startar för att hämta hushåll från db med angiven kod.
       setLoading(true);
-      const result = await getHouseholdByCode(debouncedInput);
-      console.log("result är:", result);
-      setHousehold(result);
+      setHousehold(null);
+      setIsMember(false);
+      try {
+        const result = await getHouseholdByCode(debouncedInput);
+        setHousehold(result);
 
-      // Använd hushållet och sortera bort upptagna emojis
-      if (result) {
-        setFilteredAvatars(await filterAvatars(result));
+        if (result) {
+          // Hämta info om medlemmar i hushållet för att se om inloggad användare redan är medlem.
+          // Filtrera bort upptagna avatarer
+          const membersList = await getMembers(result.id);
+          const avatars = membersList.map((a) => a.avatar.emoji);
+          setFilteredAvatars(
+            avatarColors.filter((a) => !avatars.includes(a.emoji)),
+          );
+
+          setIsMember(
+            user != null && membersList.map((m) => m.userId).includes(user.uid),
+          );
+        }
+        // Vänta med att rendera saker tills en sökning är klar. Detta för att förhindra att saker renderas vid fel tillfälle ⚡.
+        setHasSearched(true);
+      } catch (error) {
+        console.error("Error fetching household:", error);
+        // Spara även vid error så att meddelande  setLastSearchedCode(debouncedInput);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchHousehold();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedInput]);
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
@@ -95,26 +112,53 @@ export default function JoinHouseholdScreen() {
         false,
         "pending",
       );
-      reset();
+      Alert.alert(
+        "Klart!",
+        `Din förfrågan till ${household.name} har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`,
+      );
+
       router.replace("/(protected)");
     } catch (error) {
       console.error("Error adding member:", error);
     }
   };
 
+  const isAlreadyMember =
+    !loading && hasSearched && household != null && isMember;
+
+  const isHouseholdFound = !loading && hasSearched && household != null;
+
+  const isNotMemberInFoundHousehold =
+    !loading && hasSearched && household != null && !isMember;
+
+  const isHouseholdNotFound = !loading && hasSearched && household == null;
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={s.scrollContent}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid={true}
-      extraScrollHeight={20}
+      extraScrollHeight={80}
     >
       <View style={s.formContainer}>
         <Controller
           control={control}
           render={({ field: { onBlur, onChange, value } }) => (
             <View>
-              <Text style={s.title}>Ange kod:</Text>
+              <Surface style={s.surface}>
+                <Text style={s.surfaceTitle}>
+                  Anslut till ett nytt hushåll 🏡
+                </Text>
+                <Text style={s.surfaceText}>
+                  För att ansluta behöver du en 6-siffrig kod!
+                </Text>
+                <Text style={s.surfaceText}>
+                  Koden får du från en medlem i det hushåll du vill ansluta
+                  till.
+                </Text>
+              </Surface>
+
+              <Text style={s.title}>Skriv in koden:</Text>
               <TextInput
                 onBlur={onBlur}
                 onChangeText={(value) => {
@@ -122,8 +166,9 @@ export default function JoinHouseholdScreen() {
                   setCodeInput(value); // Sätta för debouncing och sökning
                 }}
                 value={value || ""}
+                placeholder="Skriv in din hushållskod här..."
                 autoCapitalize="characters"
-                maxLength={8}
+                maxLength={6}
               />
             </View>
           )}
@@ -131,22 +176,33 @@ export default function JoinHouseholdScreen() {
         />
         {errors.code && <Text style={s.errorText}>{errors.code.message}</Text>}
 
-        {loading && <Text>Söker...</Text>}
-
-        {!loading && household && (
-          <Text style={s.foundHousehold}>Success!: {household.name}</Text>
+        {loading && (
+          <View>
+            <ActivityIndicator size="large" color="#007AFF" />
+          </View>
         )}
 
-        {!loading &&
-          debouncedInput &&
-          debouncedInput.length >= 6 &&
-          !household && (
-            <Text style={s.errorText}>
-              Hittade inget hushåll med den koden!
-            </Text>
-          )}
+        {isAlreadyMember && (
+          <Text style={s.errorText}>Du är redan medlem i detta hushåll!</Text>
+        )}
 
-        {household && (
+        {isHouseholdFound && (
+          <>
+            <View>
+              <Text style={s.foundHousehold}>Hushåll hittat:</Text>
+              <Text style={s.foundHousehold}>{household.name}</Text>
+            </View>
+          </>
+        )}
+
+        {isHouseholdNotFound && (
+          <View>
+            <Text style={s.errorText}>Hushållet kunde inte hittas.</Text>
+            <Text style={s.errorText}>Har du skrivit in rätt kod?</Text>
+          </View>
+        )}
+
+        {isNotMemberInFoundHousehold && (
           <View>
             <Controller
               control={control}
@@ -203,16 +259,15 @@ const s = StyleSheet.create({
   },
   formContainer: {
     padding: 20,
-    gap: 20,
   },
   title: {
-    paddingTop: 10,
+    paddingTop: 15,
     paddingBottom: 10,
     fontWeight: 700,
     fontSize: 15,
   },
   errorText: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 700,
     color: "red",
   },
@@ -221,11 +276,20 @@ const s = StyleSheet.create({
     fontWeight: 700,
     fontSize: 15,
   },
+  surface: {
+    elevation: 4,
+    borderRadius: 20,
+    padding: 30,
+  },
+  surfaceTitle: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  surfaceText: {
+    fontSize: 16,
+    fontWeight: 600,
+    padding: 5,
+  },
 });
-
-// En användare ska kunna gå med i ett hushåll genom att ange hushållets kod. *
-
-// Kodfältet ska fyllas i och efter ett par sekunder ska ett anrop/förfrågan göras mot db och hushållet ska dyka upp under koden.
-// Avatarlistan filtreras till att visa tillgänliga avatarer.
-// Först då får man tillgång till gå med, avatar och namn fält.
-// debouncing

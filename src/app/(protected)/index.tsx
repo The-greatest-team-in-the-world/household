@@ -1,11 +1,13 @@
 import { signOutUser } from "@/api/auth";
+import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
+import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -15,16 +17,19 @@ export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
-  //const router = useRouter();
-
-  const navigation = useNavigation<any>();
+  const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
+  const user = useAtomValue(userAtom);
 
   useEffect(() => {
     getHouseholds();
   }, [getHouseholds]);
 
-  function handleSelectHousehold(h: any) {
+  async function handleSelectHousehold(h: any) {
+    if (user) {
+      await getMemberByUserId({ householdId: h.id, userId: user.uid });
+    }
     setCurrentHousehold(h);
+
     router.push("/(protected)/(top-tabs)/day-view");
   }
 

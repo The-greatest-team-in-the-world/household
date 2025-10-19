@@ -13,3 +13,9 @@ export const avatarColors: Avatar[] = [
   { emoji: "🦉", color: "#8B6E4E" },
   { emoji: "🦄", color: "#C8A2FF" },
 ];
+
+// Extraherar alla emojis från avatarColors-arrayen för validering
+export const avatarEmojis = avatarColors.map((a) => a.emoji) as [
+  string,
+  ...string[],
+];
