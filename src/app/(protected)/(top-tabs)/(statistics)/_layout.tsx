@@ -5,7 +5,7 @@ const { Navigator } = createMaterialTopTabNavigator();
 const StatisticsNavigator = withLayoutContext(Navigator);
 
 export default function StatisticsLayout() {
-  const pieChartSize = 140;
+  const pieChartSize = 100;
 
   return (
     <StatisticsNavigator screenOptions={{}}>
