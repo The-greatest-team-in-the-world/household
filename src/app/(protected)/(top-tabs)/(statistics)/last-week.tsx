@@ -3,15 +3,13 @@ import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { membersAtom } from "@/atoms/member-atom";
 import PieChart from "@/components/pie-chart";
 import { ChoreCompletion } from "@/types/chore-completion";
-import { getChoresFromCurrentWeek } from "@/utils/get-statistics-from-range";
+import { getChoresFromLastWeek } from "@/utils/get-statistics-from-range";
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function CurrentWeekStatisticsScreen() {
-  const completions = getChoresFromCurrentWeek(
-    useAtomValue(choreCompletionsAtom),
-  );
+  const completions = getChoresFromLastWeek(useAtomValue(choreCompletionsAtom));
   const members = useAtomValue(membersAtom);
   const chores = useAtomValue(choresAtom);
 
