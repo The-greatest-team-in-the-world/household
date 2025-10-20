@@ -1,6 +1,7 @@
 import { userAtom } from "@/atoms/auth-atoms";
+import { userThemeAtom } from "@/atoms/theme-atom";
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
@@ -16,6 +17,7 @@ import {
   IconButton,
   List,
   Portal,
+  SegmentedButtons,
   Text,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -41,6 +43,7 @@ export default function SettingsSideSheet({
   const user = useAtomValue(userAtom);
   const displayName = user?.displayName?.trim();
   const insets = useSafeAreaInsets();
+  const [userTheme, setUserTheme] = useAtom(userThemeAtom);
 
   useEffect(() => {
     slide.stopAnimation();
@@ -140,16 +143,21 @@ export default function SettingsSideSheet({
               left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
             />
             <View style={[styles.themeButton]}>
-              <Button mode="text" contentStyle={{ paddingVertical: 4 }}>
-                Mörkt
-              </Button>
-              <Button mode="text" contentStyle={{ paddingVertical: 4 }}>
-                Ljust
-              </Button>
-              <Button mode="text" contentStyle={{ paddingVertical: 4 }}>
-                {" "}
-                Auto
-              </Button>
+              <SegmentedButtons
+                value={userTheme}
+                onValueChange={setUserTheme}
+                buttons={[
+                  {
+                    value: "light",
+                    label: "Light",
+                  },
+                  {
+                    value: "dark",
+                    label: "Dark",
+                  },
+                  { value: "auto", label: "Auto" },
+                ]}
+              />
             </View>
           </List.Section>
         </View>

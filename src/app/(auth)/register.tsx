@@ -89,7 +89,9 @@ export default function RegisterScreen() {
         </Surface>
         <Text style={s.infoText}>Skapa konto</Text>
         {firebaseError && (
-          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {firebaseError}
+          </Text>
         )}
         <Controller
           control={control}
@@ -109,7 +111,11 @@ export default function RegisterScreen() {
           )}
           name="displayName"
         />
-        {errors.displayName && <Text>{errors.displayName.message}</Text>}
+        {errors.displayName && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.displayName.message}
+          </Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -129,7 +135,11 @@ export default function RegisterScreen() {
           )}
           name="email"
         />
-        {errors.email && <Text>{errors.email.message}</Text>}
+        {errors.email && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.email.message}
+          </Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -156,7 +166,11 @@ export default function RegisterScreen() {
           )}
           name="password"
         />
-        {errors.password && <Text>{errors.password.message}</Text>}
+        {errors.password && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.password.message}
+          </Text>
+        )}
 
         <Controller
           control={control}
@@ -188,18 +202,20 @@ export default function RegisterScreen() {
           name="confirmPassword"
         />
         {errors.confirmPassword && (
-          <Text>{errors.confirmPassword.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.confirmPassword.message}
+          </Text>
         )}
         <View style={s.actions}>
+          <Link href="/(auth)/login">
+            <Text style={s.login}>Redan medlem? logga in här.</Text>
+          </Link>
           <CustomPaperButton
             text="Skapa konto"
             mode="contained"
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />
-          <Link href="/(auth)/login">
-            <Text style={s.login}>Redan medlem? logga in här.</Text>
-          </Link>
         </View>
       </View>
     </KeyboardAwareScrollView>
@@ -228,6 +244,10 @@ const s = StyleSheet.create({
   infoText: {
     fontWeight: 700,
     fontSize: 20,
+  },
+  errorText: {
+    fontSize: 15,
+    fontWeight: 700,
   },
   inputTitle: {
     fontWeight: "700",

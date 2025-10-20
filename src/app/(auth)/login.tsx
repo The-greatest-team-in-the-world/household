@@ -70,7 +70,9 @@ export default function LoginScreen() {
         </Surface>
         <Text style={s.infoText}>Logga in</Text>
         {firebaseError && (
-          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {firebaseError}
+          </Text>
         )}
         <Controller
           control={control}
@@ -90,7 +92,11 @@ export default function LoginScreen() {
           )}
           name="email"
         />
-        {errors.email && <Text>{errors.email.message}</Text>}
+        {errors.email && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.email.message}
+          </Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -116,7 +122,11 @@ export default function LoginScreen() {
           )}
           name="password"
         />
-        {errors.password && <Text>{errors.password.message}</Text>}
+        {errors.password && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.password.message}
+          </Text>
+        )}
         <View style={s.actions}>
           <CustomPaperButton
             text="Logga in"
@@ -151,6 +161,10 @@ const s = StyleSheet.create({
     height: 200,
     width: "100%",
     resizeMode: "contain",
+  },
+  errorText: {
+    fontSize: 15,
+    fontWeight: 700,
   },
   infoText: {
     fontWeight: 700,
