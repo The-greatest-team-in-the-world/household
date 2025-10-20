@@ -4,14 +4,17 @@ import {
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
+import { drawerVisibleAtom } from "@/atoms/ui-atom";
+import SettingsSideSheet from "@/components/user-profile-drawer";
 
 import { router, useNavigation } from "expo-router";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Surface } from "react-native-paper";
+import { Button, IconButton } from "react-native-paper";
 
 export default function HouseholdsScreen() {
+  const [open, setOpen] = useAtom(drawerVisibleAtom);
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
@@ -37,6 +40,11 @@ export default function HouseholdsScreen() {
     <View style={s.Container}>
       <View style={s.headerContainer}>
         <Text style={s.header}>Dina hushåll</Text>
+        <IconButton
+          icon="account-circle-outline"
+          size={40}
+          onPress={() => setOpen(true)}
+        />
       </View>
 
       <ScrollView style={s.householdContainer}>
@@ -49,6 +57,7 @@ export default function HouseholdsScreen() {
           </Pressable>
         ))}
       </ScrollView>
+      <SettingsSideSheet visible={open} onClose={() => setOpen(false)} />
       <View style={s.buttonContainer}>
         <Button
           mode="contained"
@@ -77,6 +86,9 @@ const s = StyleSheet.create({
   },
   headerContainer: {
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
     padding: 20,
   },
   buttonContainer: {
@@ -85,7 +97,7 @@ const s = StyleSheet.create({
     gap: 20,
   },
   header: {
-    fontSize: 45,
+    fontSize: 35,
   },
   text: {
     fontSize: 20,
