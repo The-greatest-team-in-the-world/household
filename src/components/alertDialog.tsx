@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Button, Dialog, Portal, Text } from "react-native-paper";
 
 interface Props extends React.PropsWithChildren {
@@ -37,11 +37,24 @@ export default function AlertDialog(props: Props) {
         <Dialog.Content>
           <Text>{props.alertMsg}</Text>
         </Dialog.Content>
-        <Dialog.Actions>
+        <Dialog.Actions style={{ justifyContent: "space-between" }}>
           {props.disagreeText && (
-            <Button onPress={handleDisagree}>{props.disagreeText}</Button>
+            <Button
+              onPress={handleDisagree}
+              labelStyle={{ fontSize: 17 }}
+              contentStyle={{ paddingVertical: 10, paddingHorizontal: 20 }}
+            >
+              {props.disagreeText}
+            </Button>
           )}
-          <Button onPress={handleAgree}>{props.agreeText}</Button>
+          <View />
+          <Button
+            onPress={handleAgree}
+            labelStyle={{ fontSize: 17 }}
+            contentStyle={{ paddingVertical: 10, paddingHorizontal: 20 }}
+          >
+            {props.agreeText}
+          </Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>

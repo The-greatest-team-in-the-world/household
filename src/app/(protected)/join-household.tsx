@@ -1,5 +1,5 @@
 import { getHouseholdByCode } from "@/api/households";
-import { getMembers } from "@/api/members";
+import { addNewMemberToHousehold, getMembers } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
 import AlertDialog from "@/components/alertDialog";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
@@ -23,10 +23,10 @@ const details = z.object({
     .string({ required_error: "Ange en kod" })
     .min(6, "Ange en kod med 6 tecken"),
   avatar: z.enum(avatarEmojis, {
-    errorMap: () => ({ message: "Välj en avatar!" }),
+    errorMap: () => ({ message: "Välj en avatar" }),
   }),
   nickName: z
-    .string({ required_error: "Ange ett smeknamn!" })
+    .string({ required_error: "Ange ett smeknamn" })
     .min(1, "Ditt smeknamn måste innehålla minst 1 bokstav"),
 });
 
@@ -108,14 +108,14 @@ export default function JoinHouseholdScreen() {
     try {
       // vad händer om två väljer kycklingen samtidigt?
 
-      // await addNewMemberToHousehold(
-      //   household.id,
-      //   selectedAvatar,
-      //   data.nickName,
-      //   false,
-      //   false,
-      //   "pending",
-      // );
+      await addNewMemberToHousehold(
+        household.id,
+        selectedAvatar,
+        data.nickName,
+        false,
+        false,
+        "pending",
+      );
 
       setDialogOpen(true);
     } catch (error) {
@@ -174,7 +174,11 @@ export default function JoinHouseholdScreen() {
           )}
           name="code"
         />
-        {errors.code && <Text style={s.errorText}>{errors.code.message}</Text>}
+        {errors.code && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.code.message}
+          </Text>
+        )}
 
         {loading && (
           <View>
@@ -183,7 +187,9 @@ export default function JoinHouseholdScreen() {
         )}
 
         {isAlreadyMember && (
-          <Text style={s.errorText}>Du är redan medlem i detta hushåll!</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            Du är redan medlem i detta hushåll!
+          </Text>
         )}
 
         {isHouseholdFound && (
@@ -192,12 +198,7 @@ export default function JoinHouseholdScreen() {
               <Text
                 style={[s.foundHousehold, { color: theme.colors.onBackground }]}
               >
-                Hushåll hittat:
-              </Text>
-              <Text
-                style={[s.foundHousehold, { color: theme.colors.onBackground }]}
-              >
-                {household.name}
+                Hushåll hittat: {household.name}
               </Text>
             </View>
           </>
@@ -234,7 +235,9 @@ export default function JoinHouseholdScreen() {
               name="nickName"
             />
             {errors.nickName && (
-              <Text style={s.errorText}>{errors.nickName.message}</Text>
+              <Text style={[s.errorText, { color: theme.colors.error }]}>
+                {errors.nickName.message}
+              </Text>
             )}
             <Controller
               control={control}
@@ -251,7 +254,9 @@ export default function JoinHouseholdScreen() {
               name="avatar"
             />
             {errors.avatar && (
-              <Text style={s.errorText}>{errors.avatar.message}</Text>
+              <Text style={[s.errorText, { color: theme.colors.error }]}>
+                {errors.avatar.message}
+              </Text>
             )}
             <CustomPaperButton
               text="Gå med!"
@@ -262,9 +267,9 @@ export default function JoinHouseholdScreen() {
             <AlertDialog
               open={dialogOpen}
               onClose={() => setDialogOpen(false)}
-              headLine="Hushålls förfrågan"
+              headLine="Förfrågan skickad!"
               alertMsg={`Din förfrågan till ${household.name}har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`}
-              agreeText="Ok"
+              agreeText="OK"
               agreeAction={() => {
                 setDialogOpen(false);
                 router.replace("/(protected)");
@@ -301,8 +306,9 @@ const s = StyleSheet.create({
     fontWeight: 700,
   },
   foundHousehold: {
-    fontWeight: 500,
+    fontWeight: 700,
     fontSize: 15,
+    gap: 10,
   },
   surface: {
     elevation: 4,

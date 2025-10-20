@@ -9,19 +9,19 @@ import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
 
 const newHouseHold = z.object({
   householdName: z
-    .string({ required_error: "Namnge hushållet!" })
-    .min(1, "Namnet måste vara minst 1 tecken!"),
+    .string({ required_error: "Namnge hushållet" })
+    .min(1, "Namnet måste vara minst 1 tecken"),
   avatar: z.enum(avatarEmojis, {
-    errorMap: () => ({ message: "Välj en avatar!" }),
+    errorMap: () => ({ message: "Välj en avatar" }),
   }),
   nickName: z
-    .string({ required_error: "Ange ett smeknamn!" })
-    .min(1, "Ditt smeknamn måste vara minst 1 tecken!"),
+    .string({ required_error: "Ange ett smeknamn" })
+    .min(1, "Ditt smeknamn måste vara minst 1 tecken"),
 });
 
 type FormFields = z.infer<typeof newHouseHold>;
@@ -36,6 +36,7 @@ export default function CreateHousholdScreen() {
     resolver: zodResolver(newHouseHold),
     defaultValues: {},
   });
+  const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
@@ -94,7 +95,9 @@ export default function CreateHousholdScreen() {
           name="householdName"
         />
         {errors.householdName && (
-          <Text style={s.errorText}>{errors.householdName.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.householdName.message}
+          </Text>
         )}
         <Controller
           control={control}
@@ -114,7 +117,9 @@ export default function CreateHousholdScreen() {
           name="nickName"
         />
         {errors.nickName && (
-          <Text style={s.errorText}>{errors.nickName.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.nickName.message}
+          </Text>
         )}
         <Controller
           control={control}
@@ -131,7 +136,9 @@ export default function CreateHousholdScreen() {
           name="avatar"
         />
         {errors.avatar && (
-          <Text style={s.errorText}>{errors.avatar.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.avatar.message}
+          </Text>
         )}
         <CustomPaperButton
           text="Skapa"
@@ -161,7 +168,6 @@ const s = StyleSheet.create({
   errorText: {
     fontSize: 15,
     fontWeight: 700,
-    color: "red",
   },
   surface: {
     elevation: 4,
