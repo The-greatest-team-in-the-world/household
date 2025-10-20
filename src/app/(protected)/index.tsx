@@ -6,8 +6,8 @@ import {
   householdsAtom,
 } from "@/atoms/household-atom";
 import { getMemberByUserIdAtom } from "@/atoms/member-atom";
-import { drawerVisibleAtom } from "@/atoms/ui-atom";
-import SettingsSideSheet from "@/components/user-profile-drawer";
+import { slideVisibleAtom } from "@/atoms/ui-atom";
+import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
@@ -15,12 +15,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, IconButton } from "react-native-paper";
 
 export default function HouseholdsScreen() {
-  const [open, setOpen] = useAtom(drawerVisibleAtom);
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
+  const setVisible = useSetAtom(slideVisibleAtom);
 
   useEffect(() => {
     getHouseholds();
@@ -47,7 +47,7 @@ export default function HouseholdsScreen() {
         <IconButton
           icon="account-circle-outline"
           size={40}
-          onPress={() => setOpen(true)}
+          onPress={() => setVisible(true)}
         />
       </View>
 
@@ -58,7 +58,7 @@ export default function HouseholdsScreen() {
           </Pressable>
         ))}
       </ScrollView>
-      <SettingsSideSheet visible={open} onClose={() => setOpen(false)} />
+      <SettingsSideSheet onClose={() => setVisible(false)} />
       <View style={s.buttonContainer}>
         <Button
           mode="contained"

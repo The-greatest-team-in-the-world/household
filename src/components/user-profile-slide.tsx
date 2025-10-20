@@ -1,5 +1,5 @@
-import { currentHouseholdMember } from "@/atoms/member-atom";
-import { drawerVisibleAtom, shouldRenderDrawerAtom } from "@/atoms/ui-atom";
+import { userAtom } from "@/atoms/auth-atoms";
+import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { useEffect, useRef } from "react";
 import {
@@ -10,11 +10,10 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Button, Drawer, IconButton, Portal, Text } from "react-native-paper";
+import { Button, IconButton, List, Portal, Text } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
-visible: boolean;
   onClose: () => void;
   onLogout?: () => void;
   onDelete?: () => void;
@@ -27,14 +26,16 @@ export default function SettingsSideSheet({
   onLogout,
   onDelete,
 }: Props) {
-  const visible = useAtomValue(drawerVisibleAtom);
-  const shouldRender = useAtomValue(shouldRenderDrawerAtom);
-  const setShouldRender = useSetAtom(shouldRenderDrawerAtom);
+  const visible = useAtomValue(slideVisibleAtom);
+  const shouldRender = useAtomValue(shouldRenderSlideAtom);
+  const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const slide = useRef(new Animated.Value(width)).current;
   const fade = useRef(new Animated.Value(0)).current;
-  const member = useAtomValue(currentHouseholdMember);
+   const user = useAtomValue(userAtom);
+  const displayName =
+    user?.displayName?.trim()
   const insets = useSafeAreaInsets();
-
+ 
   useEffect(() => {
     slide.stopAnimation();
     fade.stopAnimation();
@@ -80,7 +81,6 @@ export default function SettingsSideSheet({
 
   return (
     <Portal>
-      {/* Backdrop */}
       <Animated.View
         pointerEvents={visible ? "auto" : "none"}
         style={[StyleSheet.absoluteFill, { opacity: fade }]}
@@ -100,11 +100,11 @@ export default function SettingsSideSheet({
           styles.sheet,
           {
             transform: [{ translateX: slide }],
-            top: insets.top, // Börja under statusbaren
+            top: insets.top,
           },
         ]}
       >
-        {/* Top section med safe area */}
+        {/* Top section */}
         <View>
           <View style={styles.topRow}>
             <IconButton icon="close" onPress={onClose} />
@@ -113,36 +113,40 @@ export default function SettingsSideSheet({
           <View style={styles.header}>
             <View style={{ marginLeft: 12 }}>
               <Text variant="titleMedium" style={{ fontWeight: "600" }}>
-                {member?.nickName || "Användarnamn"}
+                {displayName || "Användarnamn"}
               </Text>
             </View>
           </View>
         </View>
 
+        {/* Scrollable content */}
         <View style={{ flex: 1 }}>
-          <Drawer.Section title="Inställningar">
-            <Drawer.Item
-              icon="theme-light-dark"
-              label="Tema"
+          <List.Section>
+            <List.Subheader>Inställningar</List.Subheader>
+            <List.Item
+              title="Tema"
+              left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
               onPress={() => {}}
             />
-          </Drawer.Section>
+          </List.Section>
         </View>
 
         <View style={{ paddingBottom: insets.bottom }}>
           <Button
             mode="contained"
-            buttonColor="#beafafff"
-            style={styles.danger}
+            buttonColor="#f5f5f5"
+            textColor="#666"
+            style={styles.actionButton}
             icon="logout"
             onPress={onLogout}
           >
             Logga ut
           </Button>
           <Button
-            mode="contained"
-            buttonColor="#beafafff"
-            style={[styles.danger, { marginTop: 8 }]}
+            mode="text"
+            textColor="#2f37d3ff"
+            style={[styles.actionButton, { marginTop: 8 }]}
             icon="delete-outline"
             onPress={onDelete}
           >
@@ -171,17 +175,17 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  topRow: { 
+  topRow: {
     alignItems: "flex-end",
     marginBottom: 8,
   },
-  header: { 
-    flexDirection: "row", 
-    alignItems: "center", 
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
   },
-  danger: { 
-    borderRadius: 10, 
+  actionButton: {
+    borderRadius: 10,
     justifyContent: "center",
   },
 });
