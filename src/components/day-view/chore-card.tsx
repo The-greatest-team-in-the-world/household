@@ -1,6 +1,9 @@
 import { getChoreById } from "@/api/chores";
 import { selectedChoreAtom } from "@/atoms/chore-atom";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
+import { ChoreCompletion } from "@/types/chore-completion";
+import { HouseholdMember } from "@/types/household-member";
+import getMemberAvatar from "@/utils/get-member-avatar";
 import { useNavigation } from "@react-navigation/native";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -9,9 +12,11 @@ type ChoreCardProps = {
   choreId: string;
   choreName: string;
   displayType: "avatar" | "days";
-  displayValue: string;
+  displayValue?: string;
   isOverdue?: boolean;
   daysOverdue?: number;
+  completedByList?: ChoreCompletion[];
+  members?: HouseholdMember[];
 };
 
 export default function ChoreCard({
@@ -21,6 +26,8 @@ export default function ChoreCard({
   displayValue,
   isOverdue = false,
   daysOverdue = 0,
+  completedByList,
+  members = [],
 }: ChoreCardProps) {
   const navigation = useNavigation<any>();
   const setSelectedChore = useSetAtom(selectedChoreAtom);
@@ -45,23 +52,38 @@ export default function ChoreCard({
   };
 
   return (
-    <Pressable onPress={handlePress}>
-      <View style={s.container}>
-        <Text style={s.choreName}>{choreName}</Text>
-
-        {displayType === "avatar" ? (
-          <View style={s.avatarContainer}>
-            <Text style={s.avatar}>{displayValue}</Text>
+    <View>
+      {displayType === "avatar" ? (
+        <Pressable onPress={handlePress}>
+          <View style={s.container}>
+            <Text style={s.choreName}>{choreName}</Text>
+            <View style={s.avatarContainer}>
+              {completedByList?.map((completion) => {
+                const avatar = getMemberAvatar(members, completion.userId);
+                return (
+                  <Text key={completion.id} style={s.avatar}>
+                    {avatar.emoji}
+                  </Text>
+                );
+              })}
+            </View>
           </View>
-        ) : (
-          <View style={[s.daysContainer, isOverdue && s.daysContainerOverdue]}>
-            <Text style={[s.days, isOverdue && s.daysOverdue]}>
-              {isOverdue ? `-${daysOverdue}` : displayValue}
-            </Text>
+        </Pressable>
+      ) : (
+        <Pressable onPress={handlePress}>
+          <View style={s.container}>
+            <Text style={s.choreName}>{choreName}</Text>
+            <View
+              style={[s.daysContainer, isOverdue && s.daysContainerOverdue]}
+            >
+              <Text style={[s.days, isOverdue && s.daysOverdue]}>
+                {isOverdue ? daysOverdue : displayValue}
+              </Text>
+            </View>
           </View>
-        )}
-      </View>
-    </Pressable>
+        </Pressable>
+      )}
+    </View>
   );
 }
 
@@ -81,15 +103,16 @@ const s = StyleSheet.create({
     flex: 1,
   },
   avatarContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "#e0e0e0",
-    justifyContent: "center",
+    flexDirection: "row",
+    gap: 4,
     alignItems: "center",
   },
   avatar: {
     fontSize: 24,
+    width: 30,
+    height: 30,
+    textAlign: "center",
+    lineHeight: 30,
   },
   daysContainer: {
     width: 30,

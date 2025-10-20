@@ -14,11 +14,11 @@ type SegmentedButtonsComponentProps = {
 };
 
 const DEFAULT_OPTIONS: SegmentOption[] = [
-  { value: "1", label: "1p" },
-  { value: "2", label: "2p" },
-  { value: "4", label: "4p" },
-  { value: "6", label: "6p" },
-  { value: "8", label: "8p" },
+  { value: "1", label: "1" },
+  { value: "2", label: "2" },
+  { value: "4", label: "4" },
+  { value: "6", label: "6" },
+  { value: "8", label: "8" },
 ];
 
 export default function SegmentedButtonsComponent({
