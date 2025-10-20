@@ -8,18 +8,18 @@ import {
 } from "firebase/auth";
 import { auth } from "../../firebase-config";
 
-export interface LoginData {
+interface LoginData {
   email: string;
   password: string;
 }
 
-export interface RegisterData {
+interface RegisterData {
   email: string;
   password: string;
   displayName: string;
 }
 
-export interface AuthResult {
+interface AuthResult {
   success: boolean;
   user: User | null;
   error: { code: string; message: string } | null;

@@ -1,21 +1,15 @@
 import { createNewHousehold } from "@/api/households";
 import { addNewMemberToHousehold } from "@/api/members";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
-import { avatarColors } from "@/data/avatar-index";
+import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Surface, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
-
-// Extraherar alla emojis från avatarColors-arrayen för validering
-export const avatarEmojis = avatarColors.map((a) => a.emoji) as [
-  string,
-  ...string[],
-];
 
 const newHouseHold = z.object({
   householdName: z
@@ -74,6 +68,13 @@ export default function CreateHousholdScreen() {
       extraScrollHeight={20}
     >
       <View style={s.container}>
+        <Surface style={s.surface}>
+          <Text style={s.surfaceTitle}>Vad funkar bäst? Teamwork! 🏡</Text>
+          <Text style={s.surfaceSubText}>
+            Bjud in familj eller vänner, dela sysslorna och håll koll på vem som
+            gör vad.
+          </Text>
+        </Surface>
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -158,5 +159,27 @@ const s = StyleSheet.create({
     fontSize: 15,
     fontWeight: 700,
     color: "red",
+  },
+  surface: {
+    elevation: 4,
+    borderRadius: 20,
+    padding: 20,
+  },
+  surfaceTitle: {
+    paddingTop: 5,
+    paddingBottom: 10,
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  surfaceText: {
+    fontSize: 18,
+    fontWeight: 600,
+    paddingBottom: 5,
+  },
+  surfaceSubText: {
+    fontSize: 15,
+    fontWeight: 600,
+    paddingBottom: 5,
+    fontStyle: "italic",
   },
 });

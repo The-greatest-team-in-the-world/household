@@ -4,7 +4,9 @@ import {
   addDoc,
   collection,
   getDocs,
+  query,
   serverTimestamp,
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
 
@@ -18,6 +20,21 @@ export async function getMembers(
   return snapshot.docs.map((doc) => doc.data() as HouseholdMember);
 }
 
+export async function getMemberByUserId(
+  householdId: string,
+  userId: string,
+): Promise<HouseholdMember | null> {
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  return snapshot.docs[0].data() as HouseholdMember;
+}
+
 export async function addNewMemberToHousehold(
   householdId: string,
   avatar: Avatar,
@@ -29,6 +46,7 @@ export async function addNewMemberToHousehold(
   // Skapa subcollection: households/{householdId}/members
   await addDoc(collection(db, "households", householdId, "members"), {
     userId: auth.currentUser?.uid,
+    householdId: householdId,
     status: status,
     isOwner: isOwner,
     isPaused: isPaused,
