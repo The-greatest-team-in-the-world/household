@@ -1,21 +1,21 @@
-import { db } from "@/data/mock-db";
+import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { withLayoutContext } from "expo-router";
+import { useAtomValue } from "jotai";
 
 const { Navigator } = createMaterialTopTabNavigator();
 export const MaterialTopTabs = withLayoutContext(Navigator);
 
 export default function TabsLayout() {
-  const household = db.households.find((h) => h.id === "house-ankeborg");
-  if (!household) return null;
+  const household = useAtomValue(currentHouseholdAtom);
 
   return (
     <MaterialTopTabs screenOptions={{ tabBarStyle: { display: "none" } }}>
       <MaterialTopTabs.Screen
         name="day-view"
-        options={{ title: household.name }}
+        options={{ title: household?.name ?? "Fel" }}
       />
-      <MaterialTopTabs.Screen name="(statistics)/statistics" />
+      <MaterialTopTabs.Screen name="(statistics)" />
     </MaterialTopTabs>
   );
 }
