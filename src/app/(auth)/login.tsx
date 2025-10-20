@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
 
 //https://github.com/APSL/react-native-keyboard-aware-scroll-view
@@ -37,6 +37,7 @@ export default function LoginScreen() {
     resolver: zodResolver(credentials),
     defaultValues: {},
   });
+  const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
@@ -108,7 +109,7 @@ export default function LoginScreen() {
                 <MaterialCommunityIcons
                   name={rightIcon}
                   size={20}
-                  color="#232323"
+                  color={theme.colors.onBackground}
                 />
               </Pressable>
             </View>
@@ -162,7 +163,7 @@ const s = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 20,
-    top: 35,
+    top: 20,
   },
   createAccount: {
     textAlign: "center",

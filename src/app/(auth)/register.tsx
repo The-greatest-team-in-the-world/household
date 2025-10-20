@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
 
 const credentials = z
@@ -56,6 +56,7 @@ export default function RegisterScreen() {
     resolver: zodResolver(credentials),
     defaultValues: {},
   });
+  const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
@@ -148,7 +149,7 @@ export default function RegisterScreen() {
                 <MaterialCommunityIcons
                   name={rightIcon}
                   size={20}
-                  color="#232323"
+                  color={theme.colors.onBackground}
                 />
               </Pressable>
             </View>
@@ -179,7 +180,7 @@ export default function RegisterScreen() {
                 <MaterialCommunityIcons
                   name={confirmRightIcon}
                   size={22}
-                  color="#232323"
+                  color={theme.colors.onBackground}
                 />
               </Pressable>
             </View>
@@ -241,7 +242,7 @@ const s = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 20,
-    top: 35,
+    top: 20,
   },
   login: {
     textAlign: "center",
