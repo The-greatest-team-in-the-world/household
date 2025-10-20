@@ -14,6 +14,7 @@ import {
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppDarkTheme, AppDefaultTheme } from "../../theme";
+import { userThemeAtom } from "@/atoms/theme-atom";
 
 // https://docs.expo.dev/router/basics/common-navigation-patterns/#authenticated-users-only-protected-routes
 
@@ -23,8 +24,13 @@ export default function RootLayout() {
   const [authState] = useAtom(authStateAtom);
   const initAuth = useSetAtom(initAuthAtom);
   const colorScheme = useColorScheme();
+  const [userTheme] = useAtom(userThemeAtom);
 
-  const theme = colorScheme === "dark" ? AppDarkTheme : AppDefaultTheme;
+  let theme = colorScheme === "dark" ? AppDarkTheme : AppDefaultTheme;
+  if (userTheme !== "auto") {
+    theme = userTheme === "dark" ? AppDarkTheme : AppDefaultTheme;
+  }
+  const statusBarStyle = theme.dark ? "light" : "dark";
 
   useEffect(() => {
     const unsubscribe = initAuth();
@@ -35,10 +41,10 @@ export default function RootLayout() {
   if (authState.isLoading) {
     return (
       <PaperProvider>
-        <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-          <StatusBar style="auto" />
+        <SafeAreaView style={styles.container}>
+          <StatusBar style={statusBarStyle} />
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#007AFF" />
+            <ActivityIndicator size="large" color={theme.colors.primary} />
           </View>
         </SafeAreaView>
       </PaperProvider>
@@ -49,7 +55,7 @@ export default function RootLayout() {
     <PaperProvider theme={theme}>
       <ThemeProvider value={theme}>
         <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-          <StatusBar style="auto" />
+          <StatusBar style={statusBarStyle} />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Protected guard={authState.isAuthenticated}>
               <Stack.Screen name="(protected)" />
@@ -67,7 +73,6 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "lightgrey",
   },
   loadingContainer: {
     flex: 1,

@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { Button } from "react-native-paper";
 
 interface CustomPaperButtonProps {
   icon?: string;
@@ -51,8 +51,9 @@ export const CustomPaperButton = ({
       disabled={disabled}
       style={[{ borderRadius: 8, minWidth: 100 }, style]}
       contentStyle={{ paddingVertical: 8 }}
+      labelStyle={s.buttonText}
     >
-      <Text style={s.buttonText}>{currentText}</Text>
+      {currentText}
     </Button>
   );
 };
