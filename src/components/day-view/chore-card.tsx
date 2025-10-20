@@ -3,7 +3,8 @@ import { selectedChoreAtom } from "@/atoms/chore-atom";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { useNavigation } from "@react-navigation/native";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 
 type ChoreCardProps = {
   choreId: string;

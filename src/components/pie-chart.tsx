@@ -3,7 +3,8 @@ import { ChoreCompletion } from "@/types/chore-completion";
 import { HouseholdMember } from "@/types/household-member";
 import GetChoreName from "@/utils/get-chore-name";
 import getMemberAvatar from "@/utils/get-member-avatar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
 
 interface Props {
@@ -60,7 +61,10 @@ export default function PieChart({
       const color = avatar.color;
       const value = effort;
       const label: SliceLabel = total
-        ? { text: avatar.emoji, fontSize: iconSize ?? 24 }
+        ? {
+            text: avatar.emoji,
+            fontSize: iconSize ?? 24,
+          }
         : { text: "" };
 
       return { color, value, label };

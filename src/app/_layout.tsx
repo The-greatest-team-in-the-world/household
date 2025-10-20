@@ -1,4 +1,5 @@
 import { authStateAtom, initAuthAtom } from "@/atoms/auth-atoms";
+import { ThemeProvider } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -11,7 +12,6 @@ import {
   View,
 } from "react-native";
 import { PaperProvider } from "react-native-paper";
-import { ThemeProvider } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppDarkTheme, AppDefaultTheme } from "../../theme";
 
@@ -34,12 +34,14 @@ export default function RootLayout() {
 
   if (authState.isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-        <StatusBar style="auto" />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-        </View>
-      </SafeAreaView>
+      <PaperProvider>
+        <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+          <StatusBar style="auto" />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+          </View>
+        </SafeAreaView>
+      </PaperProvider>
     );
   }
 
