@@ -5,16 +5,14 @@ import {
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
+import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 import { drawerVisibleAtom } from "@/atoms/ui-atom";
 import SettingsSideSheet from "@/components/user-profile-drawer";
+import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, IconButton } from "react-native-paper";
-import { getMemberByUserIdAtom } from "@/atoms/member-atom";
-import { router } from "expo-router";
-
-
 
 export default function HouseholdsScreen() {
   const [open, setOpen] = useAtom(drawerVisibleAtom);
