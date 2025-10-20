@@ -3,13 +3,11 @@ import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
 import { Chore } from "@/types/chore";
-import { ChoreCompletion } from "@/types/chore-completion";
 import {
   getDaysOverdue,
   getDaysSinceLastCompletion,
   getTodaysCompletions,
 } from "@/utils/chore-helpers";
-import getMemberAvatar from "@/utils/get-member-avatar";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -20,28 +18,42 @@ export default function DayViewScreen() {
 
   const householdId = currentHousehold?.id;
 
-  const { chores, completions, incompleteChores, members, isLoading } =
-    useHouseholdData(householdId || "");
+  const { completions, chores, members, isLoading } = useHouseholdData(
+    householdId || "",
+  );
 
   const todaysCompletions = useMemo(() => {
     if (!householdId) return [];
-    return getTodaysCompletions(completions);
+    return getTodaysCompletions(completions) ?? [];
   }, [completions, householdId]);
 
-  const getChoreName = (choreId: string): string => {
-    const chore = chores.find((c) => c.id === choreId);
-    return chore?.name || "Okänd syssla";
-  };
+  const completedChoresToday = useMemo(() => {
+    const uniqueChoreIds = new Set(
+      todaysCompletions.map((completion) => completion.choreId),
+    );
+    return chores.filter((chore) => uniqueChoreIds.has(chore.id));
+  }, [todaysCompletions, chores]);
 
-  const renderCompletedChore = (completion: ChoreCompletion) => {
-    const avatar = getMemberAvatar(members, completion.userId);
+  const incompleteChoresToday = useMemo(() => {
+    const completedChoreIds = new Set(
+      todaysCompletions.map((completion) => completion.choreId),
+    );
+    return chores.filter((chore) => !completedChoreIds.has(chore.id));
+  }, [todaysCompletions, chores]);
+
+  const renderCompletedChore = (chore: Chore) => {
+    const choreCompletionsToday = todaysCompletions.filter(
+      (completion) => completion.choreId === chore.id,
+    );
+
     return (
       <ChoreCard
-        key={completion.id}
-        choreId={completion.choreId}
-        choreName={getChoreName(completion.choreId)}
+        key={chore.id}
+        choreId={chore.id}
+        choreName={chore.name}
         displayType="avatar"
-        displayValue={avatar.emoji}
+        completedByList={choreCompletionsToday}
+        members={members}
       />
     );
   };
@@ -79,28 +91,29 @@ export default function DayViewScreen() {
     <View style={s.container}>
       <View style={s.headerContainer}>
         <Text style={s.subheader}>
-          {todaysCompletions.length} klara • {incompleteChores.length} kvar
+          {todaysCompletions.length} klara • {incompleteChoresToday.length} kvar
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={s.choreContentContainer}>
-        {incompleteChores.length > 0 && (
+        {incompleteChoresToday.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Behöver göras</Text>
-            {incompleteChores.map(renderIncompleteChore)}
+            {incompleteChoresToday.map(renderIncompleteChore)}
           </View>
         )}
-        {todaysCompletions.length > 0 && (
+        {completedChoresToday.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Klart för idag ✓</Text>
-            {todaysCompletions.map(renderCompletedChore)}
+            {completedChoresToday.map(renderCompletedChore)}
           </View>
         )}
-        {todaysCompletions.length === 0 && incompleteChores.length === 0 && (
-          <View style={s.emptyState}>
-            <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
-          </View>
-        )}
+        {todaysCompletions.length === 0 &&
+          incompleteChoresToday.length === 0 && (
+            <View style={s.emptyState}>
+              <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
+            </View>
+          )}
       </ScrollView>
 
       <View style={s.buttonContainer}>
