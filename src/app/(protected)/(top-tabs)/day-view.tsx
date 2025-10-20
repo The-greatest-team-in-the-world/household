@@ -10,8 +10,8 @@ import {
 } from "@/utils/chore-helpers";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native-paper";
 
 export default function DayViewScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);

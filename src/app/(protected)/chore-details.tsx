@@ -92,7 +92,7 @@ export default function ChoreDetailsScreen() {
         <View style={s.choreNameContainer}>
           <Text style={s.choreName}>{selectedChore?.name}</Text>
           <Pressable onPress={handlePressDelete}>
-            <Icon source="trash-can-outline" color="000" size={20} />
+            <Icon source="trash-can-outline" size={25} />
           </Pressable>
         </View>
         <KeyboardAwareScrollView>
@@ -215,7 +215,7 @@ export default function ChoreDetailsScreen() {
           <Text style={s.choreName}>{selectedChore?.name}</Text>
           {currentMember?.isOwner && (
             <Pressable onPress={() => setIsEditing(true)}>
-              <Icon source="file-document-edit-outline" color="000" size={20} />
+              <Icon source="file-document-edit-outline" size={25} />
             </Pressable>
           )}
         </View>
@@ -258,7 +258,6 @@ export default function ChoreDetailsScreen() {
 
 const s = StyleSheet.create({
   container: {
-    backgroundColor: "#e2e2e2ff",
     margin: 16,
     padding: 16,
     borderRadius: 8,
@@ -286,7 +285,6 @@ const s = StyleSheet.create({
   descriptionsContainer: {
     padding: 10,
     gap: 5,
-    backgroundColor: "#ffffff5f",
     borderRadius: 8,
   },
   textContainer: {
@@ -294,7 +292,6 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,
-    backgroundColor: "#ffffff5f",
     borderRadius: 8,
   },
   secondContainer: {
@@ -332,7 +329,6 @@ const s = StyleSheet.create({
     marginTop: 16,
   },
   errorText: {
-    color: "#d03f3fff",
     fontSize: 12,
     marginLeft: 12,
   },
