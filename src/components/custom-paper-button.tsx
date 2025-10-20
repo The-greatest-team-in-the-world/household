@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 interface CustomPaperButtonProps {
   icon?: string;

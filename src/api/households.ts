@@ -15,9 +15,13 @@ import {
 
 const auth = getAuth();
 
-export async function getUsersHouseholds(
-  uid: string,
-): Promise<(Household & { isOwner: boolean })[]> {
+export async function getUsersHouseholds(uid: string): Promise<
+  (Household & {
+    isOwner: boolean;
+    status: "pending" | "active" | "left";
+    isPaused: boolean;
+  })[]
+> {
   const snap = await getDocs(
     query(collectionGroup(db, "members"), where("userId", "==", uid)),
   );
@@ -25,12 +29,23 @@ export async function getUsersHouseholds(
   if (snap.empty) return [];
 
   // Extrahera householdIds från member-data
-  const membersByHouseholdId = new Map<string, { isOwner: boolean }>();
+  const membersByHouseholdId = new Map<
+    string,
+    {
+      isOwner: boolean;
+      status: "pending" | "active" | "left";
+      isPaused: boolean;
+    }
+  >();
   snap.docs.forEach((mdoc) => {
     const data = mdoc.data();
     const householdId = data.householdId;
     if (householdId && typeof householdId === "string") {
-      membersByHouseholdId.set(householdId, { isOwner: data.isOwner });
+      membersByHouseholdId.set(householdId, {
+        isOwner: data.isOwner,
+        status: (data.status ?? "active") as "pending" | "active" | "left",
+        isPaused: !!data.isPaused,
+      });
     }
   });
 
@@ -51,12 +66,24 @@ export async function getUsersHouseholds(
         createdAt: hdata.createdAt,
         updatedAt: hdata.updatedAt,
         isOwner: memberData.isOwner,
-      } as Household & { isOwner: boolean };
+        status: memberData.status,
+        isPaused: memberData.isPaused,
+      } as Household & {
+        isOwner: boolean;
+        status: "pending" | "active" | "left";
+        isPaused: boolean;
+      };
     }),
   );
 
   return households.filter(
-    (h): h is Household & { isOwner: boolean } => h !== null,
+    (
+      h,
+    ): h is Household & {
+      isOwner: boolean;
+      status: "pending" | "active" | "left";
+      isPaused: boolean;
+    } => h !== null,
   );
 }
 
