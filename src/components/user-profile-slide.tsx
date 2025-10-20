@@ -10,7 +10,14 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Button, Divider, IconButton, List, Portal, Text } from "react-native-paper";
+import {
+  Button,
+  Divider,
+  IconButton,
+  List,
+  Portal,
+  Text,
+} from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
@@ -31,11 +38,10 @@ export default function SettingsSideSheet({
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const slide = useRef(new Animated.Value(width)).current;
   const fade = useRef(new Animated.Value(0)).current;
-   const user = useAtomValue(userAtom);
-  const displayName =
-    user?.displayName?.trim()
+  const user = useAtomValue(userAtom);
+  const displayName = user?.displayName?.trim();
   const insets = useSafeAreaInsets();
- 
+
   useEffect(() => {
     slide.stopAnimation();
     fade.stopAnimation();
@@ -110,10 +116,15 @@ export default function SettingsSideSheet({
 
           <View style={styles.header}>
             <View style={{ marginLeft: 12 }}>
-              <Text variant="titleLarge" style={{ fontWeight: "600" }}> Inställningar
+              <Text variant="titleLarge" style={{ fontWeight: "600" }}>
+                {" "}
+                Inställningar
               </Text>
-                {displayName && (
-                <Text variant="bodyMedium" style={{ color: "#666", marginTop: 4 }}>
+              {displayName && (
+                <Text
+                  variant="bodyMedium"
+                  style={{ color: "#666", marginTop: 4 }}
+                >
                   {displayName}
                 </Text>
               )}
@@ -128,10 +139,17 @@ export default function SettingsSideSheet({
               title="Tema"
               left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
             />
-            <View style={[ styles.themeButton ]}>
-            <Button mode="text" contentStyle={{ paddingVertical: 4 }}>Mörkt</Button>
-            <Button mode="text" contentStyle={{ paddingVertical: 4 }}>Ljust</Button>
-            <Button mode="text" contentStyle={{ paddingVertical: 4 }}> Auto</Button>
+            <View style={[styles.themeButton]}>
+              <Button mode="text" contentStyle={{ paddingVertical: 4 }}>
+                Mörkt
+              </Button>
+              <Button mode="text" contentStyle={{ paddingVertical: 4 }}>
+                Ljust
+              </Button>
+              <Button mode="text" contentStyle={{ paddingVertical: 4 }}>
+                {" "}
+                Auto
+              </Button>
             </View>
           </List.Section>
         </View>
@@ -144,7 +162,9 @@ export default function SettingsSideSheet({
             textColor="#666"
             style={styles.actionButton}
             icon="logout"
-            onPress={() => { onLogout?.(); }}
+            onPress={() => {
+              onLogout?.();
+            }}
           >
             Logga ut
           </Button>
@@ -196,7 +216,7 @@ const styles = StyleSheet.create({
   },
   themeButton: {
     flexDirection: "row",
-        gap: 8,
+    gap: 8,
     paddingHorizontal: 16,
     marginTop: 8,
     marginBottom: 12,
