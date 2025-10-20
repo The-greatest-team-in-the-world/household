@@ -15,9 +15,7 @@ import {
 
 const auth = getAuth();
 
-export async function getUsersHouseholds(
-  uid: string,
-): Promise<
+export async function getUsersHouseholds(uid: string): Promise<
   (Household & {
     isOwner: boolean;
     status: "pending" | "active" | "left";
