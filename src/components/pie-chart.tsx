@@ -3,8 +3,9 @@ import { ChoreCompletion } from "@/types/chore-completion";
 import { HouseholdMember } from "@/types/household-member";
 import GetChoreName from "@/utils/get-chore-name";
 import getMemberAvatar from "@/utils/get-member-avatar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import PieChartRN, { Slice, SliceLabel } from "react-native-pie-chart";
+import { Text } from "react-native-paper";
 
 interface Props {
   completedChores: ChoreCompletion[];

@@ -6,12 +6,13 @@ import {
   householdsAtom,
 } from "@/atoms/household-atom";
 import { getMemberByUserIdAtom } from "@/atoms/member-atom";
-
+import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
+import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Button, IconButton, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
@@ -19,6 +20,8 @@ export default function HouseholdsScreen() {
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
+  const setVisible = useSetAtom(slideVisibleAtom);
+  const setShouldRender = useSetAtom(shouldRenderSlideAtom);
 
   useEffect(() => {
     getHouseholds();
@@ -34,14 +37,29 @@ export default function HouseholdsScreen() {
   }
 
   async function handleSignOut() {
-    await signOutUser();
+    try {
+      setVisible(false);
+      setShouldRender(false);
+      await signOutUser();
+    } catch (e) {
+      console.log(e);
+    }
     router.replace("/(auth)/login");
+  }
+
+  async function handleDeleteAccount() {
+    router.replace("/(auth)/delete-account");
   }
 
   return (
     <View style={s.Container}>
       <View style={s.headerContainer}>
         <Text style={s.header}>Dina hushåll</Text>
+        <IconButton
+          icon="account-circle-outline"
+          size={40}
+          onPress={() => setVisible(true)}
+        />
       </View>
 
       <ScrollView style={s.householdContainer}>
@@ -51,6 +69,11 @@ export default function HouseholdsScreen() {
           </Pressable>
         ))}
       </ScrollView>
+      <SettingsSideSheet
+        onClose={() => setVisible(false)}
+        onLogout={handleSignOut}
+        onDelete={handleDeleteAccount}
+      />
       <View style={s.buttonContainer}>
         <Button
           mode="contained"
@@ -79,6 +102,9 @@ const s = StyleSheet.create({
   },
   headerContainer: {
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
     padding: 20,
   },
   buttonContainer: {
@@ -87,7 +113,7 @@ const s = StyleSheet.create({
     gap: 20,
   },
   header: {
-    fontSize: 45,
+    fontSize: 35,
   },
   text: {
     fontSize: 20,
