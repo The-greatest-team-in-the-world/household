@@ -89,7 +89,9 @@ export default function RegisterScreen() {
         </Surface>
         <Text style={s.infoText}>Skapa konto</Text>
         {firebaseError && (
-          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {firebaseError}
+          </Text>
         )}
         <Controller
           control={control}
@@ -205,15 +207,15 @@ export default function RegisterScreen() {
           </Text>
         )}
         <View style={s.actions}>
+          <Link href="/(auth)/login">
+            <Text style={s.login}>Redan medlem? logga in här.</Text>
+          </Link>
           <CustomPaperButton
             text="Skapa konto"
             mode="contained"
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />
-          <Link href="/(auth)/login">
-            <Text style={s.login}>Redan medlem? logga in här.</Text>
-          </Link>
         </View>
       </View>
     </KeyboardAwareScrollView>

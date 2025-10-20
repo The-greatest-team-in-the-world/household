@@ -70,7 +70,9 @@ export default function LoginScreen() {
         </Surface>
         <Text style={s.infoText}>Logga in</Text>
         {firebaseError && (
-          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {firebaseError}
+          </Text>
         )}
         <Controller
           control={control}
