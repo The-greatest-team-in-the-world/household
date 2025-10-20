@@ -1,12 +1,19 @@
 import { authStateAtom, initAuthAtom } from "@/atoms/auth-atoms";
+import { ThemeProvider } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  useColorScheme,
+  View,
+} from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AppDarkTheme, AppDefaultTheme } from "../../theme";
 
 // https://docs.expo.dev/router/basics/common-navigation-patterns/#authenticated-users-only-protected-routes
 
@@ -15,6 +22,9 @@ NavigationBar.setButtonStyleAsync("dark");
 export default function RootLayout() {
   const [authState] = useAtom(authStateAtom);
   const initAuth = useSetAtom(initAuthAtom);
+  const colorScheme = useColorScheme();
+
+  const theme = colorScheme === "dark" ? AppDarkTheme : AppDefaultTheme;
 
   useEffect(() => {
     const unsubscribe = initAuth();
@@ -36,19 +46,20 @@ export default function RootLayout() {
   }
 
   return (
-    // Byta till user ist för isAuthenticated?
-    <PaperProvider>
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-        <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Protected guard={authState.isAuthenticated}>
-            <Stack.Screen name="(protected)" />
-          </Stack.Protected>
-          <Stack.Protected guard={!authState.isAuthenticated}>
-            <Stack.Screen name="(auth)" />
-          </Stack.Protected>
-        </Stack>
-      </SafeAreaView>
+    <PaperProvider theme={theme}>
+      <ThemeProvider value={theme}>
+        <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+          <StatusBar style="auto" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Protected guard={authState.isAuthenticated}>
+              <Stack.Screen name="(protected)" />
+            </Stack.Protected>
+            <Stack.Protected guard={!authState.isAuthenticated}>
+              <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+          </Stack>
+        </SafeAreaView>
+      </ThemeProvider>
     </PaperProvider>
   );
 }

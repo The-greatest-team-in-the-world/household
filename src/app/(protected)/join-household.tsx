@@ -1,7 +1,9 @@
 import { getHouseholdByCode } from "@/api/households";
 import { addNewMemberToHousehold, getMembers } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
+import AlertDialog from "@/components/alertDialog";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Household } from "@/types/household";
@@ -11,9 +13,9 @@ import { router } from "expo-router";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
 
 const details = z.object({
@@ -21,10 +23,10 @@ const details = z.object({
     .string({ required_error: "Ange en kod" })
     .min(6, "Ange en kod med 6 tecken"),
   avatar: z.enum(avatarEmojis, {
-    errorMap: () => ({ message: "Välj en avatar!" }),
+    errorMap: () => ({ message: "Välj en avatar" }),
   }),
   nickName: z
-    .string({ required_error: "Ange ett smeknamn!" })
+    .string({ required_error: "Ange ett smeknamn" })
     .min(1, "Ditt smeknamn måste innehålla minst 1 bokstav"),
 });
 
@@ -38,7 +40,8 @@ export default function JoinHouseholdScreen() {
   const [codeInput, setCodeInput] = useState("");
   const [isMember, setIsMember] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const theme = useTheme();
   const {
     control,
     handleSubmit,
@@ -57,7 +60,7 @@ export default function JoinHouseholdScreen() {
         setHasSearched(false);
         return;
       }
-      // Annars så nollställs states och laddning startar för att hämta hushåll från db med angiven kod.
+      // Annars så nollställs household och ismember och laddning startar för att hämta hushåll från db med angiven kod.
       setLoading(true);
       setHousehold(null);
       setIsMember(false);
@@ -82,7 +85,6 @@ export default function JoinHouseholdScreen() {
         setHasSearched(true);
       } catch (error) {
         console.error("Error fetching household:", error);
-        // Spara även vid error så att meddelande  setLastSearchedCode(debouncedInput);
       } finally {
         setLoading(false);
       }
@@ -104,6 +106,8 @@ export default function JoinHouseholdScreen() {
     }
 
     try {
+      // vad händer om två väljer kycklingen samtidigt?
+
       await addNewMemberToHousehold(
         household.id,
         selectedAvatar,
@@ -112,12 +116,8 @@ export default function JoinHouseholdScreen() {
         false,
         "pending",
       );
-      Alert.alert(
-        "Klart!",
-        `Din förfrågan till ${household.name} har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`,
-      );
 
-      router.replace("/(protected)");
+      setDialogOpen(true);
     } catch (error) {
       console.error("Error adding member:", error);
     }
@@ -144,7 +144,7 @@ export default function JoinHouseholdScreen() {
         <Controller
           control={control}
           render={({ field: { onBlur, onChange, value } }) => (
-            <View>
+            <View style={s.inputField}>
               <Surface style={s.surface}>
                 <Text style={s.surfaceTitle}>
                   Anslut till ett nytt hushåll 🏡
@@ -157,16 +157,16 @@ export default function JoinHouseholdScreen() {
                   till.
                 </Text>
               </Surface>
-
-              <Text style={s.title}>Skriv in koden:</Text>
               <TextInput
+                mode="outlined"
+                theme={{ roundness: 8 }}
                 onBlur={onBlur}
                 onChangeText={(value) => {
                   onChange(value); // Spara i formulärdata
                   setCodeInput(value); // Sätta för debouncing och sökning
                 }}
                 value={value || ""}
-                placeholder="Skriv in din hushållskod här..."
+                label="Ange hushållskod"
                 autoCapitalize="characters"
                 maxLength={6}
               />
@@ -174,7 +174,11 @@ export default function JoinHouseholdScreen() {
           )}
           name="code"
         />
-        {errors.code && <Text style={s.errorText}>{errors.code.message}</Text>}
+        {errors.code && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.code.message}
+          </Text>
+        )}
 
         {loading && (
           <View>
@@ -183,33 +187,44 @@ export default function JoinHouseholdScreen() {
         )}
 
         {isAlreadyMember && (
-          <Text style={s.errorText}>Du är redan medlem i detta hushåll!</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            Du är redan medlem i detta hushåll!
+          </Text>
         )}
 
         {isHouseholdFound && (
           <>
             <View>
-              <Text style={s.foundHousehold}>Hushåll hittat:</Text>
-              <Text style={s.foundHousehold}>{household.name}</Text>
+              <Text
+                style={[s.foundHousehold, { color: theme.colors.onBackground }]}
+              >
+                Hushåll hittat: {household.name}
+              </Text>
             </View>
           </>
         )}
 
         {isHouseholdNotFound && (
           <View>
-            <Text style={s.errorText}>Hushållet kunde inte hittas.</Text>
-            <Text style={s.errorText}>Har du skrivit in rätt kod?</Text>
+            <Text style={[s.errorText, { color: theme.colors.error }]}>
+              Hushållet kunde inte hittas.
+            </Text>
+            <Text style={[s.errorText, { color: theme.colors.error }]}>
+              Har du skrivit in rätt kod?
+            </Text>
           </View>
         )}
 
         {isNotMemberInFoundHousehold && (
-          <View>
+          <View style={s.inputField}>
             <Controller
               control={control}
               render={({ field: { onBlur, onChange, value } }) => (
-                <View>
-                  <Text style={s.title}>Välj smeknamn:</Text>
+                <View style={s.inputField}>
                   <TextInput
+                    mode="outlined"
+                    theme={{ roundness: 8 }}
+                    label="Smeknamn"
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
@@ -220,7 +235,9 @@ export default function JoinHouseholdScreen() {
               name="nickName"
             />
             {errors.nickName && (
-              <Text style={s.errorText}>{errors.nickName.message}</Text>
+              <Text style={[s.errorText, { color: theme.colors.error }]}>
+                {errors.nickName.message}
+              </Text>
             )}
             <Controller
               control={control}
@@ -237,15 +254,27 @@ export default function JoinHouseholdScreen() {
               name="avatar"
             />
             {errors.avatar && (
-              <Text style={s.errorText}>{errors.avatar.message}</Text>
+              <Text style={[s.errorText, { color: theme.colors.error }]}>
+                {errors.avatar.message}
+              </Text>
             )}
-            <Button
+            <CustomPaperButton
+              text="Gå med!"
               disabled={isSubmitting}
               mode="contained"
               onPress={handleSubmit(onSubmit)}
-            >
-              Gå med!
-            </Button>
+            />
+            <AlertDialog
+              open={dialogOpen}
+              onClose={() => setDialogOpen(false)}
+              headLine="Förfrågan skickad!"
+              alertMsg={`Din förfrågan till ${household.name}har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`}
+              agreeText="OK"
+              agreeAction={() => {
+                setDialogOpen(false);
+                router.replace("/(protected)");
+              }}
+            />
           </View>
         )}
       </View>
@@ -257,8 +286,14 @@ const s = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
+  blurContainer: {
+    flex: 1,
+  },
   formContainer: {
     padding: 20,
+  },
+  inputField: {
+    gap: 20,
   },
   title: {
     paddingTop: 15,
@@ -269,12 +304,11 @@ const s = StyleSheet.create({
   errorText: {
     fontSize: 17,
     fontWeight: 700,
-    color: "red",
   },
   foundHousehold: {
-    color: "green",
     fontWeight: 700,
     fontSize: 15,
+    gap: 10,
   },
   surface: {
     elevation: 4,

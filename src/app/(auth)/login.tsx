@@ -1,15 +1,15 @@
 import { signInUser } from "@/api/auth";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getLoginErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
-import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
 
 //https://github.com/APSL/react-native-keyboard-aware-scroll-view
@@ -37,6 +37,7 @@ export default function LoginScreen() {
     resolver: zodResolver(credentials),
     defaultValues: {},
   });
+  const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
@@ -75,13 +76,13 @@ export default function LoginScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.inputTitle}>Epost: </Text>
               <TextInput
-                placeholder="Epost"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Epost"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={s.inputField}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -94,13 +95,13 @@ export default function LoginScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.inputTitle}>Lösenord: </Text>
               <TextInput
-                placeholder="Lösenord"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={s.inputField}
                 autoCapitalize="none"
                 secureTextEntry={passwordVisibility}
               />
@@ -108,7 +109,7 @@ export default function LoginScreen() {
                 <MaterialCommunityIcons
                   name={rightIcon}
                   size={20}
-                  color="#232323"
+                  color={theme.colors.onBackground}
                 />
               </Pressable>
             </View>
@@ -117,13 +118,12 @@ export default function LoginScreen() {
         />
         {errors.password && <Text>{errors.password.message}</Text>}
         <View style={s.actions}>
-          <Button
+          <CustomPaperButton
+            text="Logga in"
             mode="contained"
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-          >
-            Logga in
-          </Button>
+          />
           <Link href="/(auth)/register">
             <Text style={s.createAccount}>Inte medlem? Skapa konto här.</Text>
           </Link>
@@ -139,7 +139,7 @@ const s = StyleSheet.create({
   },
   container: {
     padding: 20,
-    gap: 15,
+    gap: 25,
   },
   surface: {
     alignItems: "center",
@@ -156,13 +156,6 @@ const s = StyleSheet.create({
     fontWeight: 700,
     fontSize: 20,
   },
-  inputTitle: {
-    fontWeight: "700",
-  },
-  inputField: {
-    paddingRight: 40,
-    height: 50,
-  },
   resetLinkText: {
     textAlign: "center",
     textDecorationLine: "underline",
@@ -170,7 +163,7 @@ const s = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 20,
-    top: 35,
+    top: 20,
   },
   createAccount: {
     textAlign: "center",

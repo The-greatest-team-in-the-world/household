@@ -110,7 +110,7 @@ export default function HouseholdsScreen() {
         >
           skapa
         </Button>
-        <Button mode="contained" onPress={handleSignOut}>
+        <Button mode="outlined" onPress={handleSignOut}>
           signout
         </Button>
       </View>
