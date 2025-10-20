@@ -20,6 +20,10 @@ export default function HouseholdsScreen() {
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
+  const canEnter = (h: any) => h.status === "active" && !h.isPaused;
+  const visibleHouseholds = (households ?? []).filter(
+    (h: any) => h.status === "active" || h.status === "pending",
+  );
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
 
@@ -63,11 +67,30 @@ export default function HouseholdsScreen() {
       </View>
 
       <ScrollView style={s.householdContainer}>
-        {(households ?? []).map((h) => (
-          <Pressable key={h.id} onPress={() => handleSelectHousehold(h)}>
-            <Text style={s.text}>{h.name}</Text>
-          </Pressable>
-        ))}
+        {visibleHouseholds.map((h: any) => {
+          const pending = h.status === "pending";
+          const paused = !!h.isPaused;
+          const disabled = !canEnter(h);
+
+          const suffix = pending
+            ? "· väntar på godkännande"
+            : paused
+              ? "· pausad"
+              : "";
+
+          return (
+            <Pressable
+              key={h.id}
+              onPress={disabled ? undefined : () => handleSelectHousehold(h)}
+              disabled={disabled}
+              style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
+            >
+              <Text style={[s.text, (pending || paused) && s.textDisabled]}>
+                {h.name} {suffix}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
       <SettingsSideSheet
         onClose={() => setVisible(false)}
@@ -133,4 +156,6 @@ const s = StyleSheet.create({
   },
   icon: { opacity: 0.8 },
   itemText: { fontSize: 16 },
+  rowDisabled: { opacity: 0.5 },
+  textDisabled: { color: "#888", fontStyle: "italic" },
 });
