@@ -10,7 +10,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Button, IconButton, List, Portal, Text } from "react-native-paper";
+import { Button, Divider, IconButton, List, Portal, Text } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
@@ -94,7 +94,6 @@ export default function SettingsSideSheet({
         />
       </Animated.View>
 
-      {/* Side Sheet */}
       <Animated.View
         style={[
           styles.sheet,
@@ -104,7 +103,6 @@ export default function SettingsSideSheet({
           },
         ]}
       >
-        {/* Top section */}
         <View>
           <View style={styles.topRow}>
             <IconButton icon="close" onPress={onClose} />
@@ -112,40 +110,48 @@ export default function SettingsSideSheet({
 
           <View style={styles.header}>
             <View style={{ marginLeft: 12 }}>
-              <Text variant="titleMedium" style={{ fontWeight: "600" }}>
-                {displayName || "Användarnamn"}
+              <Text variant="titleLarge" style={{ fontWeight: "600" }}> Inställningar
               </Text>
+                {displayName && (
+                <Text variant="bodyMedium" style={{ color: "#666", marginTop: 4 }}>
+                  {displayName}
+                </Text>
+              )}
             </View>
           </View>
         </View>
-
-        {/* Scrollable content */}
-        <View style={{ flex: 1 }}>
+        <Divider />
+        <View style={{ flex: 1, padding: 8 }}>
           <List.Section>
-            <List.Subheader>Inställningar</List.Subheader>
+            <List.Subheader>Utseende</List.Subheader>
             <List.Item
               title="Tema"
               left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
-              right={(props) => <List.Icon {...props} icon="chevron-right" />}
-              onPress={() => {}}
             />
+            <View style={[ styles.themeButton ]}>
+            <Button mode="text" contentStyle={{ paddingVertical: 4 }}>Mörkt</Button>
+            <Button mode="text" contentStyle={{ paddingVertical: 4 }}>Ljust</Button>
+            <Button mode="text" contentStyle={{ paddingVertical: 4 }}> Auto</Button>
+            </View>
           </List.Section>
         </View>
+        <Divider />
 
-        <View style={{ paddingBottom: insets.bottom }}>
+        <View style={{ paddingTop: 16, paddingBottom: insets.bottom }}>
           <Button
             mode="contained"
             buttonColor="#f5f5f5"
             textColor="#666"
             style={styles.actionButton}
             icon="logout"
-            onPress={onLogout}
+            onPress={() => { onLogout?.(); }}
           >
             Logga ut
           </Button>
           <Button
             mode="text"
-            textColor="#2f37d3ff"
+            buttonColor="#f5f5f5"
+            textColor="#666"
             style={[styles.actionButton, { marginTop: 8 }]}
             icon="delete-outline"
             onPress={onDelete}
@@ -182,10 +188,17 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   actionButton: {
     borderRadius: 10,
     justifyContent: "center",
+  },
+  themeButton: {
+    flexDirection: "row",
+        gap: 8,
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 12,
   },
 });

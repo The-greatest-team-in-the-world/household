@@ -6,10 +6,10 @@ import {
   householdsAtom,
 } from "@/atoms/household-atom";
 import { getMemberByUserIdAtom } from "@/atoms/member-atom";
-import { slideVisibleAtom } from "@/atoms/ui-atom";
+import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, IconButton } from "react-native-paper";
@@ -21,6 +21,7 @@ export default function HouseholdsScreen() {
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
   const setVisible = useSetAtom(slideVisibleAtom);
+  const setShouldRender = useSetAtom(shouldRenderSlideAtom);
 
   useEffect(() => {
     getHouseholds();
@@ -36,8 +37,18 @@ export default function HouseholdsScreen() {
   }
 
   async function handleSignOut() {
-    await signOutUser();
+    try {
+      setVisible(false);
+      setShouldRender(false);
+      await signOutUser();
+    } catch (e) {
+      console.log(e);
+    }
     router.replace("/(auth)/login");
+  }
+
+  async function handleDeleteAccount() {
+    router.replace("/(auth)/delete-account");
   }
 
   return (
@@ -58,7 +69,11 @@ export default function HouseholdsScreen() {
           </Pressable>
         ))}
       </ScrollView>
-      <SettingsSideSheet onClose={() => setVisible(false)} />
+      <SettingsSideSheet
+        onClose={() => setVisible(false)}
+        onLogout={handleSignOut}
+        onDelete={handleDeleteAccount}
+      />
       <View style={s.buttonContainer}>
         <Button
           mode="contained"
