@@ -14,7 +14,7 @@ import { Button, Drawer, IconButton, Portal, Text } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
-  visible: boolean;
+visible: boolean;
   onClose: () => void;
   onLogout?: () => void;
   onDelete?: () => void;
@@ -27,62 +27,62 @@ export default function SettingsSideSheet({
   onLogout,
   onDelete,
 }: Props) {
-  // mounta bara när vi behöver visa/animera
-    const visible = useAtomValue(drawerVisibleAtom);
-    const setShouldRender = useSetAtom(shouldRenderDrawerAtom);
-    const slide = useRef(new Animated.Value(width)).current;
-    const fade = useRef(new Animated.Value(0)).current;
-    const member = useAtomValue(currentHouseholdMember);
-    const insets = useSafeAreaInsets();
-  
-    useEffect(() => {
-      slide.stopAnimation();
-      fade.stopAnimation();
-  
-      if (visible) {
-        setShouldRender(true);
+  const visible = useAtomValue(drawerVisibleAtom);
+  const shouldRender = useAtomValue(shouldRenderDrawerAtom);
+  const setShouldRender = useSetAtom(shouldRenderDrawerAtom);
+  const slide = useRef(new Animated.Value(width)).current;
+  const fade = useRef(new Animated.Value(0)).current;
+  const member = useAtomValue(currentHouseholdMember);
+  const insets = useSafeAreaInsets();
 
-        slide.setValue(width);
-        fade.setValue(0);
+  useEffect(() => {
+    slide.stopAnimation();
+    fade.stopAnimation();
 
-        Animated.parallel([
-          Animated.timing(fade, {
-            toValue: 1,
-            duration: 260,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(slide, {
-            toValue: 0,
-            duration: 260,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]).start();
-      } else {
-        Animated.parallel([
-          Animated.timing(fade, {
-            toValue: 0,
-            duration: 200,
-            easing: Easing.in(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(slide, {
-            toValue: width,
-            duration: 240,
-            easing: Easing.in(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]).start(() => setShouldRender(false));
-      }
-    }, [visible, fade, slide]);
-  
-    if (!setShouldRender) return null;
+    if (visible) {
+      setShouldRender(true);
+      slide.setValue(width);
+      fade.setValue(0);
+
+      Animated.parallel([
+        Animated.timing(fade, {
+          toValue: 1,
+          duration: 260,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(slide, {
+          toValue: 0,
+          duration: 260,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(fade, {
+          toValue: 0,
+          duration: 200,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(slide, {
+          toValue: width,
+          duration: 240,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShouldRender(false));
+    }
+  }, [visible, fade, slide, setShouldRender]);
+
+  if (!shouldRender) return null;
 
   return (
     <Portal>
+      {/* Backdrop */}
       <Animated.View
-        pointerEvents="box-none"
+        pointerEvents={visible ? "auto" : "none"}
         style={[StyleSheet.absoluteFill, { opacity: fade }]}
       >
         <Pressable
@@ -94,57 +94,61 @@ export default function SettingsSideSheet({
         />
       </Animated.View>
 
-      {/* Själva “drawern” */}
+      {/* Side Sheet */}
       <Animated.View
         style={[
           styles.sheet,
           {
             transform: [{ translateX: slide }],
-            paddingTop: insets.top + 8,
-            paddingBottom: insets.bottom + 12,
+            top: insets.top, // Börja under statusbaren
           },
         ]}
       >
-        <View style={styles.topRow}>
-          <IconButton icon="close" onPress={onClose} />
-        </View>
+        {/* Top section med safe area */}
+        <View>
+          <View style={styles.topRow}>
+            <IconButton icon="close" onPress={onClose} />
+          </View>
 
-        <View style={styles.header}>
-          <View style={{ marginLeft: 12 }}>
-            <Text variant="titleMedium" style={{ fontWeight: "600" }}>
-              {member?.nickName || "Användarnamn"}
-            </Text>
+          <View style={styles.header}>
+            <View style={{ marginLeft: 12 }}>
+              <Text variant="titleMedium" style={{ fontWeight: "600" }}>
+                {member?.nickName || "Användarnamn"}
+              </Text>
+            </View>
           </View>
         </View>
 
-        <Drawer.Section title="Inställningar">
-          <Drawer.Item
-            icon="theme-light-dark"
-            label="Tema"
-            onPress={() => {}}
-          />
-        </Drawer.Section>
+        <View style={{ flex: 1 }}>
+          <Drawer.Section title="Inställningar">
+            <Drawer.Item
+              icon="theme-light-dark"
+              label="Tema"
+              onPress={() => {}}
+            />
+          </Drawer.Section>
+        </View>
 
-        <View style={{ flex: 1 }} />
-
-        <Button
-          mode="contained"
-          buttonColor="#beafafff"
-          style={styles.danger}
-          icon="logout"
-          onPress={onLogout}
-        >
-          Logga ut
-        </Button>
-        <Button
-          mode="contained"
-          buttonColor="#beafafff"
-          style={[styles.danger, { marginTop: 8 }]}
-          icon="delete-outline"
-          onPress={onDelete}
-        >
-          Avsluta konto
-        </Button>
+        <View style={{ paddingBottom: insets.bottom }}>
+          <Button
+            mode="contained"
+            buttonColor="#beafafff"
+            style={styles.danger}
+            icon="logout"
+            onPress={onLogout}
+          >
+            Logga ut
+          </Button>
+          <Button
+            mode="contained"
+            buttonColor="#beafafff"
+            style={[styles.danger, { marginTop: 8 }]}
+            icon="delete-outline"
+            onPress={onDelete}
+          >
+            Avsluta konto
+          </Button>
+        </View>
       </Animated.View>
     </Portal>
   );
@@ -161,8 +165,23 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  topRow: { alignItems: "flex-end" },
-  header: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
-  danger: { borderRadius: 10, justifyContent: "center" },
+  topRow: { 
+    alignItems: "flex-end",
+    marginBottom: 8,
+  },
+  header: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginBottom: 24,
+  },
+  danger: { 
+    borderRadius: 10, 
+    justifyContent: "center",
+  },
 });
