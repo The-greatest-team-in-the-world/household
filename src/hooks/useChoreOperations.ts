@@ -43,20 +43,17 @@ export function useChoreOperations() {
     setIsCompleted(completed);
   }, [selectedChore, currentMember, choreCompletions]);
 
-  const toggleCompletion = async (choreId: string) => {
+  const submitChoreCompletion = async (choreId: string) => {
     if (!currentMember) return;
-
-    if (!isCompleted) {
-      await addChoreCompletion(householdId, choreId);
-      const updatedCompletions = await getAllCompletions(householdId);
-      setCompletions(updatedCompletions);
-      setIsCompleted(true);
-    } else {
-      await deleteChoreCompletion(householdId, choreId, currentMember.userId);
-      const updatedCompletions = await getAllCompletions(householdId);
-      setCompletions(updatedCompletions);
-      setIsCompleted(false);
-    }
+    await addChoreCompletion(householdId, choreId);
+    const updatedCompletions = await getAllCompletions(householdId);
+    setCompletions(updatedCompletions);
+  };
+  const removeChoreCompletion = async (choreId: string) => {
+    if (!currentMember) return;
+    await deleteChoreCompletion(householdId, choreId, currentMember.userId);
+    const updatedCompletions = await getAllCompletions(householdId);
+    setCompletions(updatedCompletions);
   };
 
   const updateChoreData = async (data: UpdateChoreData) => {
@@ -96,7 +93,8 @@ export function useChoreOperations() {
     currentMember,
     householdId,
     isCompleted,
-    toggleCompletion,
+    submitChoreCompletion,
+    removeChoreCompletion,
     updateChoreData,
     deleteChore,
   };
