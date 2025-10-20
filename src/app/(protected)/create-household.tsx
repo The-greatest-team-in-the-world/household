@@ -1,6 +1,7 @@
 import { createNewHousehold } from "@/api/households";
 import { addNewMemberToHousehold } from "@/api/members";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
@@ -8,7 +9,7 @@ import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
 const newHouseHold = z.object({
@@ -79,9 +80,10 @@ export default function CreateHousholdScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.title}>Hushållets namn:</Text>
               <TextInput
-                placeholder="Hushållets namn"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Hushållets namn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -98,9 +100,10 @@ export default function CreateHousholdScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.title}>Smeknamn:</Text>
               <TextInput
-                placeholder="Smeknamn"
+                label="Smeknamn"
+                mode="outlined"
+                theme={{ roundness: 8 }}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -130,13 +133,12 @@ export default function CreateHousholdScreen() {
         {errors.avatar && (
           <Text style={s.errorText}>{errors.avatar.message}</Text>
         )}
-        <Button
+        <CustomPaperButton
+          text="Skapa"
           mode="contained"
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
-        >
-          Skapa
-        </Button>
+        />
       </View>
     </KeyboardAwareScrollView>
   );
@@ -148,12 +150,13 @@ const s = StyleSheet.create({
   },
   container: {
     padding: 20,
-    gap: 10,
+    gap: 20,
   },
   title: {
     paddingTop: 10,
     paddingBottom: 10,
     fontWeight: 700,
+    fontSize: 15,
   },
   errorText: {
     fontSize: 15,

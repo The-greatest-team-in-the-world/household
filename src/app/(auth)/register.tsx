@@ -1,4 +1,5 @@
 import { registerUser } from "@/api/auth";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -8,7 +9,7 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput } from "react-native-paper";
 import { z } from "zod";
 
 const credentials = z
@@ -93,9 +94,10 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.inputTitle}>Namn: </Text>
               <TextInput
-                placeholder="Namn"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Namn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -111,9 +113,10 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.inputTitle}>Epost: </Text>
               <TextInput
-                placeholder="Epost"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Epost"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -130,9 +133,10 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.inputTitle}>Lösenord: </Text>
               <TextInput
-                placeholder="Lösenord"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -157,9 +161,10 @@ export default function RegisterScreen() {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.inputTitle}>Upprepa lösenord: </Text>
               <TextInput
-                placeholder="Upprepa lösenord"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Upprepa lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -185,13 +190,12 @@ export default function RegisterScreen() {
           <Text>{errors.confirmPassword.message}</Text>
         )}
         <View style={s.actions}>
-          <Button
+          <CustomPaperButton
+            text="Skapa konto"
             mode="contained"
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-          >
-            Skapa konto
-          </Button>
+          />
           <Link href="/(auth)/login">
             <Text style={s.login}>Redan medlem? logga in här.</Text>
           </Link>
@@ -207,7 +211,7 @@ const s = StyleSheet.create({
   },
   container: {
     padding: 20,
-    gap: 10,
+    gap: 20,
   },
   surface: {
     alignItems: "center",

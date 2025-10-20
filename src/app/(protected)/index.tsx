@@ -10,8 +10,8 @@ import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Button, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
@@ -64,7 +64,7 @@ export default function HouseholdsScreen() {
         >
           skapa
         </Button>
-        <Button mode="contained" onPress={handleSignOut}>
+        <Button mode="outlined" onPress={handleSignOut}>
           signout
         </Button>
       </View>
