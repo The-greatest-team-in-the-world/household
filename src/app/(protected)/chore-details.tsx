@@ -1,9 +1,10 @@
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
 
@@ -18,8 +19,8 @@ export default function ChoreDetailsScreen() {
   const {
     selectedChore,
     currentMember,
-    isCompleted,
-    toggleCompletion,
+    submitChoreCompletion,
+    removeChoreCompletion,
     updateChoreData,
     deleteChore,
   } = useChoreOperations();
@@ -51,6 +52,19 @@ export default function ChoreDetailsScreen() {
       });
     }
   }, [selectedChore, reset]);
+
+  const handlePressDone = () => {
+    if (selectedChore) {
+      submitChoreCompletion(selectedChore.id);
+      router.back();
+    }
+  };
+  const handlePressRemoveCompletion = () => {
+    if (selectedChore) {
+      removeChoreCompletion(selectedChore.id);
+      router.back();
+    }
+  };
 
   const handlePressDelete = () => {
     if (selectedChore) {
@@ -135,21 +149,18 @@ export default function ChoreDetailsScreen() {
               render={({ field: { onChange, value } }) => (
                 <View>
                   <Text style={s.editText}>Återkommer var (dagar)</Text>
-                  <SegmentedButtonsComponent
-                    value={value?.toString() || ""}
-                    onValueChange={(newValue) =>
-                      onChange(parseInt(newValue) || 0)
-                    }
-                    options={[
-                      { value: "1", label: "1" },
-                      { value: "2", label: "2" },
-                      { value: "3", label: "3" },
-                      { value: "4", label: "4" },
-                      { value: "5", label: "5" },
-                      { value: "6", label: "6" },
-                      { value: "7", label: "7" },
-                    ]}
-                  />
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <SegmentedButtonsComponent
+                      value={value?.toString() || ""}
+                      onValueChange={(newValue) =>
+                        onChange(parseInt(newValue) || 0)
+                      }
+                      options={Array.from({ length: 30 }, (_, i) => {
+                        const val = (i + 1).toString();
+                        return { value: val, label: val };
+                      })}
+                    />
+                  </ScrollView>
                   {errors.frequency && (
                     <Text style={s.errorText}>{errors.frequency.message}</Text>
                   )}
@@ -162,7 +173,8 @@ export default function ChoreDetailsScreen() {
               name="effort"
               render={({ field: { onChange, value } }) => (
                 <View>
-                  <Text style={s.editText}>Värde (poäng)</Text>
+                  <Text style={s.editText}>Värde</Text>
+                  <Text style={s.helpText}>Hur energikrävande är sysslan?</Text>
                   <SegmentedButtonsComponent
                     value={value?.toString() || ""}
                     onValueChange={(newValue) =>
@@ -228,17 +240,16 @@ export default function ChoreDetailsScreen() {
       </View>
       <View style={s.doneButtonsContainer}>
         <CustomPaperButton
-          onPress={() => toggleCompletion(selectedChore!.id)}
-          text="Inte klar"
-          icon="check"
-          disabled={isSubmitting}
+          onPress={() => handlePressRemoveCompletion()}
+          text="Markera som inte klar"
+          icon="undo"
           mode="outlined"
-          style={{ minWidth: "100%" }}
-          isToggle={true}
-          isToggled={isCompleted}
-          toggledIcon="check-circle"
-          toggledText="Klar"
-          toggledMode="contained"
+        />
+        <CustomPaperButton
+          onPress={() => handlePressDone()}
+          text="Markera som klar"
+          icon="check"
+          mode="contained"
         />
       </View>
     </Surface>
@@ -258,7 +269,6 @@ const s = StyleSheet.create({
     flex: 1,
   },
   doneButtonsContainer: {
-    flexDirection: "row",
     justifyContent: "center",
     gap: 10,
   },
@@ -306,6 +316,10 @@ const s = StyleSheet.create({
   editText: {
     fontSize: 14,
     fontWeight: "bold",
+    marginBottom: 5,
+  },
+  helpText: {
+    fontSize: 12,
     marginBottom: 5,
   },
   titleText: {
