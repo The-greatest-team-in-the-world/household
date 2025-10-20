@@ -64,12 +64,12 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 
 ### Statistik (6)
 
-- [ ] **En användare ska kunna se fördelningen av gjorda sysslor mellan användarna i sitt hushåll.**
-- [ ] **Varje statistikvy ska visa den totala fördelningen (inräknat vikterna för sysslorna) samt fördelning av varje enskild syssla.**
-- [ ] **Det ska finnas en statistikvy över ”nuvarande vecka”.**
-- [ ] Det ska finnas en statistikvy över ”förra vecka”.
-- [ ] Det ska finnas en statistikvy över ”förra månaden”.
-- [ ] Om det inte finns statistik för en av vyerna ska den vyn inte visas.
+- [x] **En användare ska kunna se fördelningen av gjorda sysslor mellan användarna i sitt hushåll.**
+- [x] **Varje statistikvy ska visa den totala fördelningen (inräknat vikterna för sysslorna) samt fördelning av varje enskild syssla.**
+- [x] **Det ska finnas en statistikvy över ”nuvarande vecka”.**
+- [x] Det ska finnas en statistikvy över ”förra vecka”.
+- [x] Det ska finnas en statistikvy över ”förra månaden”.
+- [x] Om det inte finns statistik för en av vyerna ska den vyn inte visas.
 
 ### Schemaläggning (3)
 
