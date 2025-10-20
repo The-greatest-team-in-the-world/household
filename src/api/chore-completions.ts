@@ -6,6 +6,8 @@ import {
   doc,
   getDocs,
   serverTimestamp,
+  Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase-config";
 
@@ -32,6 +34,8 @@ export async function getAllCompletions(
 }
 
 export async function addChoreCompletion(householdId: string, choreId: string) {
+  const userId = auth.currentUser?.uid;
+
   const completionsRef = collection(
     db,
     "households",
@@ -40,9 +44,16 @@ export async function addChoreCompletion(householdId: string, choreId: string) {
   );
   await addDoc(completionsRef, {
     choreId: choreId,
-    userId: auth.currentUser?.uid,
+    userId: userId,
     completedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+  });
+
+  const choreRef = doc(db, "households", householdId, "chores", choreId);
+  await updateDoc(choreRef, {
+    lastCompletedAt: Timestamp.now(),
+    lastCompletedBy: userId,
+    updatedAt: Timestamp.now(),
   });
 }
 
@@ -83,5 +94,40 @@ export async function deleteChoreCompletion(
     await deleteDoc(
       doc(db, "households", householdId, "completions", completionToDelete.id),
     );
+
+    // Hitta den senaste kvarvarande completionen för denna chore
+    const remainingCompletions = snapshot.docs
+      .filter((doc) => {
+        const data = doc.data();
+        return data.choreId === choreId && doc.id !== completionToDelete.id;
+      })
+      .map((doc) => doc.data());
+
+    // Uppdatera chore med den senaste completionen eller null
+    const choreRef = doc(db, "households", householdId, "chores", choreId);
+
+    if (remainingCompletions.length > 0) {
+      // Hitta den senaste completionen
+      const latestCompletion = remainingCompletions.reduce(
+        (latest, current) => {
+          return current.completedAt.toMillis() > latest.completedAt.toMillis()
+            ? current
+            : latest;
+        },
+      );
+
+      await updateDoc(choreRef, {
+        lastCompletedAt: latestCompletion.completedAt,
+        lastCompletedBy: latestCompletion.userId,
+        updatedAt: Timestamp.now(),
+      });
+    } else {
+      // Inga completions kvar, sätt till null
+      await updateDoc(choreRef, {
+        lastCompletedAt: null,
+        lastCompletedBy: null,
+        updatedAt: Timestamp.now(),
+      });
+    }
   }
 }
