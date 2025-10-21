@@ -11,7 +11,7 @@ import {
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Text } from "react-native-paper";
+import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function DayViewScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
@@ -81,14 +81,14 @@ export default function DayViewScreen() {
 
   if (isLoading) {
     return (
-      <View style={s.loading}>
+      <Surface style={s.loading} elevation={0}>
         <ActivityIndicator animating={true} size="large" />
-      </View>
+      </Surface>
     );
   }
 
   return (
-    <View style={s.container}>
+    <Surface style={s.container} elevation={0}>
       <View style={s.headerContainer}>
         <Text style={s.subheader}>
           {todaysCompletions.length} klara • {incompleteChoresToday.length} kvar
@@ -121,16 +121,16 @@ export default function DayViewScreen() {
           icon="information-outline"
           text="Mer info"
           onPress={() => console.log("Mer info")}
-          mode="outlined"
+          mode="contained-tonal"
         />
         <CustomPaperButton
           icon="account-details-outline"
           text="Mina sysslor"
           onPress={() => console.log("Mina sysslor")}
-          mode="outlined"
+          mode="contained"
         />
       </View>
-    </View>
+    </Surface>
   );
 }
 
@@ -154,7 +154,6 @@ const s = StyleSheet.create({
   },
   subheader: {
     fontSize: 14,
-    color: "#666",
     marginTop: 4,
   },
   section: {
@@ -178,7 +177,6 @@ const s = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 18,
-    color: "#666",
   },
   buttonContainer: {
     flexDirection: "row",
