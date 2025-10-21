@@ -6,11 +6,13 @@ import { IconButton, Surface, Text } from "react-native-paper";
 interface ActiveMemberCardProps {
   member: HouseholdMember;
   onMakeOwner?: (userId: string) => void;
+  onRemoveOwnership?: (userId: string) => void;
 }
 
 export function ActiveMemberCard({
   member,
   onMakeOwner,
+  onRemoveOwnership,
 }: ActiveMemberCardProps) {
   return (
     <Surface style={styles.card} elevation={1}>
@@ -29,7 +31,17 @@ export function ActiveMemberCard({
       {/* Owner icon or Make Owner button */}
       <View style={styles.ownerBadge}>
         {member.isOwner ? (
-          <MaterialIcons name="star" size={20} color="#FFD700" />
+          onRemoveOwnership ? (
+            <IconButton
+              icon="star"
+              iconColor="#FFD700"
+              size={20}
+              onPress={() => onRemoveOwnership(member.userId)}
+              style={styles.iconButton}
+            />
+          ) : (
+            <MaterialIcons name="star" size={20} color="#FFD700" />
+          )
         ) : (
           onMakeOwner && (
             <IconButton

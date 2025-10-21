@@ -1,10 +1,10 @@
-import { approveMember, rejectMember } from "@/api/members";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
 import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
+import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -16,11 +16,21 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
-  const [makeOwnerDialog, setMakeOwnerDialog] = useState<{
-    open: boolean;
-    userId: string;
-    nickName: string;
-  }>({ open: false, userId: "", nickName: "" });
+
+  const {
+    handleApprove,
+    handleReject,
+    handleMakeOwner,
+    handleRemoveOwnership,
+    makeOwnerDialog,
+    setMakeOwnerDialog,
+    confirmMakeOwner,
+    removeOwnerDialog,
+    setRemoveOwnerDialog,
+    confirmRemoveOwnership,
+    errorDialog,
+    setErrorDialog,
+  } = useMemberManagement(currentHousehold?.id, members);
 
   useEffect(() => {
     if (!currentHousehold?.id) return;
@@ -58,45 +68,6 @@ export default function HouseHoldDetailsScreen() {
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
 
-  const handleApprove = async (userId: string) => {
-    if (!currentHousehold?.id) return;
-
-    try {
-      await approveMember(currentHousehold.id, userId);
-      // Members list will auto-update via listener
-    } catch (error) {
-      console.error("Error approving member:", error);
-    }
-  };
-
-  const handleReject = async (userId: string) => {
-    if (!currentHousehold?.id) return;
-
-    try {
-      await rejectMember(currentHousehold.id, userId);
-      // Members list will auto-update via listener
-    } catch (error) {
-      console.error("Error rejecting member:", error);
-    }
-  };
-
-  const handleMakeOwner = (userId: string) => {
-    const member = members.find((m) => m.userId === userId);
-    if (!member) return;
-
-    setMakeOwnerDialog({
-      open: true,
-      userId: userId,
-      nickName: member.nickName,
-    });
-  };
-
-  const confirmMakeOwner = async () => {
-    console.log("Make owner confirmed:", makeOwnerDialog.userId);
-    // TODO: Call API to make member an owner
-    setMakeOwnerDialog({ open: false, userId: "", nickName: "" });
-  };
-
   return (
     <Surface style={styles.container} elevation={0}>
       <ScrollView>
@@ -133,6 +104,7 @@ export default function HouseHoldDetailsScreen() {
                   key={member.userId}
                   member={member}
                   onMakeOwner={handleMakeOwner}
+                  onRemoveOwnership={handleRemoveOwnership}
                 />
               ))}
             </View>
@@ -156,6 +128,26 @@ export default function HouseHoldDetailsScreen() {
         agreeText="Ja, gör till ägare"
         disagreeText="Avbryt"
         agreeAction={confirmMakeOwner}
+      />
+
+      <AlertDialog
+        open={removeOwnerDialog.open}
+        onClose={() =>
+          setRemoveOwnerDialog({ open: false, userId: "", nickName: "" })
+        }
+        headLine="Ta bort ägarskap"
+        alertMsg={`Är du säker på att du vill ta bort ${removeOwnerDialog.nickName} som ägare? De kommer fortfarande vara medlem i hushållet men kan inte längre godkänna nya medlemmar eller hantera andra.`}
+        agreeText="Ja, ta bort ägarskap"
+        disagreeText="Avbryt"
+        agreeAction={confirmRemoveOwnership}
+      />
+
+      <AlertDialog
+        open={errorDialog.open}
+        onClose={() => setErrorDialog({ open: false, message: "" })}
+        headLine="Åtgärden kunde inte utföras"
+        alertMsg={errorDialog.message}
+        agreeText="OK"
       />
     </Surface>
   );
