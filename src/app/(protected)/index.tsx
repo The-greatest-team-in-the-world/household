@@ -1,19 +1,22 @@
 import { signOutUser } from "@/api/auth";
-import { getPendingMemberCount } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
-import { getMemberByUserIdAtom } from "@/atoms/member-atom";
+import {
+  getMemberByUserIdAtom,
+  initPendingMembersListenerAtom,
+  pendingMembersCountAtom,
+} from "@/atoms/member-atom";
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
@@ -29,35 +32,31 @@ export default function HouseholdsScreen() {
   );
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
-
-  // State to store pending member counts for each household
-  const [pendingCounts, setPendingCounts] = useState<Record<string, number>>(
-    {},
-  );
+  const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
+  const pendingCounts = useAtomValue(pendingMembersCountAtom);
 
   useEffect(() => {
     getHouseholds();
   }, [getHouseholds]);
 
-  // Fetch pending member counts for households where user is owner
+  // Set up listeners for pending members count for each household where user is owner
   useEffect(() => {
-    async function fetchPendingCounts() {
-      if (!visibleHouseholds || visibleHouseholds.length === 0) return;
+    if (!visibleHouseholds || visibleHouseholds.length === 0) return;
 
-      const counts: Record<string, number> = {};
-      await Promise.all(
-        visibleHouseholds.map(async (h: any) => {
-          if (h.isOwner) {
-            const count = await getPendingMemberCount(h.id);
-            counts[h.id] = count;
-          }
-        }),
-      );
-      setPendingCounts(counts);
-    }
+    const unsubscribers: (() => void)[] = [];
 
-    fetchPendingCounts();
-  }, [visibleHouseholds]);
+    visibleHouseholds.forEach((h: any) => {
+      if (h.isOwner) {
+        const unsubscribe = initPendingListener(h.id);
+        unsubscribers.push(unsubscribe);
+      }
+    });
+
+    // Cleanup all listeners when component unmounts or households change
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [visibleHouseholds, initPendingListener]);
 
   async function handleSelectHousehold(h: any) {
     if (user) {
