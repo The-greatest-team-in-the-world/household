@@ -3,7 +3,7 @@ import {
   deleteChoreCompletion,
   getAllCompletions,
 } from "@/api/chore-completions";
-import { updateChore } from "@/api/chores";
+import { archiveChore, updateChore } from "@/api/chores";
 import { choresAtom, selectedChoreAtom } from "@/atoms/chore-atom";
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
@@ -83,9 +83,14 @@ export function useChoreOperations() {
     );
   };
 
-  const deleteChore = async (choreId: string) => {
-    // TODO: Implementera delete funktionalitet
-    console.log("Ta bort syssla:", choreId);
+  const softDeleteChore = async (choreId: string) => {
+    await archiveChore(householdId, choreId);
+
+    setChores(
+      chores.map((chore) =>
+        chore.id === choreId ? { ...chore, isArchived: true } : chore,
+      ),
+    );
   };
 
   return {
@@ -96,6 +101,6 @@ export function useChoreOperations() {
     submitChoreCompletion,
     removeChoreCompletion,
     updateChoreData,
-    deleteChore,
+    softDeleteChore,
   };
 }
