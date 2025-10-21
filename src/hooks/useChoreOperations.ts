@@ -83,14 +83,11 @@ export function useChoreOperations() {
     );
   };
 
-  const softDeleteChore = async (choreId: string) => {
-    await archiveChore(householdId, choreId);
+  const softDeleteChore = async () => {
+    if (!selectedChore) return;
 
-    setChores(
-      chores.map((chore) =>
-        chore.id === choreId ? { ...chore, isArchived: true } : chore,
-      ),
-    );
+    await archiveChore(householdId, selectedChore!.id);
+    setChores(chores.filter((chore) => chore.id !== selectedChore.id));
   };
 
   return {
