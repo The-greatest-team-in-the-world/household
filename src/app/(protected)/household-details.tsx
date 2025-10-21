@@ -1,4 +1,4 @@
-import { getMembers } from "@/api/members";
+import { approveMember, getMembers, rejectMember } from "@/api/members";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { membersAtom } from "@/atoms/member-atom";
 import { MemberList } from "@/components/member-list";
@@ -52,19 +52,33 @@ export default function HouseHoldDetailsScreen() {
   // Check isOwner from currentHousehold (which includes isOwner from getUsersHouseholds)
   const isOwner = currentHousehold?.isOwner ?? false;
 
-  // Filter members depending on status
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
 
-  // Handler functions for approving/rejecting members
-  const handleApprove = (userId: string) => {
-    console.log("Approve member:", userId);
-    // TODO: Call API to approve member
+  const handleApprove = async (userId: string) => {
+    if (!currentHousehold?.id) return;
+
+    try {
+      await approveMember(currentHousehold.id, userId);
+      // Refresh members list
+      const fetchedMembers = await getMembers(currentHousehold.id);
+      setMembers(fetchedMembers);
+    } catch (error) {
+      console.error("Error approving member:", error);
+    }
   };
 
-  const handleReject = (userId: string) => {
-    console.log("Reject member:", userId);
-    // TODO: Call API to delete member
+  const handleReject = async (userId: string) => {
+    if (!currentHousehold?.id) return;
+
+    try {
+      await rejectMember(currentHousehold.id, userId);
+      // Refresh members list
+      const fetchedMembers = await getMembers(currentHousehold.id);
+      setMembers(fetchedMembers);
+    } catch (error) {
+      console.error("Error rejecting member:", error);
+    }
   };
 
   return (

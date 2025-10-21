@@ -3,9 +3,12 @@ import { getAuth } from "@firebase/auth";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
@@ -66,4 +69,39 @@ export async function addNewMemberToHousehold(
     updatedAt: serverTimestamp(),
     createdAt: serverTimestamp(),
   });
+}
+
+export async function approveMember(
+  householdId: string,
+  userId: string,
+): Promise<void> {
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    throw new Error("Member not found");
+  }
+
+  const memberDoc = snapshot.docs[0];
+  await updateDoc(doc(db, "households", householdId, "members", memberDoc.id), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function rejectMember(
+  householdId: string,
+  userId: string,
+): Promise<void> {
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    throw new Error("Member not found");
+  }
+
+  const memberDoc = snapshot.docs[0];
+  await deleteDoc(doc(db, "households", householdId, "members", memberDoc.id));
 }
