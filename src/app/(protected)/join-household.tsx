@@ -268,7 +268,7 @@ export default function JoinHouseholdScreen() {
               open={dialogOpen}
               onClose={() => setDialogOpen(false)}
               headLine="Förfrågan skickad!"
-              alertMsg={`Din förfrågan till ${household.name}har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`}
+              alertMsg={`Din förfrågan till ${household.name} har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`}
               agreeText="OK"
               agreeAction={() => {
                 setDialogOpen(false);
