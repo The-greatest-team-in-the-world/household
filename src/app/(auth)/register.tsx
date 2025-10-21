@@ -1,16 +1,15 @@
 import { registerUser } from "@/api/auth";
-import { updateUserAtom } from "@/atoms/auth-atoms";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useTogglePasswordVisibility } from "@/hooks/useTogglePasswordVisibility";
 import { getRegisterErrorMessage } from "@/utils/firebase-errors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getAuth } from "firebase/auth";
-import { useSetAtom } from "jotai";
+import { Link } from "expo-router";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Surface, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
 
 const credentials = z
@@ -57,6 +56,7 @@ export default function RegisterScreen() {
     resolver: zodResolver(credentials),
     defaultValues: {},
   });
+  const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setFirebaseError("");
@@ -74,52 +74,60 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={s.scrollContent}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid={true}
       extraScrollHeight={20}
     >
-      <View style={styles.container}>
-        <Surface style={styles.surface} elevation={4}>
-          <Text style={styles.infoText}>Bli medlem!</Text>
+      <View style={s.container}>
+        <Surface style={s.surface} elevation={4}>
+          <Text style={s.infoText}>Bli medlem!</Text>
           <Image
             source={require("../../assets/images/houseHoldTransparent.png")}
-            style={styles.image}
+            style={s.image}
           />
         </Surface>
-        <Text style={styles.infoText}>Skapa konto</Text>
+        <Text style={s.infoText}>Skapa konto</Text>
         {firebaseError && (
-          <Text style={{ color: "red", padding: 10 }}>{firebaseError}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {firebaseError}
+          </Text>
         )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Namn: </Text>
               <TextInput
-                placeholder="Namn"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Namn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 autoCapitalize="words"
               />
             </View>
           )}
           name="displayName"
         />
-        {errors.displayName && <Text>{errors.displayName.message}</Text>}
+        {errors.displayName && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.displayName.message}
+          </Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Epost: </Text>
               <TextInput
-                placeholder="Epost"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Epost"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -127,59 +135,66 @@ export default function RegisterScreen() {
           )}
           name="email"
         />
-        {errors.email && <Text>{errors.email.message}</Text>}
+        {errors.email && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.email.message}
+          </Text>
+        )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Lösenord: </Text>
               <TextInput
-                placeholder="Lösenord"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 secureTextEntry={passwordVisibility}
                 autoCapitalize="none"
               />
-              <Pressable
-                onPress={handlePasswordVisibility}
-                style={styles.eyeIcon}
-              >
+              <Pressable onPress={handlePasswordVisibility} style={s.eyeIcon}>
                 <MaterialCommunityIcons
                   name={rightIcon}
                   size={20}
-                  color="#232323"
+                  color={theme.colors.onBackground}
                 />
               </Pressable>
             </View>
           )}
           name="password"
         />
-        {errors.password && <Text>{errors.password.message}</Text>}
+        {errors.password && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.password.message}
+          </Text>
+        )}
 
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={styles.inputTitle}>Upprepa lösenord: </Text>
               <TextInput
-                placeholder="Upprepa lösenord"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Upprepa lösenord"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                style={styles.inputField}
+                style={s.inputField}
                 secureTextEntry={confirmPasswordVisibility}
                 autoCapitalize="none"
               />
               <Pressable
                 onPress={confirmHandlePasswordVisibility}
-                style={styles.eyeIcon}
+                style={s.eyeIcon}
               >
                 <MaterialCommunityIcons
                   name={confirmRightIcon}
                   size={22}
-                  color="#232323"
+                  color={theme.colors.onBackground}
                 />
               </Pressable>
             </View>
@@ -187,33 +202,39 @@ export default function RegisterScreen() {
           name="confirmPassword"
         />
         {errors.confirmPassword && (
-          <Text>{errors.confirmPassword.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.confirmPassword.message}
+          </Text>
         )}
-
-        <Button
-          mode="contained"
-          disabled={isSubmitting}
-          onPress={handleSubmit(onSubmit)}
-        >
-          Skapa konto
-        </Button>
+        <View style={s.actions}>
+          <Link href="/(auth)/login">
+            <Text style={s.login}>Redan medlem? logga in här.</Text>
+          </Link>
+          <CustomPaperButton
+            text="Skapa konto"
+            mode="contained"
+            disabled={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+          />
+        </View>
       </View>
     </KeyboardAwareScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
   container: {
     padding: 20,
-    gap: 10,
+    gap: 20,
   },
   surface: {
     alignItems: "center",
     borderRadius: 20,
     padding: 10,
+    elevation: 4,
   },
   image: {
     height: 200,
@@ -224,6 +245,10 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     fontSize: 20,
   },
+  errorText: {
+    fontSize: 15,
+    fontWeight: 700,
+  },
   inputTitle: {
     fontWeight: "700",
   },
@@ -232,10 +257,22 @@ const styles = StyleSheet.create({
   },
   inputField: {
     paddingRight: 40,
+    height: 50,
   },
   eyeIcon: {
     position: "absolute",
     right: 20,
-    top: 35,
+    top: 20,
+  },
+  login: {
+    textAlign: "center",
+    textDecorationLine: "underline",
+    fontWeight: 700,
+    fontSize: 15,
+    paddingTop: 10,
+  },
+  actions: {
+    padding: 20,
+    gap: 15,
   },
 });

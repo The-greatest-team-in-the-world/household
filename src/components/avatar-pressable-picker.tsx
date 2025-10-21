@@ -1,6 +1,6 @@
 import { Avatar } from "@/types/household-member";
 import { Dimensions, FlatList, Pressable, StyleSheet } from "react-native";
-import { Text } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
 
 interface AvatarPressableProps {
   value: Avatar | undefined;
@@ -16,6 +16,7 @@ export const AvatarPressablePicker = ({
   //https://reactnative.dev/docs/dimensions kolla upp mer!
   const SCREEN_WIDTH = Dimensions.get("window").width;
   const BUTTON_SIZE = (SCREEN_WIDTH - 80) / 4; // 80 = padding + margins
+  const theme = useTheme();
 
   return (
     <FlatList
@@ -37,6 +38,11 @@ export const AvatarPressablePicker = ({
             value &&
               value.emoji !== renderItem.item.emoji && {
                 opacity: 0.3,
+              },
+            value &&
+              value.emoji === renderItem.item.emoji && {
+                borderWidth: 2,
+                borderColor: theme.colors.onBackground,
               },
           ]}
           onPress={() => onChange(renderItem.item)}

@@ -1,32 +1,27 @@
 import { createNewHousehold } from "@/api/households";
 import { addNewMemberToHousehold } from "@/api/members";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
-import { avatarColors } from "@/data/avatar-index";
+import { CustomPaperButton } from "@/components/custom-paper-button";
+import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { z } from "zod";
-
-// Extraherar alla emojis från avatarColors-arrayen för validering
-export const avatarEmojis = avatarColors.map((a) => a.emoji) as [
-  string,
-  ...string[],
-];
 
 const newHouseHold = z.object({
   householdName: z
-    .string({ required_error: "Namnge hushållet!" })
-    .min(1, "Namnet måste vara minst 1 tecken!"),
+    .string({ required_error: "Namnge hushållet" })
+    .min(1, "Namnet måste vara minst 1 tecken"),
   avatar: z.enum(avatarEmojis, {
-    errorMap: () => ({ message: "Välj en avatar!" }),
+    errorMap: () => ({ message: "Välj en avatar" }),
   }),
   nickName: z
-    .string({ required_error: "Ange ett smeknamn!" })
-    .min(1, "Ditt smeknamn måste vara minst 1 tecken!"),
+    .string({ required_error: "Ange ett smeknamn" })
+    .min(1, "Ditt smeknamn måste vara minst 1 tecken"),
 });
 
 type FormFields = z.infer<typeof newHouseHold>;
@@ -41,6 +36,7 @@ export default function CreateHousholdScreen() {
     resolver: zodResolver(newHouseHold),
     defaultValues: {},
   });
+  const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
@@ -74,13 +70,21 @@ export default function CreateHousholdScreen() {
       extraScrollHeight={20}
     >
       <View style={s.container}>
+        <Surface style={s.surface}>
+          <Text style={s.surfaceTitle}>Vad funkar bäst? Teamwork! 🏡</Text>
+          <Text style={s.surfaceSubText}>
+            Bjud in familj eller vänner, dela sysslorna och håll koll på vem som
+            gör vad.
+          </Text>
+        </Surface>
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.title}>Hushållets namn:</Text>
               <TextInput
-                placeholder="Hushållets namn"
+                mode="outlined"
+                theme={{ roundness: 8 }}
+                label="Hushållets namn"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -91,15 +95,18 @@ export default function CreateHousholdScreen() {
           name="householdName"
         />
         {errors.householdName && (
-          <Text style={s.errorText}>{errors.householdName.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.householdName.message}
+          </Text>
         )}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
-              <Text style={s.title}>Smeknamn:</Text>
               <TextInput
-                placeholder="Smeknamn"
+                label="Smeknamn"
+                mode="outlined"
+                theme={{ roundness: 8 }}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -110,7 +117,9 @@ export default function CreateHousholdScreen() {
           name="nickName"
         />
         {errors.nickName && (
-          <Text style={s.errorText}>{errors.nickName.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.nickName.message}
+          </Text>
         )}
         <Controller
           control={control}
@@ -127,15 +136,16 @@ export default function CreateHousholdScreen() {
           name="avatar"
         />
         {errors.avatar && (
-          <Text style={s.errorText}>{errors.avatar.message}</Text>
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errors.avatar.message}
+          </Text>
         )}
-        <Button
+        <CustomPaperButton
+          text="Skapa"
           mode="contained"
           disabled={isSubmitting}
           onPress={handleSubmit(onSubmit)}
-        >
-          Skapa
-        </Button>
+        />
       </View>
     </KeyboardAwareScrollView>
   );
@@ -147,16 +157,38 @@ const s = StyleSheet.create({
   },
   container: {
     padding: 20,
-    gap: 10,
+    gap: 20,
   },
   title: {
     paddingTop: 10,
     paddingBottom: 10,
     fontWeight: 700,
+    fontSize: 15,
   },
   errorText: {
     fontSize: 15,
     fontWeight: 700,
-    color: "red",
+  },
+  surface: {
+    elevation: 4,
+    borderRadius: 20,
+    padding: 20,
+  },
+  surfaceTitle: {
+    paddingTop: 5,
+    paddingBottom: 10,
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  surfaceText: {
+    fontSize: 18,
+    fontWeight: 600,
+    paddingBottom: 5,
+  },
+  surfaceSubText: {
+    fontSize: 15,
+    fontWeight: 600,
+    paddingBottom: 5,
+    fontStyle: "italic",
   },
 });
