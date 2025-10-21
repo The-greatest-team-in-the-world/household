@@ -5,7 +5,11 @@ import {
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
-import { getMemberByUserIdAtom } from "@/atoms/member-atom";
+import {
+  getMemberByUserIdAtom,
+  initPendingMembersListenerAtom,
+  pendingMembersCountAtom,
+} from "@/atoms/member-atom";
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import SettingsSideSheet from "@/components/user-profile-slide";
@@ -28,10 +32,31 @@ export default function HouseholdsScreen() {
   );
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
+  const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
+  const pendingCounts = useAtomValue(pendingMembersCountAtom);
 
   useEffect(() => {
     getHouseholds();
   }, [getHouseholds]);
+
+  // Set up listeners for pending members count for each household where user is owner
+  useEffect(() => {
+    if (!visibleHouseholds || visibleHouseholds.length === 0) return;
+
+    const unsubscribers: (() => void)[] = [];
+
+    visibleHouseholds.forEach((h: any) => {
+      if (h.isOwner) {
+        const unsubscribe = initPendingListener(h.id);
+        unsubscribers.push(unsubscribe);
+      }
+    });
+
+    // Cleanup all listeners when component unmounts or households change
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [visibleHouseholds, initPendingListener]);
 
   async function handleSelectHousehold(h: any) {
     if (user) {
@@ -96,6 +121,17 @@ export default function HouseholdsScreen() {
                 {h.name} {suffix}
               </Text>
               <View style={s.spacer} />
+              {h.isOwner && pendingCounts[h.id] > 0 && (
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleOpenSettings(h);
+                  }}
+                  style={s.badge}
+                >
+                  <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                </Pressable>
+              )}
               <Pressable
                 onPress={(e) => {
                   e.stopPropagation();
@@ -197,4 +233,19 @@ const s = StyleSheet.create({
   itemText: { fontSize: 16 },
   rowDisabled: { opacity: 0.5 },
   textDisabled: { color: "#888", fontStyle: "italic" },
+  badge: {
+    backgroundColor: "#f44336",
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
 });

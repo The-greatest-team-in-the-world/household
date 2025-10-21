@@ -1,7 +1,8 @@
-import { getMembers } from "@/api/members";
+import { approveMember, rejectMember } from "@/api/members";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
-import { membersAtom } from "@/atoms/member-atom";
+import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { MemberList } from "@/components/member-list";
+import { PendingMemberCard } from "@/components/pending-member-card";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -9,28 +10,24 @@ import { ActivityIndicator, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
-  const setMembers = useSetAtom(membersAtom);
   const members = useAtomValue(membersAtom);
+  const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchMembers() {
-      if (!currentHousehold?.id) return;
+    if (!currentHousehold?.id) return;
 
-      setLoading(true);
-      try {
-        const fetchedMembers = await getMembers(currentHousehold.id);
-        setMembers(fetchedMembers);
-      } catch (error) {
-        console.error("Error fetching members:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
+    setLoading(true);
+    // Set up real-time listener for members
+    const unsubscribe = initMembersListener(currentHousehold.id);
+    setLoading(false);
 
-    fetchMembers();
-  }, [currentHousehold?.id, setMembers]);
+    // Cleanup listener when component unmounts or household changes
+    return () => {
+      unsubscribe();
+    };
+  }, [currentHousehold?.id, initMembersListener]);
 
   if (!currentHousehold) {
     return (
@@ -51,15 +48,65 @@ export default function HouseHoldDetailsScreen() {
   // Check isOwner from currentHousehold (which includes isOwner from getUsersHouseholds)
   const isOwner = currentHousehold?.isOwner ?? false;
 
-  console.log("Current household:", currentHousehold);
-  console.log("Is owner:", isOwner);
+  const pendingMembers = members.filter((m) => m.status === "pending");
+  const activeMembers = members.filter((m) => m.status === "active");
+
+  const handleApprove = async (userId: string) => {
+    if (!currentHousehold?.id) return;
+
+    try {
+      await approveMember(currentHousehold.id, userId);
+      // Members list will auto-update via listener
+    } catch (error) {
+      console.error("Error approving member:", error);
+    }
+  };
+
+  const handleReject = async (userId: string) => {
+    if (!currentHousehold?.id) return;
+
+    try {
+      await rejectMember(currentHousehold.id, userId);
+      // Members list will auto-update via listener
+    } catch (error) {
+      console.error("Error rejecting member:", error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
       {isOwner ? (
-        <View style={styles.centerContainer}>
-          <Text variant="headlineMedium">Admin View</Text>
-          <Text>Owner view - Admin controls coming soon</Text>
+        <View style={styles.adminContainer}>
+          <Text variant="headlineMedium" style={styles.heading}>
+            Hushållsadministration
+          </Text>
+
+          {/* Pending members section */}
+          {pendingMembers.length > 0 && (
+            <View style={styles.section}>
+              <Text variant="titleLarge" style={styles.sectionTitle}>
+                Förfrågningar ({pendingMembers.length})
+              </Text>
+              {pendingMembers.map((member) => (
+                <PendingMemberCard
+                  key={member.userId}
+                  member={member}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                />
+              ))}
+            </View>
+          )}
+
+          {/* Active members section */}
+          <View style={styles.section}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Aktiva medlemmar ({activeMembers.length})
+            </Text>
+            <Text variant="bodyMedium">
+              Lista över aktiva medlemmar kommer här...
+            </Text>
+          </View>
         </View>
       ) : (
         <MemberList
@@ -81,5 +128,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  adminContainer: {
+    padding: 16,
+  },
+  heading: {
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    marginBottom: 12,
+    fontWeight: "600",
   },
 });
