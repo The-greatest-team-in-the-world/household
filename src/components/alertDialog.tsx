@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Button, Dialog, Portal, Text } from "react-native-paper";
 
 interface Props extends React.PropsWithChildren {
@@ -62,6 +62,7 @@ export default function AlertDialog(props: Props) {
               {props.secondOption}
             </Button>
           )}
+          {!props.disagreeText && !props.secondOption && <View />}
           <Button
             onPress={handleAgree}
             labelStyle={{ fontSize: 17 }}

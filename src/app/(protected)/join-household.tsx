@@ -65,7 +65,9 @@ export default function JoinHouseholdScreen() {
       setHousehold(null);
       setIsMember(false);
       try {
-        const result = await getHouseholdByCode(debouncedInput);
+        const result = await getHouseholdByCode(
+          debouncedInput.toLocaleUpperCase(),
+        );
         setHousehold(result);
 
         if (result) {
