@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Button, Dialog, Portal, Text } from "react-native-paper";
 
 interface Props extends React.PropsWithChildren {
@@ -9,8 +9,10 @@ interface Props extends React.PropsWithChildren {
   headLine: string;
   alertMsg: string;
   agreeText: string;
+  secondOption?: string;
   disagreeText?: string;
   agreeAction?: () => void;
+  secondOptionAction?: () => void;
   disagreeAction?: () => void;
 }
 
@@ -28,7 +30,11 @@ export default function AlertDialog(props: Props) {
   return (
     <Portal>
       {props.open && (
-        <BlurView intensity={100} style={StyleSheet.absoluteFill} />
+        <BlurView
+          intensity={20}
+          experimentalBlurMethod="dimezisBlurView"
+          style={StyleSheet.absoluteFill}
+        />
       )}
       <Dialog visible={props.open} onDismiss={props.onClose} style={s.dialog}>
         <Dialog.Title>
@@ -42,16 +48,24 @@ export default function AlertDialog(props: Props) {
             <Button
               onPress={handleDisagree}
               labelStyle={{ fontSize: 17 }}
-              contentStyle={{ paddingVertical: 10, paddingHorizontal: 20 }}
+              contentStyle={{ paddingVertical: 10, paddingHorizontal: 10 }}
             >
               {props.disagreeText}
             </Button>
           )}
-          <View />
+          {props.secondOption && (
+            <Button
+              onPress={props.secondOptionAction}
+              labelStyle={{ fontSize: 17 }}
+              contentStyle={{ paddingVertical: 10, paddingHorizontal: 10 }}
+            >
+              {props.secondOption}
+            </Button>
+          )}
           <Button
             onPress={handleAgree}
             labelStyle={{ fontSize: 17 }}
-            contentStyle={{ paddingVertical: 10, paddingHorizontal: 20 }}
+            contentStyle={{ paddingVertical: 10, paddingHorizontal: 10 }}
           >
             {props.agreeText}
           </Button>
