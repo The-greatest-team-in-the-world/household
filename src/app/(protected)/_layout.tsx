@@ -21,7 +21,7 @@ export default function ProtectedLayout() {
         },
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="index" />
       <Stack.Screen name="(top-tabs)" />
       <Stack.Screen name="chore-details" />
       <Stack.Screen name="create-chore" />
