@@ -3,7 +3,11 @@ import {
   deleteChoreCompletion,
   getAllCompletions,
 } from "@/api/chore-completions";
-import { archiveChore, updateChore } from "@/api/chores";
+import {
+  archiveChore,
+  deleteChorePermanently,
+  updateChore,
+} from "@/api/chores";
 import { choresAtom, selectedChoreAtom } from "@/atoms/chore-atom";
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
@@ -90,6 +94,11 @@ export function useChoreOperations() {
     setChores(chores.filter((chore) => chore.id !== selectedChore.id));
   };
 
+  const deleteChore = async () => {
+    if (!selectedChore) return;
+    await deleteChorePermanently(householdId, selectedChore.id);
+    setChores(chores.filter((chore) => chore.id !== selectedChore.id));
+  };
   return {
     selectedChore,
     currentMember,
@@ -99,5 +108,6 @@ export function useChoreOperations() {
     removeChoreCompletion,
     updateChoreData,
     softDeleteChore,
+    deleteChore,
   };
 }

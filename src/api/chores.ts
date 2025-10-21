@@ -1,6 +1,7 @@
 import { Chore } from "@/types/chore";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -72,4 +73,12 @@ export async function archiveChore(
     isArchived: true,
     updatedAt: Timestamp.now(),
   });
+}
+
+export async function deleteChorePermanently(
+  householdId: string,
+  choreId: string,
+): Promise<void> {
+  const choreRef = doc(db, "households", householdId, "chores", choreId);
+  await deleteDoc(choreRef);
 }
