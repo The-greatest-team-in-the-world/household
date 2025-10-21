@@ -182,7 +182,8 @@ export default function SettingsSideSheet({
             textColor="#666"
             style={[styles.actionButton, { marginTop: 8 }]}
             icon="delete-outline"
-            onPress={onDelete}
+            onPress={() => {onDelete?.();
+            }}
           >
             Avsluta konto
           </Button>

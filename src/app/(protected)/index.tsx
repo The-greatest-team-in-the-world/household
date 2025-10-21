@@ -1,4 +1,4 @@
-import { signOutUser } from "@/api/auth";
+import { deleteAccount, signOutUser } from "@/api/auth";
 import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
@@ -17,7 +17,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
@@ -84,7 +84,32 @@ export default function HouseholdsScreen() {
   }
 
   async function handleDeleteAccount() {
-    router.replace("/(auth)/delete-account");
+    const res = await deleteAccount();
+    if (!res.success) {
+      console.log("[delete] UI error:", res.error);
+      switch (res.error?.code) {
+        case "single-owner":
+          Alert.alert(
+            "Kan inte ta bort kontot",
+            "Du är enda admin i minst ett hushåll.",
+          );
+          break;
+        case "reauth-required":
+          Alert.alert(
+            "Logga in igen",
+            "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot.",
+          );
+          break;
+        default:
+          Alert.alert(
+            "Fel",
+            `${res.error?.code ?? "unknown"}: ${
+              res.error?.message ?? "Något gick snett."
+            }`,
+          );
+      }
+      return;
+    }
   }
 
   return (
@@ -107,8 +132,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -166,13 +191,6 @@ export default function HouseholdsScreen() {
           icon="home-plus"
           text="Skapa hushåll"
           onPress={() => router.push("/(protected)/create-household")}
-        />
-        <CustomPaperButton
-          mode="contained"
-          icon="logout"
-          text="Logga ut"
-          color="#e0e0e0"
-          onPress={handleSignOut}
         />
       </View>
     </View>

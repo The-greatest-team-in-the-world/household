@@ -103,3 +103,45 @@ export async function signOutUser() {
     };
   }
 }
+
+import { deleteAccountWithChecks } from "./account";
+
+export async function deleteAccount() {
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    return {
+      success: false,
+      error: { code: "no-user", message: "Ingen användare inloggad." },
+    };
+  }
+  try {
+    await deleteAccountWithChecks(uid);
+    return { success: true, error: null };
+  } catch (e: any) {
+    if (e?.code === "single-owner") {
+      return {
+        success: false,
+        error: {
+          code: "single-owner",
+          message: "Du är enda admin i minst ett hushåll.",
+        },
+      };
+    }
+    if (e?.code === "reauth-required") {
+      return {
+        success: false,
+        error: {
+          code: "reauth-required",
+          message: "Du måste logga in igen innan kontot kan raderas.",
+        },
+      };
+    }
+    return {
+      success: false,
+      error: {
+        code: e?.code ?? "unknown",
+        message: e?.message ?? "Kunde inte ta bort kontot.",
+      },
+    };
+  }
+}
