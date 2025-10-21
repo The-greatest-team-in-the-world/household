@@ -1,3 +1,4 @@
+import AlertDialog from "@/components/alertDialog";
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
@@ -24,6 +25,7 @@ export default function ChoreDetailsScreen() {
     submitChoreCompletion,
     removeChoreCompletion,
     updateChoreData,
+    softDeleteChore,
     deleteChore,
     householdId,
   } = useChoreOperations();
@@ -32,6 +34,7 @@ export default function ChoreDetailsScreen() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const {
     control,
@@ -72,9 +75,7 @@ export default function ChoreDetailsScreen() {
   };
 
   const handlePressDelete = () => {
-    if (selectedChore) {
-      deleteChore(selectedChore.id);
-    }
+    setDialogOpen(true);
   };
 
   const onSubmit = async (data: ChoreFormData) => {
@@ -195,21 +196,44 @@ export default function ChoreDetailsScreen() {
           </View>
         </KeyboardAwareScrollView>
       </View>
+      <AlertDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        headLine="Vill du verkligen ta bort sysslan?"
+        alertMsg={`Vill du arkivera sysslan eller ta bort den permanent? Om du tar bort sysslan permanent så försvinner all historik kopplad till den.`}
+        agreeText="Ta bort"
+        secondOption="Arkivera"
+        disagreeText="Avbryt"
+        agreeAction={() => {
+          if (selectedChore) {
+            deleteChore();
+            setDialogOpen(false);
+            router.replace("/(protected)/(top-tabs)/day-view");
+          }
+        }}
+        secondOptionAction={() => {
+          if (selectedChore) {
+            softDeleteChore();
+            setDialogOpen(false);
+            router.replace("/(protected)/(top-tabs)/day-view");
+          }
+        }}
+      />
 
       <View style={s.saveCancelButtonsContainer}>
-        <CustomPaperButton
-          onPress={handleSubmit(onSubmit)}
-          text="Spara"
-          icon="content-save"
-          disabled={isSubmitting}
-          mode="contained"
-        />
         <CustomPaperButton
           onPress={() => setIsEditing(false)}
           text="Avbryt"
           icon="close"
           disabled={isSubmitting}
           mode="outlined"
+        />
+        <CustomPaperButton
+          onPress={handleSubmit(onSubmit)}
+          text="Spara"
+          icon="content-save"
+          disabled={isSubmitting}
+          mode="contained"
         />
       </View>
     </Surface>

@@ -1,6 +1,7 @@
 import { Chore } from "@/types/chore";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -13,23 +14,25 @@ export async function getChores(householdId: string): Promise<Chore[]> {
   const choresRef = collection(db, "households", householdId, "chores");
   const snapshot = await getDocs(choresRef);
 
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort,
-      audioUrl: data.audioUrl,
-      imageUrl: data.imageUrl,
-      isArchived: data.isArchived,
-      lastCompletedAt: data.lastCompletedAt,
-      lastCompletedBy: data.lastCompletedBy,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    } as Chore;
-  });
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name,
+        description: data.description,
+        frequency: data.frequency,
+        effort: data.effort,
+        audioUrl: data.audioUrl,
+        imageUrl: data.imageUrl,
+        isArchived: data.isArchived,
+        lastCompletedAt: data.lastCompletedAt,
+        lastCompletedBy: data.lastCompletedBy,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      } as Chore;
+    })
+    .filter((chore) => !chore.isArchived);
 }
 
 export async function getChoreById(
@@ -59,4 +62,23 @@ export async function updateChore(
     ...data,
     updatedAt: Timestamp.now(),
   });
+}
+
+export async function archiveChore(
+  householdId: string,
+  choreId: string,
+): Promise<void> {
+  const choreRef = doc(db, "households", householdId, "chores", choreId);
+  await updateDoc(choreRef, {
+    isArchived: true,
+    updatedAt: Timestamp.now(),
+  });
+}
+
+export async function deleteChorePermanently(
+  householdId: string,
+  choreId: string,
+): Promise<void> {
+  const choreRef = doc(db, "households", householdId, "chores", choreId);
+  await deleteDoc(choreRef);
 }
