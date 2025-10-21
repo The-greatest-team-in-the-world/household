@@ -1,4 +1,5 @@
 import { signOutUser } from "@/api/auth";
+import { getPendingMemberCount } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
@@ -12,7 +13,7 @@ import SettingsSideSheet from "@/components/user-profile-slide";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
@@ -29,9 +30,34 @@ export default function HouseholdsScreen() {
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
 
+  // State to store pending member counts for each household
+  const [pendingCounts, setPendingCounts] = useState<Record<string, number>>(
+    {},
+  );
+
   useEffect(() => {
     getHouseholds();
   }, [getHouseholds]);
+
+  // Fetch pending member counts for households where user is owner
+  useEffect(() => {
+    async function fetchPendingCounts() {
+      if (!visibleHouseholds || visibleHouseholds.length === 0) return;
+
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        visibleHouseholds.map(async (h: any) => {
+          if (h.isOwner) {
+            const count = await getPendingMemberCount(h.id);
+            counts[h.id] = count;
+          }
+        }),
+      );
+      setPendingCounts(counts);
+    }
+
+    fetchPendingCounts();
+  }, [visibleHouseholds]);
 
   async function handleSelectHousehold(h: any) {
     if (user) {
@@ -82,8 +108,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -96,6 +122,17 @@ export default function HouseholdsScreen() {
                 {h.name} {suffix}
               </Text>
               <View style={s.spacer} />
+              {h.isOwner && pendingCounts[h.id] > 0 && (
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleOpenSettings(h);
+                  }}
+                  style={s.badge}
+                >
+                  <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                </Pressable>
+              )}
               <Pressable
                 onPress={(e) => {
                   e.stopPropagation();
@@ -197,4 +234,19 @@ const s = StyleSheet.create({
   itemText: { fontSize: 16 },
   rowDisabled: { opacity: 0.5 },
   textDisabled: { color: "#888", fontStyle: "italic" },
+  badge: {
+    backgroundColor: "#f44336",
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
 });

@@ -20,6 +20,15 @@ export async function getMembers(
   return snapshot.docs.map((doc) => doc.data() as HouseholdMember);
 }
 
+export async function getPendingMemberCount(
+  householdId: string,
+): Promise<number> {
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("status", "==", "pending"));
+  const snapshot = await getDocs(q);
+  return snapshot.size;
+}
+
 export async function getMemberByUserId(
   householdId: string,
   userId: string,
