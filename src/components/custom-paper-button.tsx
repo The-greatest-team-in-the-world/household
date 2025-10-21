@@ -51,7 +51,8 @@ export const CustomPaperButton = ({
     <Button
       mode={currentMode}
       icon={currentIcon}
-      buttonColor={buttonColor}
+      buttonColor={currentMode === "contained" ? buttonColor : undefined}
+      textColor={currentMode === "outlined" ? theme.colors.primary : undefined}
       onPress={onPress}
       disabled={disabled}
       style={[{ borderRadius: 8, minWidth: 100 }, style]}
