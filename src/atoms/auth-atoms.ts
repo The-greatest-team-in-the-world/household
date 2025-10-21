@@ -1,8 +1,4 @@
-import {
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  User,
-} from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { atom } from "jotai";
 import { auth } from "../../firebase-config";
 
