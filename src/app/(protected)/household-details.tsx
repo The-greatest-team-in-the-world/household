@@ -1,12 +1,14 @@
-import { approveMember, rejectMember } from "@/api/members";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
+import { ActiveMemberCard } from "@/components/active-member-card";
+import AlertDialog from "@/components/alertDialog";
 import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
+import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Text } from "react-native-paper";
+import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
@@ -14,6 +16,21 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
+
+  const {
+    handleApprove,
+    handleReject,
+    handleMakeOwner,
+    handleRemoveOwnership,
+    makeOwnerDialog,
+    setMakeOwnerDialog,
+    confirmMakeOwner,
+    removeOwnerDialog,
+    setRemoveOwnerDialog,
+    confirmRemoveOwnership,
+    errorDialog,
+    setErrorDialog,
+  } = useMemberManagement(currentHousehold?.id, members);
 
   useEffect(() => {
     if (!currentHousehold?.id) return;
@@ -31,17 +48,17 @@ export default function HouseHoldDetailsScreen() {
 
   if (!currentHousehold) {
     return (
-      <View style={styles.centerContainer}>
+      <Surface style={styles.centerContainer} elevation={0}>
         <Text>No household selected</Text>
-      </View>
+      </Surface>
     );
   }
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
+      <Surface style={styles.centerContainer} elevation={0}>
         <ActivityIndicator size="large" />
-      </View>
+      </Surface>
     );
   }
 
@@ -51,78 +68,94 @@ export default function HouseHoldDetailsScreen() {
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
 
-  const handleApprove = async (userId: string) => {
-    if (!currentHousehold?.id) return;
-
-    try {
-      await approveMember(currentHousehold.id, userId);
-      // Members list will auto-update via listener
-    } catch (error) {
-      console.error("Error approving member:", error);
-    }
-  };
-
-  const handleReject = async (userId: string) => {
-    if (!currentHousehold?.id) return;
-
-    try {
-      await rejectMember(currentHousehold.id, userId);
-      // Members list will auto-update via listener
-    } catch (error) {
-      console.error("Error rejecting member:", error);
-    }
-  };
-
   return (
-    <ScrollView style={styles.container}>
-      {isOwner ? (
-        <View style={styles.adminContainer}>
-          <Text variant="headlineMedium" style={styles.heading}>
-            Hushållsadministration
-          </Text>
+    <Surface style={styles.container} elevation={0}>
+      <ScrollView>
+        {isOwner ? (
+          <View style={styles.adminContainer}>
+            <Text variant="headlineMedium" style={styles.heading}>
+              Hushållsadministration
+            </Text>
 
-          {/* Pending members section */}
-          {pendingMembers.length > 0 && (
+            {/* Pending members section */}
+            {pendingMembers.length > 0 && (
+              <View style={styles.section}>
+                <Text variant="titleLarge" style={styles.sectionTitle}>
+                  Förfrågningar ({pendingMembers.length})
+                </Text>
+                {pendingMembers.map((member) => (
+                  <PendingMemberCard
+                    key={member.userId}
+                    member={member}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                  />
+                ))}
+              </View>
+            )}
+
+            {/* Active members section */}
             <View style={styles.section}>
               <Text variant="titleLarge" style={styles.sectionTitle}>
-                Förfrågningar ({pendingMembers.length})
+                Aktiva medlemmar ({activeMembers.length})
               </Text>
-              {pendingMembers.map((member) => (
-                <PendingMemberCard
+              {activeMembers.map((member) => (
+                <ActiveMemberCard
                   key={member.userId}
                   member={member}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
+                  onMakeOwner={handleMakeOwner}
+                  onRemoveOwnership={handleRemoveOwnership}
                 />
               ))}
             </View>
-          )}
-
-          {/* Active members section */}
-          <View style={styles.section}>
-            <Text variant="titleLarge" style={styles.sectionTitle}>
-              Aktiva medlemmar ({activeMembers.length})
-            </Text>
-            <Text variant="bodyMedium">
-              Lista över aktiva medlemmar kommer här...
-            </Text>
           </View>
-        </View>
-      ) : (
-        <MemberList
-          members={members}
-          householdName={currentHousehold.name}
-          householdCode={currentHousehold.code}
-        />
-      )}
-    </ScrollView>
+        ) : (
+          <MemberList
+            members={members}
+            householdName={currentHousehold.name}
+            householdCode={currentHousehold.code}
+          />
+        )}
+      </ScrollView>
+
+      <AlertDialog
+        open={makeOwnerDialog.open}
+        onClose={() =>
+          setMakeOwnerDialog({ open: false, userId: "", nickName: "" })
+        }
+        headLine="Gör till ägare"
+        alertMsg={`Är du säker på att du vill göra ${makeOwnerDialog.nickName} till en ägare av hushållet? Ägare kan godkänna nya medlemmar och hantera andra medlemmar.`}
+        agreeText="Ja, gör till ägare"
+        disagreeText="Avbryt"
+        agreeAction={confirmMakeOwner}
+      />
+
+      <AlertDialog
+        open={removeOwnerDialog.open}
+        onClose={() =>
+          setRemoveOwnerDialog({ open: false, userId: "", nickName: "" })
+        }
+        headLine="Ta bort ägarskap"
+        alertMsg={`Är du säker på att du vill ta bort ${removeOwnerDialog.nickName} som ägare? De kommer fortfarande vara medlem i hushållet men kan inte längre godkänna nya medlemmar eller hantera andra.`}
+        agreeText="Ja, ta bort ägarskap"
+        disagreeText="Avbryt"
+        agreeAction={confirmRemoveOwnership}
+      />
+
+      <AlertDialog
+        open={errorDialog.open}
+        onClose={() => setErrorDialog({ open: false, message: "" })}
+        headLine="Åtgärden kunde inte utföras"
+        alertMsg={errorDialog.message}
+        agreeText="OK"
+      />
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   centerContainer: {
     flex: 1,
