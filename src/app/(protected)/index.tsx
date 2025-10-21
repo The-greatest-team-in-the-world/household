@@ -123,14 +123,12 @@ export default function HouseholdsScreen() {
           mode="contained"
           icon="account-multiple-plus"
           text="Gå med i hushåll"
-          color="#e0e0e0"
           onPress={() => router.push("/(protected)/join-household")}
         />
         <CustomPaperButton
           mode="contained"
           icon="home-plus"
           text="Skapa hushåll"
-          color="#e0e0e0"
           onPress={() => router.push("/(protected)/create-household")}
         />
         <CustomPaperButton
