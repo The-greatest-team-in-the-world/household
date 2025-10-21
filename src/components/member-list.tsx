@@ -13,7 +13,6 @@ export function MemberList({
   householdName,
   householdCode,
 }: MemberListProps) {
-  // Show all members with status 'active' (includes both paused and non-paused)
   const activeMembers = members.filter((m) => m.status === "active");
 
   return (
@@ -86,15 +85,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   avatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   avatarEmoji: {
-    fontSize: 24,
+    fontSize: 30,
   },
   memberText: {
     flex: 1,

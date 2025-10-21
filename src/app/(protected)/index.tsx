@@ -7,13 +7,14 @@ import {
 } from "@/atoms/household-atom";
 import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { Button, IconButton, Text } from "react-native-paper";
+import { IconButton, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
@@ -81,8 +82,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -118,21 +119,27 @@ export default function HouseholdsScreen() {
         onDelete={handleDeleteAccount}
       />
       <View style={s.buttonContainer}>
-        <Button
-          mode="outlined"
+        <CustomPaperButton
+          mode="contained"
+          icon="account-multiple-plus"
+          text="Gå med i hushåll"
+          color="#e0e0e0"
           onPress={() => router.push("/(protected)/join-household")}
-        >
-          gå med
-        </Button>
-        <Button
-          mode="outlined"
+        />
+        <CustomPaperButton
+          mode="contained"
+          icon="home-plus"
+          text="Skapa hushåll"
+          color="#e0e0e0"
           onPress={() => router.push("/(protected)/create-household")}
-        >
-          skapa
-        </Button>
-        <Button mode="outlined" onPress={handleSignOut}>
-          signout
-        </Button>
+        />
+        <CustomPaperButton
+          mode="contained"
+          icon="logout"
+          text="Logga ut"
+          color="#e0e0e0"
+          onPress={handleSignOut}
+        />
       </View>
     </View>
   );
@@ -160,6 +167,7 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 20,
+    flex: 1,
   },
   householdContainer: { paddingHorizontal: 16, marginBottom: 20 },
   surface: {
@@ -175,13 +183,17 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    marginBottom: 8,
   },
   spacer: {
-    flex: 1,
+    width: 8,
   },
   iconButton: {
     padding: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 32,
+    height: 32,
   },
   icon: { opacity: 0.8 },
   itemText: { fontSize: 16 },
