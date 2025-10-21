@@ -4,18 +4,19 @@ import {
   getUsersHouseholdsAtom,
   householdsAtom,
 } from "@/atoms/household-atom";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 
+import { MaterialIcons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Surface } from "react-native-paper";
+import { Surface } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
-  //const router = useRouter();
 
   const navigation = useNavigation<any>();
 
@@ -25,7 +26,12 @@ export default function HouseholdsScreen() {
 
   function handleSelectHousehold(h: any) {
     setCurrentHousehold(h);
-    //router.push("/(protected)/day-view");
+    router.push("/(protected)/(top-tabs)/day-view");
+  }
+
+  function handleOpenSettings(h: any) {
+    setCurrentHousehold(h);
+    router.push("/(protected)/household-details");
   }
 
   async function handleSignOut() {
@@ -41,30 +47,51 @@ export default function HouseholdsScreen() {
 
       <ScrollView style={s.householdContainer}>
         {(households ?? []).map((h) => (
-          <Pressable
-            key={h.id}
-            onPress={() => router.push("/(protected)/(top-tabs)/day-view")}
-          >
-            <Text style={s.text}>{h.name}</Text>
-          </Pressable>
+          <Surface key={h.id} style={s.surface} elevation={2}>
+            <View style={s.surfaceContent}>
+              <Pressable
+                style={s.surfaceInner}
+                onPress={() => handleSelectHousehold(h)}
+              >
+                <Text style={s.itemText}>{h.name}</Text>
+                <View style={s.spacer} />
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleOpenSettings(h);
+                  }}
+                  style={s.iconButton}
+                >
+                  <MaterialIcons
+                    name={h.isOwner ? "settings" : "info"}
+                    size={24}
+                    color="#666"
+                  />
+                </Pressable>
+              </Pressable>
+            </View>
+          </Surface>
         ))}
       </ScrollView>
       <View style={s.buttonContainer}>
-        <Button
-          mode="contained"
+        <CustomPaperButton
+          icon="account-multiple-plus"
+          text="Gå med i hushåll"
+          color="#e0e0e0"
           onPress={() => router.push("/(protected)/join-household")}
-        >
-          joina
-        </Button>
-        <Button
-          mode="contained"
+        />
+        <CustomPaperButton
+          icon="home-plus"
+          text="Skapa hushåll"
+          color="#e0e0e0"
           onPress={() => router.push("/(protected)/create-household")}
-        >
-          skapa
-        </Button>
-        <Button mode="contained" onPress={handleSignOut}>
-          signout
-        </Button>
+        />
+        <CustomPaperButton
+          icon="logout"
+          text="Logga ut"
+          color="#e0e0e0"
+          onPress={handleSignOut}
+        />
       </View>
     </View>
   );
@@ -94,6 +121,9 @@ const s = StyleSheet.create({
   surface: {
     borderRadius: 10,
     marginBottom: 10,
+  },
+  surfaceContent: {
+    borderRadius: 10,
     overflow: "hidden",
   },
   surfaceInner: {
@@ -102,6 +132,12 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  spacer: {
+    flex: 1,
+  },
+  iconButton: {
+    padding: 4,
   },
   icon: { opacity: 0.8 },
   itemText: { fontSize: 16 },
