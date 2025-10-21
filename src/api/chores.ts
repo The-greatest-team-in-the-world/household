@@ -60,3 +60,14 @@ export async function updateChore(
     updatedAt: Timestamp.now(),
   });
 }
+
+export async function archiveChore(
+  householdId: string,
+  choreId: string,
+): Promise<void> {
+  const choreRef = doc(db, "households", householdId, "chores", choreId);
+  await updateDoc(choreRef, {
+    isArchived: true,
+    updatedAt: Timestamp.now(),
+  });
+}
