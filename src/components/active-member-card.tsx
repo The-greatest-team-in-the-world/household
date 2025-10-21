@@ -1,13 +1,17 @@
 import { HouseholdMember } from "@/types/household-member";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
-import { Surface, Text } from "react-native-paper";
+import { IconButton, Surface, Text } from "react-native-paper";
 
 interface ActiveMemberCardProps {
   member: HouseholdMember;
+  onMakeOwner?: (userId: string) => void;
 }
 
-export function ActiveMemberCard({ member }: ActiveMemberCardProps) {
+export function ActiveMemberCard({
+  member,
+  onMakeOwner,
+}: ActiveMemberCardProps) {
   return (
     <Surface style={styles.card} elevation={1}>
       {/* Avatar */}
@@ -22,12 +26,21 @@ export function ActiveMemberCard({ member }: ActiveMemberCardProps) {
         </Text>
       </View>
 
-      {/* Owner icon */}
-      {member.isOwner && (
-        <View style={styles.ownerBadge}>
+      {/* Owner icon or Make Owner button */}
+      <View style={styles.ownerBadge}>
+        {member.isOwner ? (
           <MaterialIcons name="star" size={20} color="#FFD700" />
-        </View>
-      )}
+        ) : (
+          onMakeOwner && (
+            <IconButton
+              icon="star-outline"
+              size={20}
+              onPress={() => onMakeOwner(member.userId)}
+              style={styles.iconButton}
+            />
+          )
+        )}
+      </View>
     </Surface>
   );
 }
@@ -58,6 +71,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   ownerBadge: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 8,
+  },
+  iconButton: {
+    margin: 0,
+    padding: 0,
   },
 });

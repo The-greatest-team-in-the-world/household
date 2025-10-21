@@ -2,6 +2,7 @@ import { approveMember, rejectMember } from "@/api/members";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
+import AlertDialog from "@/components/alertDialog";
 import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -15,6 +16,11 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
+  const [makeOwnerDialog, setMakeOwnerDialog] = useState<{
+    open: boolean;
+    userId: string;
+    nickName: string;
+  }>({ open: false, userId: "", nickName: "" });
 
   useEffect(() => {
     if (!currentHousehold?.id) return;
@@ -74,6 +80,23 @@ export default function HouseHoldDetailsScreen() {
     }
   };
 
+  const handleMakeOwner = (userId: string) => {
+    const member = members.find((m) => m.userId === userId);
+    if (!member) return;
+
+    setMakeOwnerDialog({
+      open: true,
+      userId: userId,
+      nickName: member.nickName,
+    });
+  };
+
+  const confirmMakeOwner = async () => {
+    console.log("Make owner confirmed:", makeOwnerDialog.userId);
+    // TODO: Call API to make member an owner
+    setMakeOwnerDialog({ open: false, userId: "", nickName: "" });
+  };
+
   return (
     <Surface style={styles.container} elevation={0}>
       <ScrollView>
@@ -106,7 +129,11 @@ export default function HouseHoldDetailsScreen() {
                 Aktiva medlemmar ({activeMembers.length})
               </Text>
               {activeMembers.map((member) => (
-                <ActiveMemberCard key={member.userId} member={member} />
+                <ActiveMemberCard
+                  key={member.userId}
+                  member={member}
+                  onMakeOwner={handleMakeOwner}
+                />
               ))}
             </View>
           </View>
@@ -118,6 +145,18 @@ export default function HouseHoldDetailsScreen() {
           />
         )}
       </ScrollView>
+
+      <AlertDialog
+        open={makeOwnerDialog.open}
+        onClose={() =>
+          setMakeOwnerDialog({ open: false, userId: "", nickName: "" })
+        }
+        headLine="Gör till ägare"
+        alertMsg={`Är du säker på att du vill göra ${makeOwnerDialog.nickName} till en ägare av hushållet? Ägare kan godkänna nya medlemmar och hantera andra medlemmar.`}
+        agreeText="Ja, gör till ägare"
+        disagreeText="Avbryt"
+        agreeAction={confirmMakeOwner}
+      />
     </Surface>
   );
 }
