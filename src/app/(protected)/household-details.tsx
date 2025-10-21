@@ -1,6 +1,6 @@
 import { getMembers } from "@/api/members";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
-import { currentHouseholdMember, membersAtom } from "@/atoms/member-atom";
+import { membersAtom } from "@/atoms/member-atom";
 import { MemberList } from "@/components/member-list";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -9,7 +9,6 @@ import { ActivityIndicator, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
-  const currentMember = useAtomValue(currentHouseholdMember);
   const setMembers = useSetAtom(membersAtom);
   const members = useAtomValue(membersAtom);
 
@@ -31,7 +30,7 @@ export default function HouseHoldDetailsScreen() {
     }
 
     fetchMembers();
-  }, [currentHousehold?.id]);
+  }, [currentHousehold?.id, setMembers]);
 
   if (!currentHousehold) {
     return (
