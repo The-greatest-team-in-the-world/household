@@ -52,9 +52,20 @@ export default function HouseHoldDetailsScreen() {
   // Check isOwner from currentHousehold (which includes isOwner from getUsersHouseholds)
   const isOwner = currentHousehold?.isOwner ?? false;
 
-  // Filtrera medlemmar baserat på status
+  // Filter members depending on status
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
+
+  // Handler functions for approving/rejecting members
+  const handleApprove = (userId: string) => {
+    console.log("Approve member:", userId);
+    // TODO: Call API to approve member
+  };
+
+  const handleReject = (userId: string) => {
+    console.log("Reject member:", userId);
+    // TODO: Call API to delete member
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -71,7 +82,12 @@ export default function HouseHoldDetailsScreen() {
                 Förfrågningar ({pendingMembers.length})
               </Text>
               {pendingMembers.map((member) => (
-                <PendingMemberCard key={member.userId} member={member} />
+                <PendingMemberCard
+                  key={member.userId}
+                  member={member}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                />
               ))}
             </View>
           )}

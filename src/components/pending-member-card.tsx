@@ -1,12 +1,18 @@
 import { HouseholdMember } from "@/types/household-member";
 import { StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
+import { IconButton, Text } from "react-native-paper";
 
 interface PendingMemberCardProps {
   member: HouseholdMember;
+  onApprove: (userId: string) => void;
+  onReject: (userId: string) => void;
 }
 
-export function PendingMemberCard({ member }: PendingMemberCardProps) {
+export function PendingMemberCard({
+  member,
+  onApprove,
+  onReject,
+}: PendingMemberCardProps) {
   return (
     <View style={styles.card}>
       <View style={[styles.avatar, { backgroundColor: member.avatar.color }]}>
@@ -17,6 +23,20 @@ export function PendingMemberCard({ member }: PendingMemberCardProps) {
         <Text variant="bodySmall" style={styles.pendingText}>
           Väntar på godkännande
         </Text>
+      </View>
+      <View style={styles.actions}>
+        <IconButton
+          icon="check"
+          iconColor="#4caf50"
+          size={24}
+          onPress={() => onApprove(member.userId)}
+        />
+        <IconButton
+          icon="close"
+          iconColor="#f44336"
+          size={24}
+          onPress={() => onReject(member.userId)}
+        />
       </View>
     </View>
   );
@@ -48,5 +68,9 @@ const styles = StyleSheet.create({
   pendingText: {
     color: "#ff9800",
     fontStyle: "italic",
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 4,
   },
 });
