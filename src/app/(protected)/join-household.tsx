@@ -274,7 +274,7 @@ export default function JoinHouseholdScreen() {
               agreeText="OK"
               agreeAction={() => {
                 setDialogOpen(false);
-                router.replace("/(protected)");
+                router.dismissTo("/(protected)");
               }}
             />
           </View>
