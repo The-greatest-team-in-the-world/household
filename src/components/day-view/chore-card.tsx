@@ -7,7 +7,7 @@ import getMemberAvatar from "@/utils/get-member-avatar";
 import { useNavigation } from "@react-navigation/native";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Pressable, StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
+import { Surface, Text, useTheme } from "react-native-paper";
 
 type ChoreCardProps = {
   choreId: string;
@@ -30,6 +30,7 @@ export default function ChoreCard({
   completedByList,
   members = [],
 }: ChoreCardProps) {
+  const theme = useTheme();
   const navigation = useNavigation<any>();
   const setSelectedChore = useSetAtom(selectedChoreAtom);
   const currentHousehold = useAtomValue(currentHouseholdAtom);
@@ -56,7 +57,7 @@ export default function ChoreCard({
     <View>
       {displayType === "avatar" ? (
         <Pressable onPress={handlePress}>
-          <View style={s.container}>
+          <Surface style={s.container} elevation={1}>
             <Text style={s.choreName}>{choreName}</Text>
             <View style={s.avatarContainer}>
               {completedByList?.map((completion) => {
@@ -68,20 +69,36 @@ export default function ChoreCard({
                 );
               })}
             </View>
-          </View>
+          </Surface>
         </Pressable>
       ) : (
         <Pressable onPress={handlePress}>
-          <View style={s.container}>
+          <Surface style={s.container} elevation={1}>
             <Text style={s.choreName}>{choreName}</Text>
             <View
-              style={[s.daysContainer, isOverdue && s.daysContainerOverdue]}
+              style={[
+                s.daysContainer,
+                {
+                  backgroundColor: isOverdue
+                    ? theme.colors.error
+                    : theme.colors.surface,
+                },
+              ]}
             >
-              <Text style={[s.days, isOverdue && s.daysOverdue]}>
+              <Text
+                style={[
+                  s.days,
+                  {
+                    color: isOverdue
+                      ? theme.colors.onError
+                      : theme.colors.onSurface,
+                  },
+                ]}
+              >
                 {isOverdue ? daysOverdue : displayValue}
               </Text>
             </View>
-          </View>
+          </Surface>
         </Pressable>
       )}
     </View>
@@ -93,7 +110,6 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#e2e2e2ff",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
@@ -119,18 +135,11 @@ const s = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: "#ffffffff",
     justifyContent: "center",
     alignItems: "center",
-  },
-  daysContainerOverdue: {
-    backgroundColor: "#d32f2f",
   },
   days: {
     fontSize: 13,
     fontWeight: "600",
-  },
-  daysOverdue: {
-    color: "#ffffff",
   },
 });
