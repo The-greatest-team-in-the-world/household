@@ -3,7 +3,9 @@ import { Household } from "@/types/household";
 import { atom } from "jotai";
 import { userAtom } from "./auth-atoms";
 
-export const currentHouseholdAtom = atom<Household | null>(null);
+export const currentHouseholdAtom = atom<
+  (Household & { isOwner: boolean }) | null
+>(null);
 
 export const getUsersHouseholdsAtom = atom(null, async (get, set) => {
   const user = get(userAtom);
@@ -14,4 +16,6 @@ export const getUsersHouseholdsAtom = atom(null, async (get, set) => {
   set(householdsAtom, data.length > 0 ? data : null);
 });
 
-export const householdsAtom = atom<Household[] | null>(null);
+export const householdsAtom = atom<(Household & { isOwner: boolean })[] | null>(
+  null,
+);
