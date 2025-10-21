@@ -1,6 +1,6 @@
 import { HouseholdMember } from "@/types/household-member";
 import { StyleSheet, View } from "react-native";
-import { Card, Divider, Text } from "react-native-paper";
+import { Divider, Surface, Text } from "react-native-paper";
 
 interface MemberListProps {
   members: HouseholdMember[];
@@ -16,53 +16,49 @@ export function MemberList({
   const activeMembers = members.filter((m) => m.status === "active");
 
   return (
-    <Card style={styles.card}>
-      <Card.Content>
-        <Text variant="headlineMedium" style={styles.householdName}>
-          {householdName}
-        </Text>
-        <Text variant="bodyMedium" style={styles.code}>
-          [{householdCode}]
-        </Text>
+    <Surface style={styles.card} elevation={1}>
+      <Text variant="headlineMedium" style={styles.householdName}>
+        {householdName}
+      </Text>
+      <Text variant="bodyMedium" style={styles.code}>
+        [{householdCode}]
+      </Text>
 
-        <Divider style={styles.divider} />
+      <Divider style={styles.divider} />
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          Medlemmar:
-        </Text>
-        {activeMembers.map((member) => (
-          <View key={member.userId} style={styles.memberRow}>
-            <View
-              style={[
-                styles.avatarCircle,
-                { backgroundColor: member.avatar.color },
-              ]}
-            >
-              <Text style={styles.avatarEmoji}>{member.avatar.emoji}</Text>
-            </View>
-            <View style={styles.memberText}>
-              <Text variant="bodyLarge">{member.nickName}</Text>
-              <Text
-                variant="bodySmall"
-                style={[
-                  styles.statusText,
-                  member.isPaused && styles.pausedText,
-                ]}
-              >
-                {member.isPaused ? "Pausad" : "Aktiv"}
-              </Text>
-            </View>
+      <Text variant="titleMedium" style={styles.sectionTitle}>
+        Medlemmar:
+      </Text>
+      {activeMembers.map((member) => (
+        <View key={member.userId} style={styles.memberRow}>
+          <View
+            style={[
+              styles.avatarCircle,
+              { backgroundColor: member.avatar.color },
+            ]}
+          >
+            <Text style={styles.avatarEmoji}>{member.avatar.emoji}</Text>
           </View>
-        ))}
-      </Card.Content>
-    </Card>
+          <View style={styles.memberText}>
+            <Text variant="bodyLarge">{member.nickName}</Text>
+            <Text
+              variant="bodySmall"
+              style={[styles.statusText, member.isPaused && styles.pausedText]}
+            >
+              {member.isPaused ? "Pausad" : "Aktiv"}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     margin: 16,
-    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
   },
   householdName: {
     textAlign: "center",
@@ -85,15 +81,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   avatarCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   avatarEmoji: {
-    fontSize: 30,
+    fontSize: 24,
   },
   memberText: {
     flex: 1,
