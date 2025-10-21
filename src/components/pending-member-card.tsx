@@ -1,6 +1,6 @@
 import { HouseholdMember } from "@/types/household-member";
 import { StyleSheet, View } from "react-native";
-import { IconButton, Text } from "react-native-paper";
+import { IconButton, Surface, Text } from "react-native-paper";
 
 interface PendingMemberCardProps {
   member: HouseholdMember;
@@ -14,7 +14,7 @@ export function PendingMemberCard({
   onReject,
 }: PendingMemberCardProps) {
   return (
-    <View style={styles.card}>
+    <Surface style={styles.card} elevation={1}>
       <View style={[styles.avatar, { backgroundColor: member.avatar.color }]}>
         <Text style={styles.avatarEmoji}>{member.avatar.emoji}</Text>
       </View>
@@ -38,7 +38,7 @@ export function PendingMemberCard({
           onPress={() => onReject(member.userId)}
         />
       </View>
-    </View>
+    </Surface>
   );
 }
 
@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
