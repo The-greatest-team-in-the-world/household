@@ -81,15 +81,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   avatarCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   avatarEmoji: {
-    fontSize: 30,
+    fontSize: 24,
   },
   memberText: {
     flex: 1,
