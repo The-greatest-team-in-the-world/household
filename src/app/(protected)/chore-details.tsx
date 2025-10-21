@@ -1,6 +1,8 @@
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
+import { useHouseholdData } from "@/hooks/useHouseholdData";
+import getMemberAvatar from "@/utils/get-member-avatar";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -23,7 +25,10 @@ export default function ChoreDetailsScreen() {
     removeChoreCompletion,
     updateChoreData,
     deleteChore,
+    householdId,
   } = useChoreOperations();
+
+  const { members } = useHouseholdData(householdId || "");
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -227,6 +232,27 @@ export default function ChoreDetailsScreen() {
           </View>
           <Divider />
           <View style={s.textContainer}>
+            <Text style={s.titleText}>Senast gjord: </Text>
+            <View style={s.dateAvatarContainer}>
+              <Text style={s.text}>
+                {selectedChore?.lastCompletedAt
+                  ? selectedChore.lastCompletedAt
+                      .toDate()
+                      .toLocaleDateString("sv-SE")
+                  : "Aldrig"}
+              </Text>
+              {selectedChore?.lastCompletedBy && (
+                <Text style={s.avatarText}>
+                  {
+                    getMemberAvatar(members, selectedChore.lastCompletedBy)
+                      .emoji
+                  }
+                </Text>
+              )}
+            </View>
+          </View>
+          <Divider />
+          <View style={s.textContainer}>
             <Text style={s.titleText}>Återkommer var: </Text>
             <Text style={s.text}>{selectedChore?.frequency} dag</Text>
           </View>
@@ -294,6 +320,11 @@ const s = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
+  dateAvatarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   secondContainer: {
     gap: 10,
     marginTop: 20,
@@ -309,6 +340,9 @@ const s = StyleSheet.create({
   text: {
     fontSize: 18,
     padding: 2,
+  },
+  avatarText: {
+    fontSize: 24,
   },
   editText: {
     fontSize: 14,
