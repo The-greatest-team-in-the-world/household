@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, useTheme } from "react-native-paper";
 
 interface CustomPaperButtonProps {
   icon?: string;
@@ -37,16 +37,22 @@ export const CustomPaperButton = ({
   toggledText,
   toggledMode,
 }: CustomPaperButtonProps) => {
+  const theme = useTheme();
+
   // Bestäm vilken ikon, text och mode som ska användas baserat på toggle-state
   const currentIcon = isToggle && isToggled ? toggledIcon || icon : icon;
   const currentText = isToggle && isToggled ? toggledText || text : text;
   const currentMode = isToggle && isToggled ? toggledMode || mode : mode;
 
+  // Use theme colors if no color is provided
+  const buttonColor = color || theme.colors.primary;
+
   return (
     <Button
       mode={currentMode}
       icon={currentIcon}
-      buttonColor={color}
+      buttonColor={currentMode === "contained" ? buttonColor : undefined}
+      textColor={currentMode === "outlined" ? theme.colors.primary : undefined}
       onPress={onPress}
       disabled={disabled}
       style={[{ borderRadius: 8, minWidth: 100 }, style]}
