@@ -24,7 +24,7 @@ export default function ChoreDetailsScreen() {
     submitChoreCompletion,
     removeChoreCompletion,
     updateChoreData,
-    deleteChore,
+    softDeleteChore,
     householdId,
   } = useChoreOperations();
 
@@ -73,7 +73,7 @@ export default function ChoreDetailsScreen() {
 
   const handlePressDelete = () => {
     if (selectedChore) {
-      deleteChore(selectedChore.id);
+      softDeleteChore();
     }
   };
 
@@ -198,18 +198,18 @@ export default function ChoreDetailsScreen() {
 
       <View style={s.saveCancelButtonsContainer}>
         <CustomPaperButton
-          onPress={handleSubmit(onSubmit)}
-          text="Spara"
-          icon="content-save"
-          disabled={isSubmitting}
-          mode="contained"
-        />
-        <CustomPaperButton
           onPress={() => setIsEditing(false)}
           text="Avbryt"
           icon="close"
           disabled={isSubmitting}
           mode="outlined"
+        />
+        <CustomPaperButton
+          onPress={handleSubmit(onSubmit)}
+          text="Spara"
+          icon="content-save"
+          disabled={isSubmitting}
+          mode="contained"
         />
       </View>
     </Surface>
