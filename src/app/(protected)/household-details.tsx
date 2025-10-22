@@ -17,7 +17,6 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
-  const [leaveHouseholdDialog, setLeaveHouseholdDialog] = useState(false);
 
   const {
     handleApprove,
@@ -32,7 +31,15 @@ export default function HouseHoldDetailsScreen() {
     confirmRemoveOwnership,
     errorDialog,
     setErrorDialog,
-  } = useMemberManagement(currentHousehold?.id, members);
+    handleLeaveHousehold,
+    leaveHouseholdDialog,
+    setLeaveHouseholdDialog,
+    confirmLeaveHousehold,
+  } = useMemberManagement(
+    currentHousehold?.id,
+    members,
+    currentHousehold?.ownerIds,
+  );
 
   useEffect(() => {
     if (!currentHousehold?.id) return;
@@ -69,17 +76,6 @@ export default function HouseHoldDetailsScreen() {
 
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
-
-  const handleLeaveHousehold = () => {
-    setLeaveHouseholdDialog(true);
-    console.log("Leave household dialog opened");
-  };
-
-  const confirmLeaveHousehold = async () => {
-    // TODO: Call API to set member status to "left"
-    setLeaveHouseholdDialog(false);
-    console.log("Confirmed leaving household");
-  };
 
   return (
     <Surface style={styles.container} elevation={0}>

@@ -21,6 +21,7 @@ interface ErrorDialogState {
 export function useMemberManagement(
   householdId: string | undefined,
   members: HouseholdMember[],
+  ownerIds: string[] | undefined,
 ) {
   const [makeOwnerDialog, setMakeOwnerDialog] = useState<DialogState>({
     open: false,
@@ -36,6 +37,7 @@ export function useMemberManagement(
     open: false,
     message: "",
   });
+  const [leaveHouseholdDialog, setLeaveHouseholdDialog] = useState(false);
 
   const handleApprove = async (userId: string) => {
     if (!householdId) return;
@@ -112,6 +114,31 @@ export function useMemberManagement(
     }
   };
 
+  const handleLeaveHousehold = () => {
+    const activeMembers = members.filter((m) => m.status === "active");
+
+    // Check if user is the only owner
+    if (ownerIds && ownerIds.length === 1) {
+      // User is the only owner
+      if (activeMembers.length > 1) {
+        // There are other members - show error that ownership must be transferred
+        setErrorDialog({
+          open: true,
+          message:
+            "Du är den enda ägaren. Du måste först göra någon annan medlem till ägare innan du kan lämna hushållet.",
+        });
+        return;
+      }
+    }
+
+    setLeaveHouseholdDialog(true);
+  };
+
+  const confirmLeaveHousehold = async () => {
+    // TODO: Call API to set member status to "left"
+    setLeaveHouseholdDialog(false);
+  };
+
   return {
     handleApprove,
     handleReject,
@@ -125,5 +152,9 @@ export function useMemberManagement(
     confirmRemoveOwnership,
     errorDialog,
     setErrorDialog,
+    handleLeaveHousehold,
+    leaveHouseholdDialog,
+    setLeaveHouseholdDialog,
+    confirmLeaveHousehold,
   };
 }
