@@ -1,10 +1,14 @@
+import { deleteHousehold } from "@/api/households";
 import {
   approveMember,
+  leaveMemberFromHousehold,
   makeMemberOwner,
   rejectMember,
   removeMemberOwnership,
 } from "@/api/members";
 import { HouseholdMember } from "@/types/household-member";
+import { getAuth } from "@firebase/auth";
+import { router } from "expo-router";
 import { useState } from "react";
 
 interface DialogState {
@@ -21,6 +25,7 @@ interface ErrorDialogState {
 export function useMemberManagement(
   householdId: string | undefined,
   members: HouseholdMember[],
+  ownerIds: string[] | undefined,
 ) {
   const [makeOwnerDialog, setMakeOwnerDialog] = useState<DialogState>({
     open: false,
@@ -36,6 +41,8 @@ export function useMemberManagement(
     open: false,
     message: "",
   });
+  const [leaveHouseholdDialog, setLeaveHouseholdDialog] = useState(false);
+  const [deleteHouseholdDialog, setDeleteHouseholdDialog] = useState(false);
 
   const handleApprove = async (userId: string) => {
     if (!householdId) return;
@@ -112,6 +119,89 @@ export function useMemberManagement(
     }
   };
 
+  const handleLeaveHousehold = () => {
+    const auth = getAuth();
+    const currentUserId = auth.currentUser?.uid;
+
+    if (!currentUserId) {
+      setErrorDialog({
+        open: true,
+        message: "Kunde inte hitta användarinformation",
+      });
+      return;
+    }
+
+    const activeMembers = members.filter((m) => m.status === "active");
+    const isCurrentUserOwner = ownerIds?.includes(currentUserId) ?? false;
+
+    // Check if current user is an owner and the only owner
+    if (isCurrentUserOwner && ownerIds && ownerIds.length === 1) {
+      if (activeMembers.length > 1) {
+        // if other members - show error ownership must be transferred
+        setErrorDialog({
+          open: true,
+          message:
+            "Du är den enda ägaren. Du måste först göra någon annan medlem till ägare innan du kan lämna hushållet.",
+        });
+        return;
+      } else if (activeMembers.length === 1) {
+        // User is only member - show delete household dialog
+        setDeleteHouseholdDialog(true);
+        return;
+      }
+    }
+
+    setLeaveHouseholdDialog(true);
+  };
+
+  const confirmLeaveHousehold = async () => {
+    if (!householdId) return;
+
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+
+    if (!userId) {
+      setErrorDialog({
+        open: true,
+        message: "Kunde inte hitta användarinformation",
+      });
+      return;
+    }
+
+    setLeaveHouseholdDialog(false);
+
+    const result = await leaveMemberFromHousehold(householdId, userId);
+
+    if (result.success) {
+      // Navigate back to index after leaving
+      router.replace("/(protected)");
+    } else {
+      setErrorDialog({
+        open: true,
+        message:
+          result.error || "Ett fel uppstod när du försökte lämna hushållet",
+      });
+    }
+  };
+
+  const confirmDeleteHousehold = async () => {
+    if (!householdId) return;
+
+    setDeleteHouseholdDialog(false);
+
+    const result = await deleteHousehold(householdId);
+
+    if (result.success) {
+      // Navigate back to index after deleting household
+      router.replace("/(protected)");
+    } else {
+      setErrorDialog({
+        open: true,
+        message: result.error || "Ett fel uppstod vid radering av hushållet",
+      });
+    }
+  };
+
   return {
     handleApprove,
     handleReject,
@@ -125,5 +215,12 @@ export function useMemberManagement(
     confirmRemoveOwnership,
     errorDialog,
     setErrorDialog,
+    handleLeaveHousehold,
+    leaveHouseholdDialog,
+    setLeaveHouseholdDialog,
+    confirmLeaveHousehold,
+    deleteHouseholdDialog,
+    setDeleteHouseholdDialog,
+    confirmDeleteHousehold,
   };
 }
