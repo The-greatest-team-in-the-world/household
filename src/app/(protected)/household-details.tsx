@@ -72,11 +72,13 @@ export default function HouseHoldDetailsScreen() {
 
   const handleLeaveHousehold = () => {
     setLeaveHouseholdDialog(true);
+    console.log("Leave household dialog opened");
   };
 
   const confirmLeaveHousehold = async () => {
     // TODO: Call API to set member status to "left"
     setLeaveHouseholdDialog(false);
+    console.log("Confirmed leaving household");
   };
 
   return (
@@ -161,6 +163,16 @@ export default function HouseHoldDetailsScreen() {
         agreeText="Ja, ta bort ägarskap"
         disagreeText="Avbryt"
         agreeAction={confirmRemoveOwnership}
+      />
+
+      <AlertDialog
+        open={leaveHouseholdDialog}
+        onClose={() => setLeaveHouseholdDialog(false)}
+        headLine="Lämna hushåll"
+        alertMsg={`Är du säker på att du vill lämna hushållet "${currentHousehold?.name}"? Du kommer inte längre ha tillgång till hushållets sysslor och information.`}
+        agreeText="Ja, lämna hushåll"
+        disagreeText="Avbryt"
+        agreeAction={confirmLeaveHousehold}
       />
 
       <AlertDialog
