@@ -13,7 +13,6 @@ import {
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import SettingsSideSheet from "@/components/user-profile-slide";
-import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
@@ -132,19 +131,6 @@ export default function HouseholdsScreen() {
                   <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
                 </Pressable>
               )}
-              <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleOpenSettings(h);
-                }}
-                style={s.iconButton}
-              >
-                <MaterialIcons
-                  name={h.isOwner ? "settings" : "info"}
-                  size={24}
-                  color="#666"
-                />
-              </Pressable>
             </Pressable>
           );
         })}
@@ -221,13 +207,6 @@ const s = StyleSheet.create({
   },
   spacer: {
     width: 8,
-  },
-  iconButton: {
-    padding: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    width: 32,
-    height: 32,
   },
   icon: { opacity: 0.8 },
   itemText: { fontSize: 16 },
