@@ -9,7 +9,14 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
+import {
+  Divider,
+  Icon,
+  Surface,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 
 type ChoreFormData = {
   name: string;
@@ -35,6 +42,8 @@ export default function ChoreDetailsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const theme = useTheme();
 
   const {
     control,
@@ -91,6 +100,9 @@ export default function ChoreDetailsScreen() {
       setIsSubmitting(false);
     }
   };
+
+  const handlePressAudio = () => {};
+  const handlePressImage = () => {};
 
   return isEditing ? (
     <Surface style={s.container} elevation={4}>
@@ -252,7 +264,17 @@ export default function ChoreDetailsScreen() {
         <View style={s.secondContainer}>
           <View style={s.descriptionsContainer}>
             <Text style={s.titleText}>Beskrivning</Text>
-            <Text style={s.textMedium}>{selectedChore?.description}</Text>
+            <ScrollView
+              fadingEdgeLength={20}
+              style={{
+                maxHeight: 130,
+                padding: 8,
+                borderRadius: 8,
+                backgroundColor: theme.colors.surfaceVariant,
+              }}
+            >
+              <Text style={s.text}>{selectedChore?.description}</Text>
+            </ScrollView>
           </View>
           <Divider />
           <View style={s.textContainer}>
@@ -286,6 +308,20 @@ export default function ChoreDetailsScreen() {
             <Text style={s.text}>{selectedChore?.effort}</Text>
           </View>
           <Divider />
+          <View style={s.audioImageContainer}>
+            <CustomPaperButton
+              onPress={() => handlePressAudio()}
+              text="Ljud"
+              icon="music-note"
+              mode="contained-tonal"
+            />
+            <CustomPaperButton
+              onPress={() => handlePressImage()}
+              text="Bild"
+              icon="image"
+              mode="contained-tonal"
+            />
+          </View>
         </View>
       </View>
       <View style={s.doneButtonsContainer}>
@@ -330,10 +366,14 @@ const s = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 5,
+  },
+  audioImageContainer: {
+    justifyContent: "space-evenly",
+    flexDirection: "row",
+    marginTop: 5,
   },
   descriptionsContainer: {
-    padding: 10,
     gap: 5,
     borderRadius: 8,
   },
@@ -341,7 +381,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 10,
     borderRadius: 8,
   },
   dateAvatarContainer: {
@@ -357,9 +396,6 @@ const s = StyleSheet.create({
     textAlign: "center",
     fontSize: 22,
     fontWeight: "bold",
-  },
-  textMedium: {
-    fontSize: 24,
   },
   text: {
     fontSize: 18,
