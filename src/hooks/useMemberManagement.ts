@@ -120,13 +120,24 @@ export function useMemberManagement(
   };
 
   const handleLeaveHousehold = () => {
-    const activeMembers = members.filter((m) => m.status === "active");
+    const auth = getAuth();
+    const currentUserId = auth.currentUser?.uid;
 
-    // Check if user is the only owner
-    if (ownerIds && ownerIds.length === 1) {
-      // User is the only owner
+    if (!currentUserId) {
+      setErrorDialog({
+        open: true,
+        message: "Kunde inte hitta användarinformation",
+      });
+      return;
+    }
+
+    const activeMembers = members.filter((m) => m.status === "active");
+    const isCurrentUserOwner = ownerIds?.includes(currentUserId) ?? false;
+
+    // Check if current user is an owner and the only owner
+    if (isCurrentUserOwner && ownerIds && ownerIds.length === 1) {
       if (activeMembers.length > 1) {
-        // There are other members - show error that ownership must be transferred
+        // if other members - show error ownership must be transferred
         setErrorDialog({
           open: true,
           message:
@@ -134,7 +145,7 @@ export function useMemberManagement(
         });
         return;
       } else if (activeMembers.length === 1) {
-        // User is the only member - show delete household dialog
+        // User is only member - show delete household dialog
         setDeleteHouseholdDialog(true);
         return;
       }
