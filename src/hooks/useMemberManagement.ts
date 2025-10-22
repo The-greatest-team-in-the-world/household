@@ -1,3 +1,4 @@
+import { deleteHousehold } from "@/api/households";
 import {
   approveMember,
   leaveMemberFromHousehold,
@@ -177,15 +178,17 @@ export function useMemberManagement(
 
     setDeleteHouseholdDialog(false);
 
-    // TODO: Call API to delete household with all subcollections
-    // const result = await deleteHousehold(householdId);
-    // if (result.success) {
-    //   router.replace("/(protected)");
-    // } else {
-    //   setErrorDialog({ open: true, message: result.error });
-    // }
+    const result = await deleteHousehold(householdId);
 
-    console.log("Delete household:", householdId);
+    if (result.success) {
+      // Navigate back to index after deleting household
+      router.replace("/(protected)");
+    } else {
+      setErrorDialog({
+        open: true,
+        message: result.error || "Ett fel uppstod vid radering av hushållet",
+      });
+    }
   };
 
   return {
