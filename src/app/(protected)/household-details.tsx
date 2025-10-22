@@ -2,6 +2,7 @@ import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
+import { CustomPaperButton } from "@/components/custom-paper-button";
 import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
@@ -128,6 +129,16 @@ export default function HouseHoldDetailsScreen() {
         )}
       </ScrollView>
 
+      {/* Leave Household Button */}
+      <View style={styles.buttonContainer}>
+        <CustomPaperButton
+          mode="outlined"
+          icon="exit-to-app"
+          text="Lämna hushåll"
+          onPress={handleLeaveHousehold}
+        />
+      </View>
+
       <AlertDialog
         open={makeOwnerDialog.open}
         onClose={() =>
@@ -185,5 +196,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 12,
     fontWeight: "600",
+  },
+  buttonContainer: {
+    padding: 16,
+    gap: 16,
   },
 });
