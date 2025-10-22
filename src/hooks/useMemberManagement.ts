@@ -1,10 +1,13 @@
 import {
   approveMember,
+  leaveMemberFromHousehold,
   makeMemberOwner,
   rejectMember,
   removeMemberOwnership,
 } from "@/api/members";
 import { HouseholdMember } from "@/types/household-member";
+import { getAuth } from "@firebase/auth";
+import { router } from "expo-router";
 import { useState } from "react";
 
 interface DialogState {
@@ -38,6 +41,7 @@ export function useMemberManagement(
     message: "",
   });
   const [leaveHouseholdDialog, setLeaveHouseholdDialog] = useState(false);
+  const [deleteHouseholdDialog, setDeleteHouseholdDialog] = useState(false);
 
   const handleApprove = async (userId: string) => {
     if (!householdId) return;
@@ -128,6 +132,10 @@ export function useMemberManagement(
             "Du är den enda ägaren. Du måste först göra någon annan medlem till ägare innan du kan lämna hushållet.",
         });
         return;
+      } else if (activeMembers.length === 1) {
+        // User is the only member - show delete household dialog
+        setDeleteHouseholdDialog(true);
+        return;
       }
     }
 
@@ -135,8 +143,49 @@ export function useMemberManagement(
   };
 
   const confirmLeaveHousehold = async () => {
-    // TODO: Call API to set member status to "left"
+    if (!householdId) return;
+
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+
+    if (!userId) {
+      setErrorDialog({
+        open: true,
+        message: "Kunde inte hitta användarinformation",
+      });
+      return;
+    }
+
     setLeaveHouseholdDialog(false);
+
+    const result = await leaveMemberFromHousehold(householdId, userId);
+
+    if (result.success) {
+      // Navigate back to index after leaving
+      router.replace("/(protected)");
+    } else {
+      setErrorDialog({
+        open: true,
+        message:
+          result.error || "Ett fel uppstod när du försökte lämna hushållet",
+      });
+    }
+  };
+
+  const confirmDeleteHousehold = async () => {
+    if (!householdId) return;
+
+    setDeleteHouseholdDialog(false);
+
+    // TODO: Call API to delete household with all subcollections
+    // const result = await deleteHousehold(householdId);
+    // if (result.success) {
+    //   router.replace("/(protected)");
+    // } else {
+    //   setErrorDialog({ open: true, message: result.error });
+    // }
+
+    console.log("Delete household:", householdId);
   };
 
   return {
@@ -156,5 +205,8 @@ export function useMemberManagement(
     leaveHouseholdDialog,
     setLeaveHouseholdDialog,
     confirmLeaveHousehold,
+    deleteHouseholdDialog,
+    setDeleteHouseholdDialog,
+    confirmDeleteHousehold,
   };
 }

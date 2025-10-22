@@ -35,6 +35,9 @@ export default function HouseHoldDetailsScreen() {
     leaveHouseholdDialog,
     setLeaveHouseholdDialog,
     confirmLeaveHousehold,
+    deleteHouseholdDialog,
+    setDeleteHouseholdDialog,
+    confirmDeleteHousehold,
   } = useMemberManagement(
     currentHousehold?.id,
     members,
@@ -169,6 +172,16 @@ export default function HouseHoldDetailsScreen() {
         agreeText="Ja, lämna hushåll"
         disagreeText="Avbryt"
         agreeAction={confirmLeaveHousehold}
+      />
+
+      <AlertDialog
+        open={deleteHouseholdDialog}
+        onClose={() => setDeleteHouseholdDialog(false)}
+        headLine="Radera hushåll"
+        alertMsg={`Du är den enda medlemmen i hushållet "${currentHousehold?.name}". Om du lämnar kommer hushållet att raderas permanent inklusive alla sysslor och historik. Är du säker?`}
+        agreeText="Ja, radera hushåll"
+        disagreeText="Avbryt"
+        agreeAction={confirmDeleteHousehold}
       />
 
       <AlertDialog
