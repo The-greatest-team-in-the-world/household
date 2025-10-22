@@ -16,6 +16,7 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
+  const [leaveHouseholdDialog, setLeaveHouseholdDialog] = useState(false);
 
   const {
     handleApprove,
@@ -67,6 +68,15 @@ export default function HouseHoldDetailsScreen() {
 
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
+
+  const handleLeaveHousehold = () => {
+    setLeaveHouseholdDialog(true);
+  };
+
+  const confirmLeaveHousehold = async () => {
+    // TODO: Call API to set member status to "left"
+    setLeaveHouseholdDialog(false);
+  };
 
   return (
     <Surface style={styles.container} elevation={0}>
