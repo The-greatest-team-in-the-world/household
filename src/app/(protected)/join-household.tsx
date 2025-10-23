@@ -2,12 +2,12 @@ import { getHouseholdByCode } from "@/api/households";
 import { addNewMemberToHousehold, getMembers } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
 import AlertDialog from "@/components/alertDialog";
-import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
-import { CustomPaperButton } from "@/components/custom-paper-button";
+import JoinHouseholdForm from "@/components/join-household/join-houshold-form";
+import ReactivateUser from "@/components/join-household/reactivate-user";
 import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Household } from "@/types/household";
-import { Avatar } from "@/types/household-member";
+import { Avatar, HouseholdMember } from "@/types/household-member";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
@@ -37,18 +37,22 @@ export default function JoinHouseholdScreen() {
   const [loading, setLoading] = useState(false);
   const [filteredAvatars, setFilteredAvatars] = useState<Avatar[]>([]);
   const [household, setHousehold] = useState<Household | null>(null);
-  const [codeInput, setCodeInput] = useState("");
+  const [isPendingUser, setIsPendingUser] = useState(false);
+  const [retiredUser, setRetiredUser] = useState<HouseholdMember>();
   const [isMember, setIsMember] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const theme = useTheme();
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({ resolver: zodResolver(details) });
 
-  const debouncedInput = useDebounce(codeInput, 1000);
+  const codeValue = watch("code");
+  const debouncedInput = useDebounce(codeValue, 1000);
 
   useEffect(() => {
     const fetchHousehold = async () => {
@@ -82,6 +86,17 @@ export default function JoinHouseholdScreen() {
           setIsMember(
             user != null && membersList.map((m) => m.userId).includes(user.uid),
           );
+          setIsPendingUser(
+            user != null &&
+              membersList.some(
+                (m) => m.userId === user.uid && m.status === "pending",
+              ),
+          );
+          setRetiredUser(
+            membersList.find(
+              (m) => m.userId === user?.uid && m.status === "left",
+            ),
+          );
         }
         // Vänta med att rendera saker tills en sökning är klar. Detta för att förhindra att saker renderas vid fel tillfälle ⚡.
         setHasSearched(true);
@@ -110,7 +125,7 @@ export default function JoinHouseholdScreen() {
     try {
       // vad händer om två väljer kycklingen samtidigt?
 
-      await addNewMemberToHousehold(
+      const result = await addNewMemberToHousehold(
         household.id,
         selectedAvatar,
         data.nickName,
@@ -119,14 +134,25 @@ export default function JoinHouseholdScreen() {
         "pending",
       );
 
-      setDialogOpen(true);
+      if (result.success) {
+        setErrorMessage(null);
+        setDialogOpen(true);
+      } else {
+        setErrorMessage(result.error || "Uppdateringen misslyckades.");
+      }
     } catch (error) {
-      console.error("Error adding member:", error);
+      console.error("Error adding member to household:", error);
+      console.error(errorMessage);
     }
   };
 
   const isAlreadyMember =
-    !loading && hasSearched && household != null && isMember;
+    !loading &&
+    hasSearched &&
+    household != null &&
+    isMember &&
+    !isPendingUser &&
+    !retiredUser;
 
   const isHouseholdFound = !loading && hasSearched && household != null;
 
@@ -134,6 +160,23 @@ export default function JoinHouseholdScreen() {
     !loading && hasSearched && household != null && !isMember;
 
   const isHouseholdNotFound = !loading && hasSearched && household == null;
+
+  const isStatusPending =
+    !loading && hasSearched && household != null && isPendingUser;
+
+  const isRetiredUser =
+    !loading &&
+    hasSearched &&
+    household != null &&
+    !isPendingUser &&
+    retiredUser != null;
+  console.log("/////////////////////////////////");
+  console.log("isAlreadyMember", isAlreadyMember);
+  console.log("isHouseholdFound", isHouseholdFound);
+  console.log("isHouseholdNotFound", isHouseholdNotFound);
+  console.log("isRetiredUser", isRetiredUser);
+  console.log("isStatusPending", isStatusPending);
+  console.log("isNotMemberInFoundHousehold", isNotMemberInFoundHousehold);
 
   return (
     <KeyboardAwareScrollView
@@ -146,7 +189,7 @@ export default function JoinHouseholdScreen() {
         <Controller
           control={control}
           render={({ field: { onBlur, onChange, value } }) => (
-            <View style={s.inputField}>
+            <View style={s.gap}>
               <Surface style={s.surface}>
                 <Text style={s.surfaceTitle}>
                   Anslut till ett nytt hushåll 🏡
@@ -164,13 +207,14 @@ export default function JoinHouseholdScreen() {
                 theme={{ roundness: 8 }}
                 onBlur={onBlur}
                 onChangeText={(value) => {
-                  onChange(value); // Spara i formulärdata
-                  setCodeInput(value); // Sätta för debouncing och sökning
+                  onChange(value);
                 }}
                 value={value || ""}
                 label="Ange hushållskod"
                 autoCapitalize="characters"
                 maxLength={6}
+                keyboardType="default"
+                autoCorrect={false}
               />
             </View>
           )}
@@ -184,88 +228,58 @@ export default function JoinHouseholdScreen() {
 
         {loading && (
           <View>
-            <ActivityIndicator size="large" color="#007AFF" />
+            <ActivityIndicator size="large" color={theme.colors.onBackground} />
+          </View>
+        )}
+
+        {isHouseholdFound && (
+          <View style={s.padding}>
+            <Text style={[s.foundHousehold, { color: theme.colors.tertiary }]}>
+              Hushåll hittat: {household.name}
+            </Text>
           </View>
         )}
 
         {isAlreadyMember && (
-          <Text style={[s.errorText, { color: theme.colors.error }]}>
-            Du är redan medlem i detta hushåll!
+          <Text style={[s.errorText, s.padding, { color: theme.colors.error }]}>
+            Du är redan medlem i detta hushåll.
           </Text>
         )}
 
-        {isHouseholdFound && (
-          <>
-            <View>
-              <Text
-                style={[s.foundHousehold, { color: theme.colors.onBackground }]}
-              >
-                Hushåll hittat: {household.name}
-              </Text>
-            </View>
-          </>
+        {isStatusPending && (
+          <View>
+            <Text style={[s.infoMessage, { color: theme.colors.tertiary }]}>
+              Du har redan ansökt om medlemlemskap i detta hushåll.
+            </Text>
+          </View>
+        )}
+        {isRetiredUser && (
+          <ReactivateUser household={household} retiredUser={retiredUser} />
         )}
 
         {isHouseholdNotFound && (
-          <View>
+          <View style={s.padding}>
             <Text style={[s.errorText, { color: theme.colors.error }]}>
               Hushållet kunde inte hittas.
             </Text>
-            <Text style={[s.errorText, { color: theme.colors.error }]}>
-              Har du skrivit in rätt kod?
-            </Text>
+            <Text style={s.infoMessage}>Har du skrivit in rätt kod?</Text>
           </View>
         )}
 
         {isNotMemberInFoundHousehold && (
-          <View style={s.inputField}>
-            <Controller
+          <View>
+            <JoinHouseholdForm
+              filteredAvatars={filteredAvatars}
               control={control}
-              render={({ field: { onBlur, onChange, value } }) => (
-                <View style={s.inputField}>
-                  <TextInput
-                    mode="outlined"
-                    theme={{ roundness: 8 }}
-                    label="Smeknamn"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    autoCapitalize="words"
-                  />
-                </View>
-              )}
-              name="nickName"
+              onSubmit={handleSubmit(onSubmit)}
+              errors={errors}
+              isSubmitting={isSubmitting}
             />
-            {errors.nickName && (
+            {errorMessage && (
               <Text style={[s.errorText, { color: theme.colors.error }]}>
-                {errors.nickName.message}
+                {errorMessage}
               </Text>
             )}
-            <Controller
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <Text style={s.title}>Välj din avatar: </Text>
-                  <AvatarPressablePicker
-                    onChange={(avatar) => onChange(avatar.emoji)}
-                    value={avatarColors.find((a) => a.emoji === value)}
-                    avatars={filteredAvatars}
-                  />
-                </View>
-              )}
-              name="avatar"
-            />
-            {errors.avatar && (
-              <Text style={[s.errorText, { color: theme.colors.error }]}>
-                {errors.avatar.message}
-              </Text>
-            )}
-            <CustomPaperButton
-              text="Gå med!"
-              disabled={isSubmitting}
-              mode="contained"
-              onPress={handleSubmit(onSubmit)}
-            />
             <AlertDialog
               open={dialogOpen}
               onClose={() => setDialogOpen(false)}
@@ -294,8 +308,15 @@ const s = StyleSheet.create({
   formContainer: {
     padding: 20,
   },
-  inputField: {
+  gap: {
     gap: 20,
+  },
+  padding: {
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+  infoMessage: {
+    fontSize: 15,
   },
   title: {
     paddingTop: 15,
@@ -304,8 +325,8 @@ const s = StyleSheet.create({
     fontSize: 15,
   },
   errorText: {
-    fontSize: 17,
-    fontWeight: 700,
+    fontSize: 15,
+    fontWeight: 600,
   },
   foundHousehold: {
     fontWeight: 700,

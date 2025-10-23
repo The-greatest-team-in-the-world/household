@@ -22,6 +22,7 @@ export default function UseUserStatus() {
       );
 
       if (result.success) {
+        setErrorMessage(null);
         setIsDialogOpen(true);
       } else {
         setErrorMessage(result.error || "Uppdateringen misslyckades.");
