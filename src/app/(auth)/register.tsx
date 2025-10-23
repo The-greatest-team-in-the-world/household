@@ -24,7 +24,7 @@ const credentials = z
       .string({ required_error: "Lösenord krävs" })
       .min(6, "Lösenordet måste vara minst 6 tecken"),
     confirmPassword: z
-      .string({ required_error: "Upprepa ditt lösenord krävs" })
+      .string({ required_error: "Upprepa ditt lösenord" })
       .min(6, "Lösenordet måste vara minst 6 tecken"),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {

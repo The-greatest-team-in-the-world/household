@@ -161,22 +161,15 @@ export default function JoinHouseholdScreen() {
 
   const isHouseholdNotFound = !loading && hasSearched && household == null;
 
-  const isStatusPending =
+  const isUserStatusPending =
     !loading && hasSearched && household != null && isPendingUser;
 
-  const isRetiredUser =
+  const isUserStatusRetired =
     !loading &&
     hasSearched &&
     household != null &&
     !isPendingUser &&
     retiredUser != null;
-  console.log("/////////////////////////////////");
-  console.log("isAlreadyMember", isAlreadyMember);
-  console.log("isHouseholdFound", isHouseholdFound);
-  console.log("isHouseholdNotFound", isHouseholdNotFound);
-  console.log("isRetiredUser", isRetiredUser);
-  console.log("isStatusPending", isStatusPending);
-  console.log("isNotMemberInFoundHousehold", isNotMemberInFoundHousehold);
 
   return (
     <KeyboardAwareScrollView
@@ -246,14 +239,15 @@ export default function JoinHouseholdScreen() {
           </Text>
         )}
 
-        {isStatusPending && (
+        {isUserStatusPending && (
           <View>
             <Text style={[s.infoMessage, { color: theme.colors.tertiary }]}>
-              Du har redan ansökt om medlemlemskap i detta hushåll.
+              Du har redan ansökt om medlemlemskap i detta hushåll. Inväntar
+              godkännande!
             </Text>
           </View>
         )}
-        {isRetiredUser && (
+        {isUserStatusRetired && (
           <ReactivateUser household={household} retiredUser={retiredUser} />
         )}
 
