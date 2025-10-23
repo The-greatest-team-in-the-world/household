@@ -5,7 +5,7 @@ import { CustomPaperButton } from "@/components/custom-paper-button";
 import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
-import React from "react";
+import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -27,10 +27,10 @@ const newHouseHold = z.object({
 type FormFields = z.infer<typeof newHouseHold>;
 
 export default function CreateHousholdScreen() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({
     resolver: zodResolver(newHouseHold),
@@ -47,7 +47,7 @@ export default function CreateHousholdScreen() {
         return;
       }
 
-      await addNewMemberToHousehold(
+      const result = await addNewMemberToHousehold(
         householdId,
         selectedAvatar,
         data.nickName,
@@ -55,10 +55,15 @@ export default function CreateHousholdScreen() {
         true, // IsOwner
         "active", // Status
       );
-      reset();
-      router.replace("/(protected)");
+      if (result.success) {
+        setErrorMessage(null);
+        router.replace("/(protected)");
+      } else {
+        setErrorMessage(result.error || "Uppdateringen misslyckades.");
+      }
     } catch (error) {
       console.error("Error creating household:", error);
+      console.error(errorMessage);
     }
   };
 
@@ -104,7 +109,7 @@ export default function CreateHousholdScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
               <TextInput
-                label="Smeknamn"
+                label="Ditt smeknamn"
                 mode="outlined"
                 theme={{ roundness: 8 }}
                 onBlur={onBlur}
@@ -147,6 +152,11 @@ export default function CreateHousholdScreen() {
           onPress={handleSubmit(onSubmit)}
         />
       </View>
+      {errorMessage && (
+        <Text style={[s.errorText, { color: theme.colors.error }]}>
+          {errorMessage}
+        </Text>
+      )}
     </KeyboardAwareScrollView>
   );
 }
@@ -167,7 +177,7 @@ const s = StyleSheet.create({
   },
   errorText: {
     fontSize: 15,
-    fontWeight: 700,
+    fontWeight: 600,
   },
   surface: {
     elevation: 4,
