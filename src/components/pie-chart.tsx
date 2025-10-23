@@ -76,18 +76,23 @@ export default function PieChart({
     <View style={s.container}>
       <PieChartRN widthAndHeight={size} series={series} />
       <Text style={[s.title, { fontSize: titleSize }]}>
-        {total ? totalTitle : GetChoreName(chores, activeCompletions[0].choreId)}
+        {total
+          ? totalTitle
+          : GetChoreName(chores, activeCompletions[0].choreId)}
       </Text>
     </View>
   );
 }
 
-function omitPausedUsers(completions: ChoreCompletion[], members: HouseholdMember[]) {
+function omitPausedUsers(
+  completions: ChoreCompletion[],
+  members: HouseholdMember[],
+) {
   const sortedCompletedChores = completions.filter((cC) => {
     const member = members.find((m) => m.userId === cC.userId);
     return member && !member.isPaused;
   });
-  
+
   return sortedCompletedChores;
 }
 
