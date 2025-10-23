@@ -37,15 +37,16 @@ export default function PieChart({
   }
 
   const totalTitle = "Totalt";
+  const activeCompletions = omitPausedUsers(completedChores, members);
 
   function getEffortPerUser() {
     const effortPerUser: Record<string, number> = {};
 
-    const choreId = completedChores[0].choreId;
+    const choreId = activeCompletions[0].choreId;
     const chore = chores.find((c) => c.id === choreId);
     const perCompletionEffort = chore?.effort ?? 1;
 
-    for (const completion of completedChores) {
+    for (const completion of activeCompletions) {
       const memberId = completion.userId;
       if (!effortPerUser[memberId]) effortPerUser[memberId] = 0;
       effortPerUser[memberId] += perCompletionEffort;
@@ -75,10 +76,19 @@ export default function PieChart({
     <View style={s.container}>
       <PieChartRN widthAndHeight={size} series={series} />
       <Text style={[s.title, { fontSize: titleSize }]}>
-        {total ? totalTitle : GetChoreName(chores, completedChores[0].choreId)}
+        {total ? totalTitle : GetChoreName(chores, activeCompletions[0].choreId)}
       </Text>
     </View>
   );
+}
+
+function omitPausedUsers(completions: ChoreCompletion[], members: HouseholdMember[]) {
+  const sortedCompletedChores = completions.filter((cC) => {
+    const member = members.find((m) => m.userId === cC.userId);
+    return member && !member.isPaused;
+  });
+  
+  return sortedCompletedChores;
 }
 
 const s = StyleSheet.create({
