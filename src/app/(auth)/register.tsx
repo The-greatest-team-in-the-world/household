@@ -24,7 +24,7 @@ const credentials = z
       .string({ required_error: "Lösenord krävs" })
       .min(6, "Lösenordet måste vara minst 6 tecken"),
     confirmPassword: z
-      .string({ required_error: "Lösenord krävs" })
+      .string({ required_error: "Upprepa ditt lösenord krävs" })
       .min(6, "Lösenordet måste vara minst 6 tecken"),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -228,7 +228,7 @@ const s = StyleSheet.create({
   },
   container: {
     padding: 20,
-    gap: 20,
+    gap: 10,
   },
   surface: {
     alignItems: "center",
@@ -247,7 +247,7 @@ const s = StyleSheet.create({
   },
   errorText: {
     fontSize: 15,
-    fontWeight: 700,
+    fontWeight: 600,
   },
   inputTitle: {
     fontWeight: "700",
