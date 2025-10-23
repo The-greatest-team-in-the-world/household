@@ -57,21 +57,32 @@ export async function addNewMemberToHousehold(
   isPaused: boolean,
   isOwner: boolean,
   status: string,
-) {
+): Promise<{ success: boolean; error?: string }> {
   // Skapa subcollection: households/{householdId}/members
-  await addDoc(collection(db, "households", householdId, "members"), {
-    userId: auth.currentUser?.uid,
-    householdId: householdId,
-    status: status,
-    isOwner: isOwner,
-    isPaused: isPaused,
-    pausePeriods: [],
-    avatar: avatar,
-    nickName: nickName,
-    joinedAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-    createdAt: serverTimestamp(),
-  });
+  try {
+    await addDoc(collection(db, "households", householdId, "members"), {
+      userId: auth.currentUser?.uid,
+      householdId: householdId,
+      status: status,
+      isOwner: isOwner,
+      isPaused: isPaused,
+      pausePeriods: [],
+      avatar: avatar,
+      nickName: nickName,
+      joinedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+    });
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("addNewMemberToHousehold  misslyckades", error);
+    return {
+      success: false,
+      error: "Ett oväntat fel uppstod försök igen senare",
+    };
+  }
 }
 
 export async function approveMember(
@@ -229,5 +240,34 @@ export async function leaveMemberFromHousehold(
       success: false,
       error: "Ett fel uppstod när du försökte lämna hushållet",
     };
+  }
+}
+
+export async function updateStatusOnHouseholdMember(
+  status: string,
+  householdId: string,
+  userId: string,
+): Promise<{ success: boolean; error?: string }> {
+  //households/{householdId}/members/{userId}
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  const memberDoc = snapshot.docs[0];
+
+  try {
+    await updateDoc(
+      doc(db, "households", householdId, "members", memberDoc.id),
+      {
+        status: status,
+        updatedAt: serverTimestamp(),
+      },
+    );
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Fel vid uppdatering av status" };
   }
 }
