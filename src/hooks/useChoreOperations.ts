@@ -5,14 +5,17 @@ import {
 } from "@/api/chore-completions";
 import {
   archiveChore,
+  apiCreateChore,
   deleteChorePermanently,
   updateChore,
+  CreateChoreData,
 } from "@/api/chores";
 import { choresAtom, selectedChoreAtom } from "@/atoms/chore-atom";
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
 import { Chore } from "@/types/chore";
 import { isChoreCompletedToday } from "@/utils/chore-helpers";
+import { Timestamp } from "firebase/firestore";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
@@ -99,6 +102,13 @@ export function useChoreOperations() {
     await deleteChorePermanently(householdId, selectedChore.id);
     setChores(chores.filter((chore) => chore.id !== selectedChore.id));
   };
+
+const createChore = async (data: CreateChoreData) => {
+  if (!householdId) return;
+  await apiCreateChore(householdId, data);
+};
+
+
   return {
     selectedChore,
     currentMember,
@@ -109,5 +119,6 @@ export function useChoreOperations() {
     updateChoreData,
     softDeleteChore,
     deleteChore,
+    createChore
   };
 }

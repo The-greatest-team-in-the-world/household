@@ -149,8 +149,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -195,6 +195,12 @@ export default function HouseholdsScreen() {
           icon="home-plus"
           text="Skapa hushåll"
           onPress={() => router.push("/(protected)/create-household")}
+        />
+        <CustomPaperButton
+          mode="contained"
+          icon="home-plus"
+          text="skapa syssla"
+          onPress={() => router.push("/(protected)/create-chore")}
         />
       </View>
     </View>
