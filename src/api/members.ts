@@ -253,6 +253,10 @@ export async function updateStatusOnHouseholdMember(
   const q = query(membersRef, where("userId", "==", userId));
   const snapshot = await getDocs(q);
 
+  if (snapshot.empty) {
+    return { success: false, error: "Medlemmen hittades inte" };
+  }
+
   const memberDoc = snapshot.docs[0];
 
   try {
