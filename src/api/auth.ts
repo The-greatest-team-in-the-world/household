@@ -229,16 +229,16 @@ export async function deleteAccount() {
         },
       };
     }
-      if (e?.code === "auth/requires-recent-login") {
-    return {
-      success: false,
-      error: {
-        code: "reauth-required",
-        message:
-          "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot.",
-      },
-    };
-  }
+    if (e?.code === "auth/requires-recent-login") {
+      return {
+        success: false,
+        error: {
+          code: "reauth-required",
+          message:
+            "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot.",
+        },
+      };
+    }
     return {
       success: false,
       error: {

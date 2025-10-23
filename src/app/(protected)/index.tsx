@@ -106,16 +106,17 @@ export default function HouseholdsScreen() {
                     "Du är enda admin i minst ett hushåll. Du måste antingen lämna över admin-rollen till någon annan eller ta bort hushållet först.",
                   );
                   break;
-                  case "reauth-required":
-  Alert.alert(
-    "Logga in igen",
-    "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot. Logga ut och sedan in igen, och försök sedan ta bort kontot direkt.",
-  );
-  break;
+                case "reauth-required":
+                  Alert.alert(
+                    "Logga in igen",
+                    "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot. Logga ut och sedan in igen, och försök sedan ta bort kontot direkt.",
+                  );
+                  break;
                 default:
                   Alert.alert(
                     "Fel",
-                    res.error?.message ?? "Något gick fel vid borttagning av kontot.",
+                    res.error?.message ??
+                      "Något gick fel vid borttagning av kontot.",
                   );
               }
               return;
@@ -149,8 +150,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-            ? "· pausad"
-            : "";
+              ? "· pausad"
+              : "";
 
           return (
             <Pressable

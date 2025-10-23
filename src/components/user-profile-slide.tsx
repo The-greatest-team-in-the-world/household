@@ -112,7 +112,7 @@ export default function SettingsSideSheet({
             transform: [{ translateX: slide }],
             top: insets.top,
             bottom: insets.bottom,
-            backgroundColor: theme.colors.surface, 
+            backgroundColor: theme.colors.surface,
           },
         ]}
       >
