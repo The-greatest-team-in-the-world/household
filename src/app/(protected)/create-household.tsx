@@ -104,7 +104,7 @@ export default function CreateHousholdScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
               <TextInput
-                label="Smeknamn"
+                label="Ditt smeknamn"
                 mode="outlined"
                 theme={{ roundness: 8 }}
                 onBlur={onBlur}
