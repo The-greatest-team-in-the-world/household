@@ -198,3 +198,36 @@ export async function removeMemberOwnership(
     };
   }
 }
+
+export async function leaveMemberFromHousehold(
+  householdId: string,
+  userId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return { success: false, error: "Medlemmen hittades inte" };
+  }
+
+  const memberDoc = snapshot.docs[0];
+
+  try {
+    await updateDoc(
+      doc(db, "households", householdId, "members", memberDoc.id),
+      {
+        status: "left",
+        updatedAt: serverTimestamp(),
+      },
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in leaveMemberFromHousehold:", error);
+    return {
+      success: false,
+      error: "Ett fel uppstod när du försökte lämna hushållet",
+    };
+  }
+}

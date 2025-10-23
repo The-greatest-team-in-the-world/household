@@ -16,8 +16,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppDarkTheme, AppDefaultTheme } from "../../theme";
 import { userThemeAtom } from "@/atoms/theme-atom";
 
-// https://docs.expo.dev/router/basics/common-navigation-patterns/#authenticated-users-only-protected-routes
-
 NavigationBar.setButtonStyleAsync("dark");
 
 export default function RootLayout() {
@@ -30,6 +28,7 @@ export default function RootLayout() {
   if (userTheme !== "auto") {
     theme = userTheme === "dark" ? AppDarkTheme : AppDefaultTheme;
   }
+
   const statusBarStyle = theme.dark ? "light" : "dark";
 
   useEffect(() => {
@@ -40,8 +39,13 @@ export default function RootLayout() {
 
   if (authState.isLoading) {
     return (
-      <PaperProvider>
-        <SafeAreaView style={styles.container}>
+      <PaperProvider theme={theme}>
+        <SafeAreaView
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
           <StatusBar style={statusBarStyle} />
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -54,7 +58,13 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
       <ThemeProvider value={theme}>
-        <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <SafeAreaView
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
+          edges={["top", "bottom"]}
+        >
           <StatusBar style={statusBarStyle} />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Protected guard={authState.isAuthenticated}>

@@ -63,6 +63,7 @@ export default function AlertDialog(props: Props) {
             </Button>
           )}
           <Button
+            style={{ marginLeft: "auto" }}
             onPress={handleAgree}
             labelStyle={{ fontSize: 17 }}
             contentStyle={{ paddingVertical: 10, paddingHorizontal: 10 }}

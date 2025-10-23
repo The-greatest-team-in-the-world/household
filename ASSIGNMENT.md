@@ -22,30 +22,30 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 
 ### Hushåll (7)
 
-- [ ] **Ett hushåll ska ha ett namn och en genererad (enkel) kod så andra kan gå med i hushållet, namnet ska gå att ändra.**
-- [ ] Alla användare i ett hushåll ska kunna se vilka som tillhör ett hushåll.
-- [ ] En ägare av ett hushåll ska kunna se förfrågningar om att gå med i hushållet.
-- [ ] En ägare ska kunna acceptera eller neka förfrågningar.
-- [ ] En ägare ska kunna göra andra till ägare.
+- [x] **Ett hushåll ska ha ett namn och en genererad (enkel) kod så andra kan gå med i hushållet, namnet ska gå att ändra.**
+- [x] Alla användare i ett hushåll ska kunna se vilka som tillhör ett hushåll.
+- [x] En ägare av ett hushåll ska kunna se förfrågningar om att gå med i hushållet.
+- [x] En ägare ska kunna acceptera eller neka förfrågningar.
+- [x] En ägare ska kunna göra andra till ägare.
 - [ ] En ägare ska kunna pausa en användare och under pausade perioder ska användare inte tas med i statistiken.
 - [ ] Om en använder har pausats under en del av en period i statistiken ska graferna normaliseras.
 
 ### Konto (5)
 
-- [ ] **En användare ska kunna registrera och logga in sig.**
-- [ ] **En användare ska kunna skapa ett nytt hushåll.**
-- [ ] **En användare ska kunna gå med i ett hushåll genom att ange hushållets kod.**
-- [ ] När en användare har valt att gå med i ett hushåll behöver en ägare av hushållet först godkänna användaren.
+- [x] **En användare ska kunna registrera och logga in sig.**
+- [x] **En användare ska kunna skapa ett nytt hushåll.**
+- [x] **En användare ska kunna gå med i ett hushåll genom att ange hushållets kod.**
+- [x] När en användare har valt att gå med i ett hushåll behöver en ägare av hushållet först godkänna användaren.
 - [ ] En användare ska kunna lämna ett hushåll.
 
 ### Profil (6)
 
-- [ ] **En användare ska kunna ange sitt namn.**
-- [ ] **En användare ska kunna välja en avatar (emoji-djur + färg) från en fördefinierad lista.**
-- [ ] **Valda avatarer ska inte kunna väljas av andra användare i hushållet.**
-- [ ] **Avataren ska användas i appen för att visa vad användaren har gjort.**
-- [ ] En användare ska kunna ställa in appens utseende (mörkt, ljust, auto).
-- [ ] Om en användare tillhör två eller fler hushåll ska denne kunna välja att byta mellan de olika hushållen.
+- [x] **En användare ska kunna ange sitt namn.**
+- [x] **En användare ska kunna välja en avatar (emoji-djur + färg) från en fördefinierad lista.**
+- [x] **Valda avatarer ska inte kunna väljas av andra användare i hushållet.**
+- [x] **Avataren ska användas i appen för att visa vad användaren har gjort.**
+- [x] En användare ska kunna ställa in appens utseende (mörkt, ljust, auto).
+- [x] Om en användare tillhör två eller fler hushåll ska denne kunna välja att byta mellan de olika hushållen.
 
 ### Sysslor (6)
 
