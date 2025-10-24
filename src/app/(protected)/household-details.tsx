@@ -1,11 +1,9 @@
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
-import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
-import { HouseholdInfoHeader } from "@/components/household-info-header";
-import { MemberList } from "@/components/member-list";
-import { PendingMemberCard } from "@/components/pending-member-card";
+import { HouseholdMemberView } from "@/components/household-member-view";
+import { HouseholdOwnerView } from "@/components/household-owner-view";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -85,46 +83,18 @@ export default function HouseHoldDetailsScreen() {
     <Surface style={styles.container} elevation={0}>
       <ScrollView>
         {isOwner ? (
-          <View style={styles.adminContainer}>
-            <HouseholdInfoHeader
-              householdName={currentHousehold.name}
-              householdCode={currentHousehold.code}
-            />
-
-            {/* Pending members section */}
-            {pendingMembers.length > 0 && (
-              <View style={styles.section}>
-                <Text variant="titleLarge" style={styles.sectionTitle}>
-                  Förfrågningar ({pendingMembers.length})
-                </Text>
-                {pendingMembers.map((member) => (
-                  <PendingMemberCard
-                    key={member.userId}
-                    member={member}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
-                  />
-                ))}
-              </View>
-            )}
-
-            {/* Active members section */}
-            <View style={styles.section}>
-              <Text variant="titleLarge" style={styles.sectionTitle}>
-                Aktiva medlemmar ({activeMembers.length})
-              </Text>
-              {activeMembers.map((member) => (
-                <ActiveMemberCard
-                  key={member.userId}
-                  member={member}
-                  onMakeOwner={handleMakeOwner}
-                  onRemoveOwnership={handleRemoveOwnership}
-                />
-              ))}
-            </View>
-          </View>
+          <HouseholdOwnerView
+            householdName={currentHousehold.name}
+            householdCode={currentHousehold.code}
+            pendingMembers={pendingMembers}
+            activeMembers={activeMembers}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onMakeOwner={handleMakeOwner}
+            onRemoveOwnership={handleRemoveOwnership}
+          />
         ) : (
-          <MemberList
+          <HouseholdMemberView
             members={members}
             householdName={currentHousehold.name}
             householdCode={currentHousehold.code}
@@ -205,20 +175,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  adminContainer: {
-    padding: 16,
-  },
-  heading: {
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    marginBottom: 12,
-    fontWeight: "600",
   },
   buttonContainer: {
     padding: 16,
