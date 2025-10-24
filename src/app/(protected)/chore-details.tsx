@@ -1,4 +1,5 @@
 import AlertDialog from "@/components/alertDialog";
+import AudioModal from "@/components/chore-details/audio-modal";
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
@@ -9,14 +10,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import {
-  Divider,
-  Icon,
-  Surface,
-  Text,
-  TextInput,
-  useTheme,
-} from "react-native-paper";
+import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
 
 type ChoreFormData = {
   name: string;
@@ -42,8 +36,7 @@ export default function ChoreDetailsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const theme = useTheme();
+  const [audiomodalVisible, setAudiomodalVisible] = useState(false);
 
   const {
     control,
@@ -101,8 +94,13 @@ export default function ChoreDetailsScreen() {
     }
   };
 
-  const handlePressAudio = () => {};
+  const handlePressAudio = () => {
+    setAudiomodalVisible(true);
+  };
+
   const handlePressImage = () => {};
+
+  console.log("selected chore audio url", selectedChore?.audioUrl);
 
   return isEditing ? (
     <Surface style={s.container} elevation={4}>
@@ -270,7 +268,6 @@ export default function ChoreDetailsScreen() {
                 maxHeight: 130,
                 padding: 8,
                 borderRadius: 8,
-                backgroundColor: theme.colors.surfaceVariant,
               }}
             >
               <Text style={s.text}>{selectedChore?.description}</Text>
@@ -311,15 +308,15 @@ export default function ChoreDetailsScreen() {
           <View style={s.audioImageContainer}>
             <CustomPaperButton
               onPress={() => handlePressAudio()}
-              text="Ljud"
+              text={selectedChore?.audioUrl ? "Ljud ✓" : "Ljud"}
               icon="music-note"
-              mode="contained-tonal"
+              mode={selectedChore?.audioUrl ? "contained" : "contained-tonal"}
             />
             <CustomPaperButton
               onPress={() => handlePressImage()}
-              text="Bild"
+              text={selectedChore?.imageUrl ? "Bild ✓" : "Bild"}
               icon="image"
-              mode="contained-tonal"
+              mode={selectedChore?.imageUrl ? "contained" : "contained-tonal"}
             />
           </View>
         </View>
@@ -338,6 +335,19 @@ export default function ChoreDetailsScreen() {
           mode="contained"
         />
       </View>
+      <AudioModal
+        visible={audiomodalVisible}
+        onDismiss={() => setAudiomodalVisible(false)}
+        householdId={householdId}
+        choreId={selectedChore?.id || ""}
+        onAudioSaved={(audioUrl) => {
+          updateChoreData({ audioUrl });
+          setAudiomodalVisible(false);
+        }}
+        onAudioDeleted={() => {
+          updateChoreData({ audioUrl: null });
+        }}
+      />
     </Surface>
   );
 }

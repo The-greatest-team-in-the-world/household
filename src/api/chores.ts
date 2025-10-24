@@ -55,7 +55,12 @@ export async function getChoreById(
 export async function updateChore(
   householdId: string,
   choreId: string,
-  data: Partial<Pick<Chore, "name" | "description" | "frequency" | "effort">>,
+  data: Partial<
+    Pick<
+      Chore,
+      "name" | "description" | "frequency" | "effort" | "audioUrl" | "imageUrl"
+    >
+  >,
 ): Promise<void> {
   const choreRef = doc(db, "households", householdId, "chores", choreId);
   await updateDoc(choreRef, {

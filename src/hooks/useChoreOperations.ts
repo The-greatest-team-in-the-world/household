@@ -17,10 +17,12 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
 type UpdateChoreData = {
-  name: string;
-  description: string;
-  frequency: number;
-  effort: number;
+  name?: string;
+  description?: string;
+  frequency?: number;
+  effort?: number;
+  audioUrl?: string | null;
+  imageUrl?: string | null;
 };
 
 export function useChoreOperations() {
@@ -63,19 +65,13 @@ export function useChoreOperations() {
   const updateChoreData = async (data: UpdateChoreData) => {
     if (!selectedChore) return;
 
-    await updateChore(householdId, selectedChore.id, {
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort,
-    });
+    // Uppdatera bara de fält som finns i data
+    await updateChore(householdId, selectedChore.id, data);
 
+    // Mergea nya data med befintlig chore
     const updatedChore: Chore = {
       ...selectedChore,
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort,
+      ...data,
     };
 
     setSelectedChore(updatedChore);
