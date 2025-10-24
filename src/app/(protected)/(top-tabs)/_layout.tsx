@@ -1,5 +1,4 @@
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
-import { currentHouseholdAtom } from "@/atoms/household-atom";
 import {
   getChoresFromCurrentMonth,
   getChoresFromLastMonth,
@@ -19,7 +18,6 @@ const { Navigator } = createMaterialTopTabNavigator();
 const MaterialTopTabs = withLayoutContext(Navigator);
 
 export default function TabsLayout() {
-  const household = useAtomValue(currentHouseholdAtom);
   const theme = useTheme();
 
   const completions = useAtomValue(choreCompletionsAtom);
@@ -48,7 +46,6 @@ export default function TabsLayout() {
       tabBar={customTabBar}
       screenOptions={{
         tabBarStyle: {
-          // display: "none",
           backgroundColor: theme.colors.background,
         },
       }}
@@ -78,7 +75,6 @@ const customTabBar = ({
   state,
   descriptors,
   navigation,
-  position,
 }: MaterialTopTabBarProps) => {
   const currentRoute = state.routes[state.index];
   const { options } = descriptors[currentRoute.key];
