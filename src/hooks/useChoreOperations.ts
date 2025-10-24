@@ -4,18 +4,17 @@ import {
   getAllCompletions,
 } from "@/api/chore-completions";
 import {
-  archiveChore,
   apiCreateChore,
+  archiveChore,
+  CreateChoreData,
   deleteChorePermanently,
   updateChore,
-  CreateChoreData,
 } from "@/api/chores";
 import { choresAtom, selectedChoreAtom } from "@/atoms/chore-atom";
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
 import { Chore } from "@/types/chore";
 import { isChoreCompletedToday } from "@/utils/chore-helpers";
-import { Timestamp } from "firebase/firestore";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 

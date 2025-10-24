@@ -10,7 +10,7 @@ import {
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
-import { auth, db } from "../../firebase-config";
+import { db } from "../../firebase-config";
 
 export type CreateChoreData = Partial<
   Omit<
