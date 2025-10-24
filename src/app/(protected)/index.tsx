@@ -17,7 +17,7 @@ import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { IconButton, Text } from "react-native-paper";
+import { IconButton, Surface, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
@@ -159,21 +159,23 @@ export default function HouseholdsScreen() {
               disabled={disabled}
               style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
             >
-              <Text style={[s.text, (pending || paused) && s.textDisabled]}>
-                {h.name} {suffix}
-              </Text>
-              <View style={s.spacer} />
-              {h.isOwner && pendingCounts[h.id] > 0 && (
-                <Pressable
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleOpenSettings(h);
-                  }}
-                  style={s.badge}
-                >
-                  <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                </Pressable>
-              )}
+              <Surface style={s.householdSurface} elevation={1}>
+                <Text style={[s.text, (pending || paused) && s.textDisabled]}>
+                  {h.name} {suffix}
+                </Text>
+                <View style={s.spacer} />
+                {h.isOwner && pendingCounts[h.id] > 0 && (
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleOpenSettings(h);
+                    }}
+                    style={s.badge}
+                  >
+                    <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                  </Pressable>
+                )}
+              </Surface>
             </Pressable>
           );
         })}
@@ -213,6 +215,12 @@ const s = StyleSheet.create({
     marginBottom: 20,
     padding: 20,
   },
+  householdSurface: {
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
   buttonContainer: {
     flexDirection: "column",
     justifyContent: "center",
@@ -235,7 +243,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   surfaceInner: {
-    paddingVertical: 12,
+    paddingVertical: 8, //space between households
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
