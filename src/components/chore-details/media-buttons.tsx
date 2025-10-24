@@ -7,11 +7,15 @@ import AudioModal from "./audio-modal";
 
 type Props = {
   header: string;
+  isCreating?: boolean;
 };
 
-export default function MediaButtons({ header }: Props) {
+export default function MediaButtons({ header, isCreating }: Props) {
   const { selectedChore, householdId, updateChoreData } = useChoreOperations();
   const [audiomodalVisible, setAudiomodalVisible] = useState(false);
+
+  // Om vi skapar ny syssla, använd null istället för selectedChore
+  const chore = isCreating ? null : selectedChore;
 
   const handlePressAudio = () => {
     setAudiomodalVisible(true);
@@ -27,19 +31,20 @@ export default function MediaButtons({ header }: Props) {
           onPress={() => handlePressAudio()}
           text={"Ljud"}
           icon="music-note"
-          mode={selectedChore?.audioUrl ? "contained-tonal" : "outlined"}
+          mode={chore?.audioUrl ? "contained-tonal" : "outlined"}
         />
         <CustomPaperButton
           onPress={() => handlePressImage()}
           text={"Bild"}
           icon="image"
-          mode={selectedChore?.imageUrl ? "contained-tonal" : "outlined"}
+          mode={chore?.imageUrl ? "contained-tonal" : "outlined"}
         />
         <AudioModal
           visible={audiomodalVisible}
           onDismiss={() => setAudiomodalVisible(false)}
           householdId={householdId}
-          choreId={selectedChore?.id || ""}
+          choreId={chore?.id || ""}
+          isCreating={isCreating}
           onAudioSaved={(audioUrl) => {
             updateChoreData({ audioUrl });
             setAudiomodalVisible(false);

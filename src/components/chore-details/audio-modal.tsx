@@ -14,6 +14,7 @@ export default function AudioModal({
   choreId,
   onAudioSaved,
   onAudioDeleted,
+  isCreating,
 }: {
   visible: boolean;
   onDismiss: () => void;
@@ -21,12 +22,13 @@ export default function AudioModal({
   choreId: string;
   onAudioSaved: (audioUrl: string) => void;
   onAudioDeleted?: () => void;
+  isCreating?: boolean;
 }) {
   const theme = useTheme();
   const [selectedChore] = useAtom(selectedChoreAtom);
   const [isRecording, setIsRecording] = useState(false);
 
-  const currentAudioUrl = selectedChore?.audioUrl || null;
+  const currentAudioUrl = isCreating ? null : selectedChore?.audioUrl;
 
   console.log("AudioModal currentAudioUrl:", currentAudioUrl);
 

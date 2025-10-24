@@ -23,6 +23,7 @@ type Props = {
   onRequestDelete?: () => void;
   showDelete?: boolean;
   mode?: "onBlur" | "onChange" | "onSubmit" | "onTouched" | "all";
+  isCreating?: boolean;
 };
 
 export default function ChoreForm({
@@ -34,6 +35,7 @@ export default function ChoreForm({
   onRequestDelete,
   showDelete = true,
   mode = "onBlur",
+  isCreating,
 }: Props) {
   const {
     control,
@@ -177,7 +179,7 @@ export default function ChoreForm({
                 </View>
               )}
             />
-            <MediaButtons header="Lägg till media" />
+            <MediaButtons header="Lägg till media" isCreating={isCreating} />
           </View>
         </KeyboardAwareScrollView>
       </View>
