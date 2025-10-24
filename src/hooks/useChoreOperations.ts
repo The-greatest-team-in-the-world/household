@@ -4,7 +4,9 @@ import {
   getAllCompletions,
 } from "@/api/chore-completions";
 import {
+  apiCreateChore,
   archiveChore,
+  CreateChoreData,
   deleteChorePermanently,
   updateChore,
 } from "@/api/chores";
@@ -95,6 +97,12 @@ export function useChoreOperations() {
     await deleteChorePermanently(householdId, selectedChore.id);
     setChores(chores.filter((chore) => chore.id !== selectedChore.id));
   };
+
+  const createChore = async (data: CreateChoreData) => {
+    if (!householdId) return;
+    await apiCreateChore(householdId, data);
+  };
+
   return {
     selectedChore,
     currentMember,
@@ -105,5 +113,6 @@ export function useChoreOperations() {
     updateChoreData,
     softDeleteChore,
     deleteChore,
+    createChore,
   };
 }

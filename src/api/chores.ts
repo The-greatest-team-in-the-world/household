@@ -1,14 +1,23 @@
 import { Chore } from "@/types/chore";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
+  serverTimestamp,
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
+
+export type CreateChoreData = Partial<
+  Omit<
+    Chore,
+    "id" | "createdAt" | "updatedAt" | "lastCompletedAt" | "lastCompletedBy"
+  >
+>;
 
 export async function getChores(householdId: string): Promise<Chore[]> {
   const choresRef = collection(db, "households", householdId, "chores");
@@ -86,4 +95,21 @@ export async function deleteChorePermanently(
 ): Promise<void> {
   const choreRef = doc(db, "households", householdId, "chores", choreId);
   await deleteDoc(choreRef);
+}
+
+export async function apiCreateChore(
+  householdId: string,
+  data: CreateChoreData,
+) {
+  const ref = collection(db, "households", householdId, "chores");
+
+  const payload = {
+    ...data,
+    isArchived: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  const docRef = await addDoc(ref, payload);
+  return { id: docRef.id };
 }

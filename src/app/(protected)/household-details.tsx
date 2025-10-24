@@ -2,6 +2,8 @@ import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
+import { CustomPaperButton } from "@/components/custom-paper-button";
+import { HouseholdInfoHeader } from "@/components/household-info-header";
 import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
@@ -30,7 +32,18 @@ export default function HouseHoldDetailsScreen() {
     confirmRemoveOwnership,
     errorDialog,
     setErrorDialog,
-  } = useMemberManagement(currentHousehold?.id, members);
+    handleLeaveHousehold,
+    leaveHouseholdDialog,
+    setLeaveHouseholdDialog,
+    confirmLeaveHousehold,
+    deleteHouseholdDialog,
+    setDeleteHouseholdDialog,
+    confirmDeleteHousehold,
+  } = useMemberManagement(
+    currentHousehold?.id,
+    members,
+    currentHousehold?.ownerIds,
+  );
 
   useEffect(() => {
     if (!currentHousehold?.id) return;
@@ -73,9 +86,10 @@ export default function HouseHoldDetailsScreen() {
       <ScrollView>
         {isOwner ? (
           <View style={styles.adminContainer}>
-            <Text variant="headlineMedium" style={styles.heading}>
-              Hushållsadministration
-            </Text>
+            <HouseholdInfoHeader
+              householdName={currentHousehold.name}
+              householdCode={currentHousehold.code}
+            />
 
             {/* Pending members section */}
             {pendingMembers.length > 0 && (
@@ -118,6 +132,16 @@ export default function HouseHoldDetailsScreen() {
         )}
       </ScrollView>
 
+      {/* Leave Household Button */}
+      <View style={styles.buttonContainer}>
+        <CustomPaperButton
+          mode="outlined"
+          icon="exit-to-app"
+          text="Lämna hushåll"
+          onPress={handleLeaveHousehold}
+        />
+      </View>
+
       <AlertDialog
         open={makeOwnerDialog.open}
         onClose={() =>
@@ -140,6 +164,26 @@ export default function HouseHoldDetailsScreen() {
         agreeText="Ja, ta bort ägarskap"
         disagreeText="Avbryt"
         agreeAction={confirmRemoveOwnership}
+      />
+
+      <AlertDialog
+        open={leaveHouseholdDialog}
+        onClose={() => setLeaveHouseholdDialog(false)}
+        headLine="Lämna hushåll"
+        alertMsg={`Är du säker på att du vill lämna hushållet "${currentHousehold?.name}"? Du kommer inte längre ha tillgång till hushållets sysslor och information.`}
+        agreeText="Ja, lämna hushåll"
+        disagreeText="Avbryt"
+        agreeAction={confirmLeaveHousehold}
+      />
+
+      <AlertDialog
+        open={deleteHouseholdDialog}
+        onClose={() => setDeleteHouseholdDialog(false)}
+        headLine="Radera hushåll"
+        alertMsg={`Du är den enda medlemmen i hushållet "${currentHousehold?.name}". Om du lämnar kommer hushållet att raderas permanent inklusive alla sysslor och historik. Är du säker?`}
+        agreeText="Ja, radera hushåll"
+        disagreeText="Avbryt"
+        agreeAction={confirmDeleteHousehold}
       />
 
       <AlertDialog
@@ -175,5 +219,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 12,
     fontWeight: "600",
+  },
+  buttonContainer: {
+    padding: 16,
+    gap: 16,
   },
 });

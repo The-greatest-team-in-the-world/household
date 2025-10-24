@@ -5,6 +5,7 @@ import {
   addDoc,
   collection,
   collectionGroup,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -137,4 +138,47 @@ async function houseCodeGenerator(length: number = 6): Promise<string> {
   } while (await householdCodeExists(result));
 
   return result;
+}
+
+export async function deleteHousehold(
+  householdId: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Define all subcollections to delete
+    const subcollections = [
+      "members",
+      "chores",
+      "completions",
+      "assignments",
+      "choreGroups",
+    ];
+
+    // Delete all subcollections in parallel
+    const deletePromises = subcollections.map(async (subcollectionName) => {
+      const subcollectionRef = collection(
+        db,
+        "households",
+        householdId,
+        subcollectionName,
+      );
+      const snapshot = await getDocs(subcollectionRef);
+      const deleteDocsPromises = snapshot.docs.map((docSnapshot) =>
+        deleteDoc(docSnapshot.ref),
+      );
+      return Promise.all(deleteDocsPromises);
+    });
+
+    await Promise.all(deletePromises);
+
+    // Delete the household document itself
+    await deleteDoc(doc(db, "households", householdId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in deleteHousehold:", error);
+    return {
+      success: false,
+      error: "Ett fel uppstod vid radering av hushållet",
+    };
+  }
 }

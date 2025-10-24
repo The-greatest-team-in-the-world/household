@@ -1,4 +1,4 @@
-import { signOutUser } from "@/api/auth";
+import { deleteAccount, signOutUser } from "@/api/auth";
 import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
@@ -13,12 +13,11 @@ import {
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import SettingsSideSheet from "@/components/user-profile-slide";
-import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { IconButton, Text } from "react-native-paper";
+import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { IconButton, Surface, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
@@ -83,8 +82,51 @@ export default function HouseholdsScreen() {
     router.replace("/(auth)/login");
   }
 
-  async function handleDeleteAccount() {
-    router.replace("/(auth)/delete-account");
+  function handleDeleteAccount() {
+    Alert.alert(
+      "Ta bort konto",
+      "Detta tar bort ditt konto permanent. Är du säker?",
+      [
+        {
+          text: "Avbryt",
+          style: "cancel",
+        },
+        {
+          text: "Ta bort",
+          style: "destructive",
+          onPress: async () => {
+            const res = await deleteAccount();
+            if (!res.success) {
+              console.log("[delete] UI error:", res.error);
+              switch (res.error?.code) {
+                case "single-owner":
+                  Alert.alert(
+                    "Kan inte ta bort kontot",
+                    "Du är enda admin i minst ett hushåll. Du måste antingen lämna över admin-rollen till någon annan eller ta bort hushållet först.",
+                  );
+                  break;
+                case "reauth-required":
+                  Alert.alert(
+                    "Logga in igen",
+                    "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot. Logga ut och sedan in igen, och försök sedan ta bort kontot direkt.",
+                  );
+                  break;
+                default:
+                  Alert.alert(
+                    "Fel",
+                    res.error?.message ??
+                      "Något gick fel vid borttagning av kontot.",
+                  );
+              }
+              return;
+            }
+            setVisible(false);
+            setShouldRender(false);
+            router.replace("/(auth)/login");
+          },
+        },
+      ],
+    );
   }
 
   return (
@@ -117,34 +159,23 @@ export default function HouseholdsScreen() {
               disabled={disabled}
               style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
             >
-              <Text style={[s.text, (pending || paused) && s.textDisabled]}>
-                {h.name} {suffix}
-              </Text>
-              <View style={s.spacer} />
-              {h.isOwner && pendingCounts[h.id] > 0 && (
-                <Pressable
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleOpenSettings(h);
-                  }}
-                  style={s.badge}
-                >
-                  <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                </Pressable>
-              )}
-              <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleOpenSettings(h);
-                }}
-                style={s.iconButton}
-              >
-                <MaterialIcons
-                  name={h.isOwner ? "settings" : "info"}
-                  size={24}
-                  color="#666"
-                />
-              </Pressable>
+              <Surface style={s.householdSurface} elevation={1}>
+                <Text style={[s.text, (pending || paused) && s.textDisabled]}>
+                  {h.name} {suffix}
+                </Text>
+                <View style={s.spacer} />
+                {h.isOwner && pendingCounts[h.id] > 0 && (
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleOpenSettings(h);
+                    }}
+                    style={s.badge}
+                  >
+                    <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                  </Pressable>
+                )}
+              </Surface>
             </Pressable>
           );
         })}
@@ -167,13 +198,6 @@ export default function HouseholdsScreen() {
           text="Skapa hushåll"
           onPress={() => router.push("/(protected)/create-household")}
         />
-        <CustomPaperButton
-          mode="contained"
-          icon="logout"
-          text="Logga ut"
-          color="#e0e0e0"
-          onPress={handleSignOut}
-        />
       </View>
     </View>
   );
@@ -190,6 +214,12 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
     padding: 20,
+  },
+  householdSurface: {
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
   },
   buttonContainer: {
     flexDirection: "column",
@@ -213,7 +243,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   surfaceInner: {
-    paddingVertical: 12,
+    paddingVertical: 8, //space between households
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -221,13 +251,6 @@ const s = StyleSheet.create({
   },
   spacer: {
     width: 8,
-  },
-  iconButton: {
-    padding: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    width: 32,
-    height: 32,
   },
   icon: { opacity: 0.8 },
   itemText: { fontSize: 16 },

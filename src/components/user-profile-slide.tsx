@@ -12,15 +12,16 @@ import {
   View,
 } from "react-native";
 import {
-  Button,
   Divider,
   IconButton,
   List,
   Portal,
   SegmentedButtons,
   Text,
+  useTheme,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CustomPaperButton } from "./custom-paper-button";
 
 type Props = {
   onClose: () => void;
@@ -44,6 +45,7 @@ export default function SettingsSideSheet({
   const displayName = user?.displayName?.trim();
   const insets = useSafeAreaInsets();
   const [userTheme, setUserTheme] = useAtom(userThemeAtom);
+  const theme = useTheme();
 
   useEffect(() => {
     slide.stopAnimation();
@@ -97,7 +99,7 @@ export default function SettingsSideSheet({
         <Pressable
           style={[
             StyleSheet.absoluteFill,
-            { backgroundColor: "rgba(0,0,0,0.35)" },
+            { backgroundColor: theme.colors.backdrop },
           ]}
           onPress={onClose}
         />
@@ -109,6 +111,8 @@ export default function SettingsSideSheet({
           {
             transform: [{ translateX: slide }],
             top: insets.top,
+            bottom: insets.bottom,
+            backgroundColor: theme.colors.surface,
           },
         ]}
       >
@@ -126,7 +130,7 @@ export default function SettingsSideSheet({
               {displayName && (
                 <Text
                   variant="bodyMedium"
-                  style={{ color: "#666", marginTop: 4 }}
+                  style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}
                 >
                   {displayName}
                 </Text>
@@ -164,28 +168,24 @@ export default function SettingsSideSheet({
         <Divider />
 
         <View style={{ paddingTop: 16, paddingBottom: insets.bottom }}>
-          <Button
+          <CustomPaperButton
             mode="contained"
-            buttonColor="#f5f5f5"
-            textColor="#666"
+            text="Logga ut"
             style={styles.actionButton}
             icon="logout"
             onPress={() => {
               onLogout?.();
             }}
-          >
-            Logga ut
-          </Button>
-          <Button
-            mode="text"
-            buttonColor="#f5f5f5"
-            textColor="#666"
+          ></CustomPaperButton>
+          <CustomPaperButton
+            mode="contained"
+            text="Avsluta konto"
             style={[styles.actionButton, { marginTop: 8 }]}
             icon="delete-outline"
-            onPress={onDelete}
-          >
-            Avsluta konto
-          </Button>
+            onPress={() => {
+              onDelete?.();
+            }}
+          ></CustomPaperButton>
         </View>
       </Animated.View>
     </Portal>
@@ -199,11 +199,9 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: width * 0.8,
-    backgroundColor: "white",
     padding: 16,
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
-    shadowColor: "#000",
     shadowOffset: { width: -2, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
