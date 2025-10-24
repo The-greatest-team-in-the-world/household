@@ -1,22 +1,15 @@
 import AlertDialog from "@/components/alertDialog";
-import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
+import ChoreForm, {
+  ChoreFormData,
+} from "@/components/chore-details/chore-form";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
 import getMemberAvatar from "@/utils/get-member-avatar";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
-
-type ChoreFormData = {
-  name: string;
-  description: string;
-  frequency: number;
-  effort: number;
-};
+import { Pressable, StyleSheet, View } from "react-native";
+import { Divider, Icon, Surface, Text } from "react-native-paper";
 
 export default function ChoreDetailsScreen() {
   const {
@@ -36,30 +29,7 @@ export default function ChoreDetailsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ChoreFormData>({
-    defaultValues: {
-      name: selectedChore?.name || "",
-      description: selectedChore?.description || "",
-      frequency: selectedChore?.frequency || 0,
-      effort: selectedChore?.effort || 1,
-    },
-  });
-
-  useEffect(() => {
-    if (selectedChore) {
-      reset({
-        name: selectedChore.name,
-        description: selectedChore.description,
-        frequency: selectedChore.frequency || 0,
-        effort: selectedChore.effort,
-      });
-    }
-  }, [selectedChore, reset]);
+  useEffect(() => {}, [selectedChore]);
 
   const handlePressDone = () => {
     if (selectedChore) {
@@ -92,152 +62,52 @@ export default function ChoreDetailsScreen() {
     }
   };
 
-  return isEditing ? (
-    <Surface style={s.container} elevation={4}>
-      <View style={s.contentContainer}>
-        <View style={s.choreNameContainer}>
-          <Text style={s.choreName}>{selectedChore?.name}</Text>
-          <Pressable onPress={handlePressDelete}>
-            <Icon source="trash-can-outline" size={25} />
-          </Pressable>
-        </View>
-        <KeyboardAwareScrollView>
-          <View style={s.formContainer}>
-            <Controller
-              control={control}
-              name="name"
-              rules={{ required: "Namn är obligatoriskt" }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    label="Namn"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    mode="outlined"
-                    error={!!errors.name}
-                  />
-                  {errors.name && (
-                    <Text style={s.errorText}>{errors.name.message}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="description"
-              rules={{ required: "Beskrivning är obligatoriskt" }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    label="Beskrivning"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    mode="outlined"
-                    multiline={true}
-                    numberOfLines={4}
-                    error={!!errors.description}
-                  />
-                  {errors.description && (
-                    <Text style={s.errorText}>
-                      {errors.description.message}
-                    </Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="frequency"
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <Text style={s.editText}>Återkommer var (dagar)</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <SegmentedButtonsComponent
-                      value={value?.toString() || ""}
-                      onValueChange={(newValue) =>
-                        onChange(parseInt(newValue) || 0)
-                      }
-                      options={Array.from({ length: 30 }, (_, i) => {
-                        const val = (i + 1).toString();
-                        return { value: val, label: val };
-                      })}
-                    />
-                  </ScrollView>
-                  {errors.frequency && (
-                    <Text style={s.errorText}>{errors.frequency.message}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="effort"
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <Text style={s.editText}>Värde</Text>
-                  <Text style={s.helpText}>Hur energikrävande är sysslan?</Text>
-                  <SegmentedButtonsComponent
-                    value={value?.toString() || ""}
-                    onValueChange={(newValue) =>
-                      onChange(parseInt(newValue) || 0)
-                    }
-                  />
-                  {errors.effort && (
-                    <Text style={s.errorText}>{errors.effort.message}</Text>
-                  )}
-                </View>
-              )}
-            />
-          </View>
-        </KeyboardAwareScrollView>
-      </View>
-      <AlertDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        headLine="Vill du verkligen ta bort sysslan?"
-        alertMsg={`Vill du arkivera sysslan eller ta bort den permanent? Om du tar bort sysslan permanent så försvinner all historik kopplad till den.`}
-        agreeText="Ta bort"
-        secondOption="Arkivera"
-        disagreeText="Avbryt"
-        agreeAction={() => {
-          if (selectedChore) {
-            deleteChore();
-            setDialogOpen(false);
-            router.replace("/(protected)/(top-tabs)/day-view");
-          }
-        }}
-        secondOptionAction={() => {
-          if (selectedChore) {
-            softDeleteChore();
-            setDialogOpen(false);
-            router.replace("/(protected)/(top-tabs)/day-view");
-          }
-        }}
-      />
-
-      <View style={s.saveCancelButtonsContainer}>
-        <CustomPaperButton
-          onPress={() => setIsEditing(false)}
-          text="Avbryt"
-          icon="close"
-          disabled={isSubmitting}
-          mode="outlined"
+  if (isEditing && selectedChore) {
+    return (
+      <>
+        <ChoreForm
+          title={selectedChore.name}
+          defaultValues={{
+            name: selectedChore.name ?? "",
+            description: selectedChore.description ?? "",
+            frequency: selectedChore.frequency ?? 0,
+            effort: selectedChore.effort ?? 1,
+          }}
+          isSubmitting={isSubmitting}
+          onSubmit={onSubmit}
+          onCancel={() => setIsEditing(false)}
+          onRequestDelete={handlePressDelete}
         />
-        <CustomPaperButton
-          onPress={handleSubmit(onSubmit)}
-          text="Spara"
-          icon="content-save"
-          disabled={isSubmitting}
-          mode="contained"
+
+        <AlertDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          headLine="Vill du verkligen ta bort sysslan?"
+          alertMsg="Vill du arkivera sysslan eller ta bort den permanent? Om du tar bort permanent så försvinner all historik."
+          agreeText="Ta bort"
+          secondOption="Arkivera"
+          disagreeText="Avbryt"
+          agreeAction={() => {
+            if (selectedChore) {
+              deleteChore();
+              setDialogOpen(false);
+              router.replace("/(protected)/(top-tabs)/day-view");
+            }
+          }}
+          secondOptionAction={() => {
+            if (selectedChore) {
+              softDeleteChore();
+              setDialogOpen(false);
+              router.replace("/(protected)/(top-tabs)/day-view");
+            }
+          }}
         />
-      </View>
-    </Surface>
-  ) : (
+      </>
+    );
+  }
+
+  // ---- visningsläge (oförändrat) ----
+  return (
     <Surface style={s.container} elevation={4}>
       <View style={s.contentContainer}>
         <View style={s.choreNameContainer}>
