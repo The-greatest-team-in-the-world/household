@@ -1,14 +1,14 @@
 import AlertDialog from "@/components/alertDialog";
-import AudioModal from "@/components/chore-details/audio-modal";
 import ChoreForm, {
   ChoreFormData,
 } from "@/components/chore-details/chore-form";
+import MediaButtons from "@/components/chore-details/media-buttons";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
 import getMemberAvatar from "@/utils/get-member-avatar";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Divider, Icon, Surface, Text } from "react-native-paper";
 
@@ -29,9 +29,19 @@ export default function ChoreDetailsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [audiomodalVisible, setAudiomodalVisible] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  useEffect(() => {}, [selectedChore]); //TODO kolla detta
+  // Bounce hint när vi mountar
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ y: 30, animated: true });
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }, 300);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePressDone = () => {
     if (selectedChore) {
@@ -63,14 +73,6 @@ export default function ChoreDetailsScreen() {
       setIsSubmitting(false);
     }
   };
-
-  const handlePressAudio = () => {
-    setAudiomodalVisible(true);
-  };
-
-  const handlePressImage = () => {};
-
-  console.log("selected chore audio url", selectedChore?.audioUrl);
 
   if (isEditing && selectedChore) {
     return (
@@ -129,95 +131,77 @@ export default function ChoreDetailsScreen() {
           )}
         </View>
         <Divider />
-        <View style={s.secondContainer}>
-          <View style={s.descriptionsContainer}>
-            <Text style={s.titleText}>Beskrivning</Text>
-            <ScrollView
-              fadingEdgeLength={20}
-              style={{
-                maxHeight: 130,
-                padding: 8,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={s.text}>{selectedChore?.description}</Text>
-            </ScrollView>
-          </View>
-          <Divider />
-          <View style={s.textContainer}>
-            <Text style={s.titleText}>Senast gjord: </Text>
-            <View style={s.dateAvatarContainer}>
-              <Text style={s.text}>
-                {selectedChore?.lastCompletedAt
-                  ? selectedChore.lastCompletedAt
-                      .toDate()
-                      .toLocaleDateString("sv-SE")
-                  : "Aldrig"}
-              </Text>
-              {selectedChore?.lastCompletedBy && (
-                <Text style={s.avatarText}>
-                  {
-                    getMemberAvatar(members, selectedChore.lastCompletedBy)
-                      .emoji
-                  }
-                </Text>
-              )}
+        <ScrollView ref={scrollViewRef} fadingEdgeLength={20}>
+          <View style={s.secondContainer}>
+            <View>
+              <Text style={s.titleText}>Beskrivning</Text>
+              <ScrollView fadingEdgeLength={20} style={s.descriptionScrollView}>
+                <Text style={s.text}>{selectedChore?.description}</Text>
+              </ScrollView>
             </View>
+            <Divider />
+            <View style={s.textContainer}>
+              <Text style={s.titleText}>Senast gjord: </Text>
+              <View style={s.dateAvatarContainer}>
+                <Text style={s.text}>
+                  {selectedChore?.lastCompletedAt
+                    ? selectedChore.lastCompletedAt
+                        .toDate()
+                        .toLocaleDateString("sv-SE")
+                    : "Aldrig"}
+                </Text>
+                {selectedChore?.lastCompletedBy && (
+                  <Text style={s.avatarText}>
+                    {
+                      getMemberAvatar(members, selectedChore.lastCompletedBy)
+                        .emoji
+                    }
+                  </Text>
+                )}
+              </View>
+            </View>
+            <Divider />
+            <View style={s.textContainer}>
+              <Text style={s.titleText}>Återkommer var: </Text>
+              <Text style={s.text}>{selectedChore?.frequency} dag</Text>
+            </View>
+            <Divider />
+            <View style={s.textContainer}>
+              <Text style={s.titleText}>Värde: </Text>
+              <Text style={s.text}>{selectedChore?.effort}</Text>
+            </View>
+            <Divider />
+            <View style={s.mediaButtonsContainer}>
+              <MediaButtons header="Media" />
+            </View>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
           </View>
-          <Divider />
-          <View style={s.textContainer}>
-            <Text style={s.titleText}>Återkommer var: </Text>
-            <Text style={s.text}>{selectedChore?.frequency} dag</Text>
-          </View>
-          <Divider />
-          <View style={s.textContainer}>
-            <Text style={s.titleText}>Värde: </Text>
-            <Text style={s.text}>{selectedChore?.effort}</Text>
-          </View>
-          <Divider />
-          <View style={s.audioImageContainer}>
-            <CustomPaperButton
-              onPress={() => handlePressAudio()}
-              text={selectedChore?.audioUrl ? "Ljud ✓" : "Ljud"}
-              icon="music-note"
-              mode={selectedChore?.audioUrl ? "contained" : "contained-tonal"}
-            />
-            <CustomPaperButton
-              onPress={() => handlePressImage()}
-              text={selectedChore?.imageUrl ? "Bild ✓" : "Bild"}
-              icon="image"
-              mode={selectedChore?.imageUrl ? "contained" : "contained-tonal"}
-            />
-          </View>
-        </View>
+        </ScrollView>
       </View>
+
+      <Text style={s.text}>Klarmarkera syssla</Text>
+      <Divider />
       <View style={s.doneButtonsContainer}>
         <CustomPaperButton
           onPress={() => handlePressRemoveCompletion()}
-          text="Markera som inte klar"
+          text="Ångra"
           icon="undo"
           mode="outlined"
+          style={{ flex: 1 }}
         />
         <CustomPaperButton
           onPress={() => handlePressDone()}
-          text="Markera som klar"
+          text="Klar"
           icon="check"
           mode="contained"
+          style={{ flex: 1 }}
         />
       </View>
-      <AudioModal
-        visible={audiomodalVisible}
-        onDismiss={() => setAudiomodalVisible(false)}
-        householdId={householdId}
-        choreId={selectedChore?.id || ""}
-        onAudioSaved={(audioUrl) => {
-          updateChoreData({ audioUrl });
-          setAudiomodalVisible(false);
-        }}
-        onAudioDeleted={() => {
-          updateChoreData({ audioUrl: null });
-        }}
-      />
     </Surface>
   );
 }
@@ -234,6 +218,8 @@ const s = StyleSheet.create({
     flex: 1,
   },
   doneButtonsContainer: {
+    marginTop: 10,
+    flexDirection: "row",
     justifyContent: "center",
     gap: 10,
   },
@@ -248,13 +234,13 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 5,
   },
-  audioImageContainer: {
-    justifyContent: "space-evenly",
+  mediaButtonsContainer: {
     flexDirection: "row",
     marginTop: 5,
   },
-  descriptionsContainer: {
-    gap: 5,
+  descriptionScrollView: {
+    maxHeight: 130,
+    padding: 8,
     borderRadius: 8,
   },
   textContainer: {
@@ -270,7 +256,7 @@ const s = StyleSheet.create({
   },
   secondContainer: {
     gap: 10,
-    marginTop: 20,
+    marginTop: 10,
   },
   choreName: {
     textAlign: "center",
