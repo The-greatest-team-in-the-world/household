@@ -13,10 +13,11 @@ import {
 import { auth, db } from "../../firebase-config";
 
 export type CreateChoreData = Partial<
-Omit<
-  Chore,
-  "id" | "createdAt" | "updatedAt" | "lastCompletedAt" | "lastCompletedBy"
->>;
+  Omit<
+    Chore,
+    "id" | "createdAt" | "updatedAt" | "lastCompletedAt" | "lastCompletedBy"
+  >
+>;
 
 export async function getChores(householdId: string): Promise<Chore[]> {
   const choresRef = collection(db, "households", householdId, "chores");
@@ -92,7 +93,9 @@ export async function deleteChorePermanently(
 }
 
 export async function apiCreateChore(
-  householdId: string, data: CreateChoreData) {
+  householdId: string,
+  data: CreateChoreData,
+) {
   const ref = collection(db, "households", householdId, "chores");
 
   const payload = {

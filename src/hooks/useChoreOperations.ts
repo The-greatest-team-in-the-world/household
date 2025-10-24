@@ -103,11 +103,10 @@ export function useChoreOperations() {
     setChores(chores.filter((chore) => chore.id !== selectedChore.id));
   };
 
-const createChore = async (data: CreateChoreData) => {
-  if (!householdId) return;
-  await apiCreateChore(householdId, data);
-};
-
+  const createChore = async (data: CreateChoreData) => {
+    if (!householdId) return;
+    await apiCreateChore(householdId, data);
+  };
 
   return {
     selectedChore,
@@ -119,6 +118,6 @@ const createChore = async (data: CreateChoreData) => {
     updateChoreData,
     softDeleteChore,
     deleteChore,
-    createChore
+    createChore,
   };
 }
