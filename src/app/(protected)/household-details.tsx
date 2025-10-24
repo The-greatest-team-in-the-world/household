@@ -3,6 +3,7 @@ import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
+import { HouseholdInfoHeader } from "@/components/household-info-header";
 import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
@@ -85,9 +86,10 @@ export default function HouseHoldDetailsScreen() {
       <ScrollView>
         {isOwner ? (
           <View style={styles.adminContainer}>
-            <Text variant="headlineMedium" style={styles.heading}>
-              Hushållsadministration
-            </Text>
+            <HouseholdInfoHeader
+              householdName={currentHousehold.name}
+              householdCode={currentHousehold.code}
+            />
 
             {/* Pending members section */}
             {pendingMembers.length > 0 && (

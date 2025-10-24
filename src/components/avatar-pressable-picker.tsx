@@ -13,9 +13,8 @@ export const AvatarPressablePicker = ({
   value,
   avatars,
 }: AvatarPressableProps) => {
-  //https://reactnative.dev/docs/dimensions kolla upp mer!
   const SCREEN_WIDTH = Dimensions.get("window").width;
-  const BUTTON_SIZE = (SCREEN_WIDTH - 80) / 4; // 80 = padding + margins
+  const BUTTON_SIZE = (SCREEN_WIDTH - 80) / 4;
   const theme = useTheme();
 
   return (
