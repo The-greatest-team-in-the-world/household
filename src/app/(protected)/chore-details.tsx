@@ -135,8 +135,17 @@ export default function ChoreDetailsScreen() {
           <View style={s.secondContainer}>
             <View>
               <Text style={s.titleText}>Beskrivning</Text>
-              <ScrollView fadingEdgeLength={20} style={s.descriptionScrollView}>
-                <Text style={s.text}>{selectedChore?.description}</Text>
+              <ScrollView
+                fadingEdgeLength={
+                  (selectedChore?.description?.length ?? 0) > 200 ? 20 : 0
+                }
+                style={s.descriptionScrollView}
+                contentContainerStyle={s.descriptionContent}
+                nestedScrollEnabled={true}
+              >
+                <View style={s.descriptionContainer}>
+                  <Text style={s.text}>{selectedChore?.description}</Text>
+                </View>
               </ScrollView>
             </View>
             <Divider />
@@ -217,6 +226,9 @@ const s = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
+  descriptionContainer: {
+    paddingBottom: 30,
+  },
   doneButtonsContainer: {
     marginTop: 10,
     flexDirection: "row",
@@ -242,6 +254,9 @@ const s = StyleSheet.create({
     maxHeight: 130,
     padding: 8,
     borderRadius: 8,
+  },
+  descriptionContent: {
+    paddingBottom: 8,
   },
   textContainer: {
     alignItems: "center",
