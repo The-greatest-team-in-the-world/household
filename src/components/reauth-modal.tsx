@@ -1,5 +1,7 @@
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential } from "@firebase/auth";
 import { useState } from "react";
+import { Portal, Dialog, Text, TextInput } from "react-native-paper";
+import { CustomPaperButton } from "./custom-paper-button";
 
 type ReauthModalProps = {
   visible: boolean;
@@ -10,7 +12,7 @@ type ReauthModalProps = {
 export function ReauthModal({visible, onDismiss, onSuccess }: ReauthModalProps) {
     const [password, setPassword] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const [error, setErrorText] = useState("");
+    const [errorText, setErrorText] = useState("");
 
     async function handleConfirm() {
         setSubmitting(true);
@@ -40,6 +42,37 @@ export function ReauthModal({visible, onDismiss, onSuccess }: ReauthModalProps) 
         }
     }
 
-    return (null); // Placeholder for modal UI
+    return (    
+    <Portal>
+      <Dialog visible={visible} onDismiss={onDismiss} style={{ zIndex: 999 }}>
+        <Dialog.Title>Bekräfta identitet</Dialog.Title>
+        <Dialog.Content>
+          <Text style={{ marginBottom: 8 }}>
+            För att avsluta kontot måste du bekräfta ditt lösenord.
+          </Text>
+
+          <TextInput
+            label="Lösenord"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            disabled={submitting}
+          />
+
+          {errorText ? (
+            <Text style={{ color: "red", marginTop: 8 }}>{errorText}</Text>
+          ) : null}
+        </Dialog.Content>
+
+        <Dialog.Actions>
+          <CustomPaperButton text="Avbryt" mode="contained" onPress={onDismiss} disabled={submitting}/>
+          <CustomPaperButton text="Bekräfta" mode="contained" onPress={handleConfirm}/>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  );
 }
+
 
