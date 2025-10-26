@@ -121,7 +121,7 @@ export default function DayViewScreen() {
         <CustomPaperButton
           mode="contained"
           icon="home-plus"
-          text="skapa syssla"
+          text="Skapa syssla"
           onPress={() => router.push("/(protected)/create-chore")}
         />
       </View>
