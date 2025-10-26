@@ -273,7 +273,8 @@ const s = StyleSheet.create({
     paddingTop: 10,
   },
   actions: {
-    padding: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
     flex: 1,
     justifyContent: "flex-end",
     gap: 25,
