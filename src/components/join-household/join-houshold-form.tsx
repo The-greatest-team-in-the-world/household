@@ -1,27 +1,86 @@
+import { addNewMemberToHousehold } from "@/api/members";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
 import { CustomPaperButton } from "@/components/custom-paper-button";
-import { avatarColors } from "@/data/avatar-index";
-import { Avatar } from "@/types/household-member";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { avatarColors, avatarEmojis } from "@/data/avatar-index";
+import { Household } from "@/types/household";
+import { HouseholdMember } from "@/types/household-member";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "expo-router";
+import { useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { Text, TextInput, useTheme } from "react-native-paper";
+import { z } from "zod";
+import AlertDialog from "../alertDialog";
 
 interface Props {
-  control: UseFormReturn<any>["control"];
-  onSubmit: () => void;
-  filteredAvatars: Avatar[];
-  errors: any;
-  isSubmitting: boolean;
+  household: Household;
+  householdMembers: HouseholdMember[];
 }
 
+const details = z.object({
+  avatar: z.enum(avatarEmojis, {
+    errorMap: () => ({ message: "Välj en avatar" }),
+  }),
+  nickName: z
+    .string({ required_error: "Ange ett smeknamn" })
+    .min(1, "Ditt smeknamn måste innehålla minst 1 bokstav"),
+});
+
+type FormFields = z.infer<typeof details>;
 export default function JoinHouseholdForm({
-  control,
-  onSubmit,
-  filteredAvatars,
-  errors,
-  isSubmitting,
+  household,
+  householdMembers,
 }: Props) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const theme = useTheme();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormFields>({ resolver: zodResolver(details) });
+  const avatars = householdMembers.map((a) => a.avatar.emoji);
+
+  const filteredAvatars = avatarColors.filter(
+    (a) => !avatars.includes(a.emoji),
+  );
+
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    if (!household || !household.id) {
+      return;
+    }
+
+    const selectedAvatar = avatarColors.find((a) => a.emoji === data.avatar);
+    if (!selectedAvatar) {
+      return;
+    }
+
+    try {
+      // vad händer om två väljer kycklingen samtidigt?
+
+      const result = await addNewMemberToHousehold(
+        household.id,
+        selectedAvatar,
+        data.nickName,
+        false,
+        false,
+        "pending",
+      );
+
+      if (result.success) {
+        setErrorMessage(null);
+        setDialogOpen(true);
+      } else {
+        setErrorMessage(result.error || "Uppdateringen misslyckades.");
+      }
+    } catch (error) {
+      console.error("Error adding member to household:", error);
+      console.error(errorMessage);
+    }
+  };
+
   return (
     <View style={s.gap}>
       <Controller
@@ -67,11 +126,29 @@ export default function JoinHouseholdForm({
           {errors.avatar.message}
         </Text>
       )}
-      <CustomPaperButton
-        text="Gå med!"
-        disabled={isSubmitting}
-        mode="contained"
-        onPress={onSubmit}
+      <View>
+        <CustomPaperButton
+          text="Gå med!"
+          disabled={isSubmitting}
+          mode="contained"
+          onPress={handleSubmit(onSubmit)}
+        />
+      </View>
+      {errorMessage && (
+        <Text style={[s.errorText, { color: theme.colors.error }]}>
+          {errorMessage}
+        </Text>
+      )}
+      <AlertDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        headLine="Förfrågan skickad!"
+        alertMsg={`Din förfrågan till ${household.name} har skickats. Hushållet visas under "Mina hushåll" när du blivit godkänd.`}
+        agreeText="OK"
+        agreeAction={() => {
+          setDialogOpen(false);
+          router.dismissTo("/(protected)");
+        }}
       />
     </View>
   );
