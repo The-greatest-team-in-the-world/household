@@ -1,3 +1,4 @@
+import { userAtom } from "@/atoms/auth-atoms";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
@@ -15,6 +16,7 @@ import { ActivityIndicator, Surface, Text } from "react-native-paper";
 export default function HouseHoldDetailsScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
   const members = useAtomValue(membersAtom);
+  const user = useAtomValue(userAtom);
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
@@ -119,6 +121,7 @@ export default function HouseHoldDetailsScreen() {
                   member={member}
                   onMakeOwner={handleMakeOwner}
                   onRemoveOwnership={handleRemoveOwnership}
+                  currentUserId={user?.uid}
                 />
               ))}
             </View>
@@ -128,6 +131,7 @@ export default function HouseHoldDetailsScreen() {
             members={members}
             householdName={currentHousehold.name}
             householdCode={currentHousehold.code}
+            currentUserId={user?.uid}
           />
         )}
       </ScrollView>
