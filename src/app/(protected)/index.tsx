@@ -29,7 +29,12 @@ export default function HouseholdsScreen() {
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
-  const canEnter = (h: any) => h.status === "active" && !h.isPaused;
+  const canEnter = (h: any) => {
+    if (h.isOwner) {
+      return h.status === "active";
+    }
+    return h.status === "active" && !h.isPaused;
+  };
   const visibleHouseholds = (households ?? []).filter(
     (h: any) => h.status === "active" || h.status === "pending",
   );
@@ -41,7 +46,7 @@ export default function HouseholdsScreen() {
   const [alertHeadline, setAlertHeadline] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
 
-  // Get household IDs for owner households (stable reference)
+  // Get household IDs for owner households
   const ownerHouseholdIds = useMemo(() => {
     if (!households) return [];
     return households
