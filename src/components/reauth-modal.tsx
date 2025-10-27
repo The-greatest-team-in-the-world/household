@@ -1,4 +1,8 @@
-import { EmailAuthProvider, getAuth, reauthenticateWithCredential } from "@firebase/auth";
+import {
+  EmailAuthProvider,
+  getAuth,
+  reauthenticateWithCredential,
+} from "@firebase/auth";
 import { useState } from "react";
 import { Portal, Dialog, Text, TextInput } from "react-native-paper";
 import { CustomPaperButton } from "./custom-paper-button";
@@ -9,40 +13,45 @@ type ReauthModalProps = {
   onSuccess: () => void;
 };
 
-export function ReauthModal({visible, onDismiss, onSuccess }: ReauthModalProps) {
-    const [password, setPassword] = useState("");
-    const [submitting, setSubmitting] = useState(false);
-    const [errorText, setErrorText] = useState("");
+export function ReauthModal({
+  visible,
+  onDismiss,
+  onSuccess,
+}: ReauthModalProps) {
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [errorText, setErrorText] = useState("");
 
-    async function handleConfirm() {
-        setSubmitting(true);
-        setErrorText("");
+  async function handleConfirm() {
+    setSubmitting(true);
+    setErrorText("");
 
-        try {
-            const auth = getAuth();
-            const user = auth.currentUser;
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
 
-            if (!user || !user.email) {
-                setErrorText("Användaren är inte inloggad.");
-                setSubmitting(false);
-                return;
-            }
+      if (!user || !user.email) {
+        setErrorText("Användaren är inte inloggad.");
+        setSubmitting(false);
+        return;
+      }
 
-            const credential = EmailAuthProvider.credential(user.email, password);
+      const credential = EmailAuthProvider.credential(user.email, password);
 
-            await reauthenticateWithCredential(user, credential);
+      await reauthenticateWithCredential(user, credential);
 
-            setSubmitting(false);
-            setPassword("");
-            onSuccess();
-        }
-        catch (error: any) {
-            setSubmitting(false);
-            setErrorText("Autentisering misslyckades. Kontrollera ditt lösenord och försök igen.");
-        }
+      setSubmitting(false);
+      setPassword("");
+      onSuccess();
+    } catch (error: any) {
+      setSubmitting(false);
+      setErrorText(
+        "Autentisering misslyckades. Kontrollera ditt lösenord och försök igen.",
+      );
     }
+  }
 
-    return (    
+  return (
     <Portal>
       <Dialog visible={visible} onDismiss={onDismiss} style={{ zIndex: 999 }}>
         <Dialog.Title>Bekräfta identitet</Dialog.Title>
@@ -67,12 +76,19 @@ export function ReauthModal({visible, onDismiss, onSuccess }: ReauthModalProps) 
         </Dialog.Content>
 
         <Dialog.Actions>
-          <CustomPaperButton text="Avbryt" mode="contained" onPress={onDismiss} disabled={submitting}/>
-          <CustomPaperButton text="Bekräfta" mode="contained" onPress={handleConfirm}/>
+          <CustomPaperButton
+            text="Avbryt"
+            mode="contained"
+            onPress={onDismiss}
+            disabled={submitting}
+          />
+          <CustomPaperButton
+            text="Bekräfta"
+            mode="contained"
+            onPress={handleConfirm}
+          />
         </Dialog.Actions>
       </Dialog>
     </Portal>
   );
 }
-
-
