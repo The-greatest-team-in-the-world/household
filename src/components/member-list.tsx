@@ -1,20 +1,24 @@
 import { HouseholdMember } from "@/types/household-member";
+import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
-import { Divider, Surface, Text } from "react-native-paper";
+import { Divider, Surface, Text, useTheme } from "react-native-paper";
 import { HouseholdInfoHeader } from "./household-info-header";
 
 interface MemberListProps {
   members: HouseholdMember[];
   householdName: string;
   householdCode: string;
+  currentUserId?: string;
 }
 
 export function MemberList({
   members,
   householdName,
   householdCode,
+  currentUserId,
 }: MemberListProps) {
   const activeMembers = members.filter((m) => m.status === "active");
+  const theme = useTheme();
 
   return (
     <>
@@ -30,7 +34,18 @@ export function MemberList({
           Medlemmar:
         </Text>
         {activeMembers.map((member) => (
-          <View key={member.userId} style={styles.memberRow}>
+          <View
+            key={member.userId}
+            style={[
+              styles.memberRow,
+              member.userId === currentUserId && {
+                borderWidth: 2,
+                borderColor: theme.colors.primary,
+                borderRadius: 8,
+                paddingHorizontal: 8,
+              },
+            ]}
+          >
             <View
               style={[
                 styles.avatarCircle,
@@ -50,6 +65,11 @@ export function MemberList({
               >
                 {member.isPaused ? "Pausad" : "Aktiv"}
               </Text>
+            </View>
+            <View style={styles.ownerBadge}>
+              {member.isOwner && (
+                <MaterialIcons name="star" size={20} color="#FFD700" />
+              )}
             </View>
           </View>
         ))}
@@ -97,5 +117,12 @@ const styles = StyleSheet.create({
   pausedText: {
     color: "#ff9800",
     fontWeight: "500",
+  },
+  ownerBadge: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
   },
 });

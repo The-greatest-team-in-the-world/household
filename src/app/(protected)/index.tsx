@@ -158,8 +158,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -169,21 +169,22 @@ export default function HouseholdsScreen() {
               style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
             >
               <Surface style={s.householdSurface} elevation={1}>
-                <Text style={[s.text, (pending || paused) && s.textDisabled]}>
-                  {h.name} {suffix}
-                </Text>
-                <View style={s.spacer} />
-                {h.isOwner && pendingCounts[h.id] > 0 && (
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      handleOpenSettings(h);
-                    }}
-                    style={s.badge}
-                  >
-                    <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                  </Pressable>
-                )}
+                <View style={s.householdContent}>
+                  <Text style={[s.text, (pending || paused) && s.textDisabled]}>
+                    {h.name} {suffix}
+                  </Text>
+                  {h.isOwner && pendingCounts[h.id] > 0 && (
+                    <Pressable
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleOpenSettings(h);
+                      }}
+                      style={s.badge}
+                    >
+                      <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                    </Pressable>
+                  )}
+                </View>
               </Surface>
             </Pressable>
           );
@@ -230,6 +231,11 @@ const s = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
   },
+  householdContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   buttonContainer: {
     flexDirection: "column",
     justifyContent: "center",
@@ -240,7 +246,6 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    flex: 1,
   },
   householdContainer: { paddingHorizontal: 16, marginBottom: 20 },
   surface: {
@@ -258,11 +263,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  spacer: {
-    width: 8,
-  },
-  icon: { opacity: 0.8 },
-  itemText: { fontSize: 16 },
   rowDisabled: { opacity: 0.5 },
   textDisabled: { color: "#888", fontStyle: "italic" },
   badge: {
@@ -273,7 +273,6 @@ const s = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 6,
-    marginRight: 8,
   },
   badgeText: {
     color: "white",
