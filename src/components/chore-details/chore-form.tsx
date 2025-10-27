@@ -46,7 +46,6 @@ export default function ChoreForm({
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<ChoreFormData>({
     defaultValues,
