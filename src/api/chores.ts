@@ -100,7 +100,7 @@ export async function deleteChorePermanently(
 export async function apiCreateChore(
   householdId: string,
   data: CreateChoreData,
-) {
+): Promise<Chore> {
   const ref = collection(db, "households", householdId, "chores");
 
   const payload = {
@@ -111,5 +111,21 @@ export async function apiCreateChore(
   };
 
   const docRef = await addDoc(ref, payload);
-  return { id: docRef.id };
+
+  const newChore: Chore = {
+    id: docRef.id,
+    name: data.name ?? "",
+    description: data.description ?? "",
+    frequency: data.frequency ?? 1,
+    effort: data.effort ?? 1,
+    audioUrl: data.audioUrl ?? null,
+    imageUrl: data.imageUrl ?? null,
+    isArchived: false,
+    lastCompletedAt: null,
+    lastCompletedBy: null,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
+
+  return newChore;
 }

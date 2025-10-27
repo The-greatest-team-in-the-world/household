@@ -1,21 +1,35 @@
 import { HouseholdMember } from "@/types/household-member";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
-import { IconButton, Surface, Text } from "react-native-paper";
+import { IconButton, Surface, Text, useTheme } from "react-native-paper";
 
 interface ActiveMemberCardProps {
   member: HouseholdMember;
   onMakeOwner?: (userId: string) => void;
   onRemoveOwnership?: (userId: string) => void;
+  currentUserId?: string;
 }
 
 export function ActiveMemberCard({
   member,
   onMakeOwner,
   onRemoveOwnership,
+  currentUserId,
 }: ActiveMemberCardProps) {
+  const theme = useTheme();
+  const isCurrentUser = member.userId === currentUserId;
+
   return (
-    <Surface style={styles.card} elevation={1}>
+    <Surface
+      style={[
+        styles.card,
+        isCurrentUser && {
+          borderWidth: 2,
+          borderColor: theme.colors.primary,
+        },
+      ]}
+      elevation={1}
+    >
       {/* Avatar */}
       <View style={[styles.avatar, { backgroundColor: member.avatar.color }]}>
         <Text style={styles.emoji}>{member.avatar.emoji}</Text>

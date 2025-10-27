@@ -26,7 +26,7 @@ export default function CreateChoreScreen() {
         frequency: data.frequency,
         effort: data.effort,
       });
-      router.replace("/(protected)/(top-tabs)/day-view");
+      router.back();
     } catch (e) {
       console.error("createChore failed:", e);
     } finally {
