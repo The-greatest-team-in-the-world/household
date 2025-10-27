@@ -6,12 +6,9 @@ import {
   rejectMember,
   removeMemberOwnership,
 } from "@/api/members";
-import { resetHouseholdAtomsAtom } from "@/atoms/household-atom";
-import { resetMemberAtomsAtom } from "@/atoms/member-atom";
 import { HouseholdMember } from "@/types/household-member";
 import { getAuth } from "@firebase/auth";
 import { router } from "expo-router";
-import { useSetAtom } from "jotai";
 import { useState } from "react";
 
 interface DialogState {
@@ -30,9 +27,6 @@ export function useMemberManagement(
   members: HouseholdMember[],
   ownerIds: string[] | undefined,
 ) {
-  const resetHouseholdAtoms = useSetAtom(resetHouseholdAtomsAtom);
-  const resetMemberAtoms = useSetAtom(resetMemberAtomsAtom);
-
   const [makeOwnerDialog, setMakeOwnerDialog] = useState<DialogState>({
     open: false,
     userId: "",
@@ -179,11 +173,8 @@ export function useMemberManagement(
     const result = await leaveMemberFromHousehold(householdId, userId);
 
     if (result.success) {
-      // Reset all household and member atoms
-      resetHouseholdAtoms();
-      resetMemberAtoms();
-      // Navigate back to index after leaving
-      router.replace("/(protected)");
+      // Navigate back to index - real-time listener will update atoms automatically
+      router.dismissTo("/(protected)");
     } else {
       setErrorDialog({
         open: true,
@@ -201,11 +192,8 @@ export function useMemberManagement(
     const result = await deleteHousehold(householdId);
 
     if (result.success) {
-      // Reset all household and member atoms
-      resetHouseholdAtoms();
-      resetMemberAtoms();
-      // Navigate back to index after deleting household
-      router.replace("/(protected)");
+      // Navigate back to index - real-time listener will update atoms automatically
+      router.dismissTo("/(protected)");
     } else {
       setErrorDialog({
         open: true,
