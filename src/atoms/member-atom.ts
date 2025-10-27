@@ -76,3 +76,9 @@ export const initMembersListenerAtom = atom(
     return unsubscribe;
   },
 );
+
+export const resetMemberAtomsAtom = atom(null, (get, set) => {
+  set(currentHouseholdMember, null);
+  set(membersAtom, []);
+  set(pendingMembersCountAtom, {});
+});
