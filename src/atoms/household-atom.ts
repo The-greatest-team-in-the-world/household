@@ -19,3 +19,8 @@ export const getUsersHouseholdsAtom = atom(null, async (get, set) => {
 export const householdsAtom = atom<(Household & { isOwner: boolean })[] | null>(
   null,
 );
+
+export const resetHouseholdAtomsAtom = atom(null, (get, set) => {
+  set(currentHouseholdAtom, null);
+  set(householdsAtom, null);
+});
