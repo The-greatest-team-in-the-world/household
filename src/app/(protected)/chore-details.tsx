@@ -30,6 +30,7 @@ export default function ChoreDetailsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const assignedMember = members.find(m => m.userId === selectedChore?.assignedTo);
 
   // Bounce hint när vi mountar
   useEffect(() => {
@@ -183,12 +184,31 @@ export default function ChoreDetailsScreen() {
             <View style={s.mediaButtonsContainer}>
               <MediaButtons header="Media" />
             </View>
-            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
-            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
-            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
-            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
-            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
-            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <View style={{ marginTop: 16 }}>
+              <Text style={s.editText}>Tilldelad till</Text>
+
+              {assignedMember ? (
+                <View style={s.assignmentRow}>
+                  <Surface
+                    style={[
+                      s.assignmentAvatar,
+                      { backgroundColor: assignedMember.avatar.color },
+                    ]}
+                    elevation={2}
+                  >
+                    <Text style={s.assignmentEmoji}>
+                      {assignedMember.avatar.emoji}
+                    </Text>
+                  </Surface>
+
+                  <Text style={s.assignmentName}>
+                    {assignedMember.nickName}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={s.unassignedText}>Ingen tilldelad</Text>
+              )}
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -307,4 +327,36 @@ const s = StyleSheet.create({
     fontSize: 12,
     marginLeft: 12,
   },
+  assignmentRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10,
+  paddingVertical: 8,
+  paddingHorizontal: 4,
+},
+
+assignmentAvatar: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+assignmentEmoji: {
+  fontSize: 22,
+},
+
+assignmentName: {
+  fontSize: 16,
+  fontWeight: "500",
+},
+
+unassignedText: {
+  fontSize: 14,
+  fontStyle: "italic",
+  color: "#666",
+  paddingVertical: 8,
+  paddingHorizontal: 4,
+},
 });
