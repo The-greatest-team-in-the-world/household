@@ -17,7 +17,7 @@ import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { Badge, IconButton, Surface, Text } from "react-native-paper";
+import { IconButton, Surface, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const initHouseholdsListener = useSetAtom(initHouseholdsListenerAtom);
@@ -158,8 +158,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
