@@ -11,7 +11,7 @@ import {
 } from "@react-navigation/material-top-tabs";
 import { withLayoutContext } from "expo-router";
 import { useAtomValue } from "jotai";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 
 const { Navigator } = createMaterialTopTabNavigator();
@@ -80,26 +80,29 @@ const customTabBar = ({
   const { options } = descriptors[currentRoute.key];
 
   const goToPreviousTab = () => {
-    navigation.navigate(state.routes[state.index - 1].name);
+    state.index > 0 && navigation.navigate(state.routes[state.index - 1].name);
   };
 
   const goToNextTab = () => {
-    navigation.navigate(state.routes[state.index + 1].name);
+    state.index < state.routes.length - 1 &&
+      navigation.navigate(state.routes[state.index + 1].name);
   };
 
   return (
     <View style={s.header}>
-      <Text style={s.chevron}>
-        {state.index > 0 && (
-          <Ionicons name="chevron-back" size={16} onPress={goToPreviousTab} />
-        )}
-      </Text>
+      <Pressable style={s.chevron} onPress={goToPreviousTab}>
+        <Text>
+          {state.index > 0 && <Ionicons name="chevron-back" size={16} />}
+        </Text>
+      </Pressable>
       <Text style={s.title}>{options.title}</Text>
-      <Text style={s.chevron} onPress={goToNextTab}>
-        {state.index < state.routes.length - 1 && (
-          <Ionicons name="chevron-forward" size={16} />
-        )}
-      </Text>
+      <Pressable style={s.chevron} onPress={goToNextTab}>
+        <Text>
+          {state.index < state.routes.length - 1 && (
+            <Ionicons name="chevron-forward" size={16} />
+          )}
+        </Text>
+      </Pressable>
     </View>
   );
 };
@@ -116,6 +119,9 @@ const s = StyleSheet.create({
     fontSize: 16,
   },
   chevron: {
-    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 30,
+    height: 30,
   },
 });
