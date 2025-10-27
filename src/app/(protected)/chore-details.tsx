@@ -30,7 +30,9 @@ export default function ChoreDetailsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-  const assignedMember = members.find(m => m.userId === selectedChore?.assignedTo);
+  const assignedMember = members.find(
+    (m) => m.userId === selectedChore?.assignedTo,
+  );
 
   // Bounce hint när vi mountar
   useEffect(() => {
@@ -85,11 +87,13 @@ export default function ChoreDetailsScreen() {
             description: selectedChore.description ?? "",
             frequency: selectedChore.frequency ?? 0,
             effort: selectedChore.effort ?? 1,
+            assignedTo: selectedChore.assignedTo ?? null,
           }}
           isSubmitting={isSubmitting}
           onSubmit={onSubmit}
           onCancel={() => setIsEditing(false)}
           onRequestDelete={handlePressDelete}
+          members={members}
         />
 
         <AlertDialog
@@ -328,35 +332,35 @@ const s = StyleSheet.create({
     marginLeft: 12,
   },
   assignmentRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 10,
-  paddingVertical: 8,
-  paddingHorizontal: 4,
-},
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
 
-assignmentAvatar: {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  justifyContent: "center",
-  alignItems: "center",
-},
+  assignmentAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-assignmentEmoji: {
-  fontSize: 22,
-},
+  assignmentEmoji: {
+    fontSize: 22,
+  },
 
-assignmentName: {
-  fontSize: 16,
-  fontWeight: "500",
-},
+  assignmentName: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
 
-unassignedText: {
-  fontSize: 14,
-  fontStyle: "italic",
-  color: "#666",
-  paddingVertical: 8,
-  paddingHorizontal: 4,
-},
+  unassignedText: {
+    fontSize: 14,
+    fontStyle: "italic",
+    color: "#666",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
 });
