@@ -17,7 +17,7 @@ import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { IconButton, Surface, Text } from "react-native-paper";
+import { Badge, IconButton, Surface, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
   const initHouseholdsListener = useSetAtom(initHouseholdsListenerAtom);
