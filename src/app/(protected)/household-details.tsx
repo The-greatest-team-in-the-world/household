@@ -1,3 +1,5 @@
+import { toggleMemberPause } from "@/api/members";
+import { userAtom } from "@/atoms/auth-atoms";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
@@ -9,12 +11,13 @@ import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
   const members = useAtomValue(membersAtom);
+  const user = useAtomValue(userAtom);
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
@@ -81,6 +84,20 @@ export default function HouseHoldDetailsScreen() {
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
 
+  const handleTogglePause = async (userId: string) => {
+    if (!currentHousehold?.id) return;
+
+    try {
+      const result = await toggleMemberPause(currentHousehold.id, userId);
+      if (!result.success) {
+        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
+      }
+    } catch (error) {
+      console.error("Error toggling pause:", error);
+      Alert.alert("Fel", "Ett oväntat fel uppstod");
+    }
+  };
+
   return (
     <Surface style={styles.container} elevation={0}>
       <ScrollView>
@@ -119,6 +136,8 @@ export default function HouseHoldDetailsScreen() {
                   member={member}
                   onMakeOwner={handleMakeOwner}
                   onRemoveOwnership={handleRemoveOwnership}
+                  onTogglePause={handleTogglePause}
+                  currentUserId={user?.uid}
                 />
               ))}
             </View>
@@ -128,6 +147,9 @@ export default function HouseHoldDetailsScreen() {
             members={members}
             householdName={currentHousehold.name}
             householdCode={currentHousehold.code}
+            householdId={currentHousehold.id}
+            currentUserId={user?.uid}
+            isOwner={currentHousehold.isOwner}
           />
         )}
       </ScrollView>

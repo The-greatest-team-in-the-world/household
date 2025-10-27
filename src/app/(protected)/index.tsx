@@ -17,7 +17,7 @@ import { ReauthModal } from "@/components/reauth-modal";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text } from "react-native-paper";
 
@@ -29,15 +29,17 @@ export default function HouseholdsScreen() {
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
-  const canEnter = (h: any) => h.status === "active" && !h.isPaused;
+  const canEnter = (h: any) =>    { if (h.isOwner) {
+      return h.status === "active";
+    }
+    return h.status === "active" && !h.isPaused;
+  };
 const visibleHouseholds = (households ?? [])
   .filter((h: any) => h.status === "active" || h.status === "pending")
   .sort((a: any, b: any) => {
-    // aktiva ska hamna först, pausade/pending sist
     const aInactive = a.status === "pending" || a.isPaused;
     const bInactive = b.status === "pending" || b.isPaused;
 
-    // true blir 1, false blir 0 — så vi flyttar alla "inaktiva" ner
     return Number(aInactive) - Number(bInactive);
   });
   const setVisible = useSetAtom(slideVisibleAtom);
@@ -47,6 +49,16 @@ const visibleHouseholds = (households ?? [])
   const [isAlertOpen, setAlertOpen] = useState(false);
   const [alertHeadline, setAlertHeadline] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+
+  const ownerHouseholdIds = useMemo(() => {
+    if (!households) return [];
+    return households
+      .filter(
+        (h: any) =>
+          h.isOwner && (h.status === "active" || h.status === "pending"),
+      )
+      .map((h: any) => h.id);
+  }, [households]);
 
   // Set up real-time listener for households
   useEffect(() => {
@@ -63,22 +75,20 @@ const visibleHouseholds = (households ?? [])
 
   // Set up listeners for pending members count for each household where user is owner
   useEffect(() => {
-    if (!visibleHouseholds || visibleHouseholds.length === 0) return;
+    if (ownerHouseholdIds.length === 0) return;
 
     const unsubscribers: (() => void)[] = [];
 
-    visibleHouseholds.forEach((h: any) => {
-      if (h.isOwner) {
-        const unsubscribe = initPendingListener(h.id);
-        unsubscribers.push(unsubscribe);
-      }
+    ownerHouseholdIds.forEach((householdId) => {
+      const unsubscribe = initPendingListener(householdId);
+      unsubscribers.push(unsubscribe);
     });
 
     // Cleanup all listeners when component unmounts or households change
     return () => {
       unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
-  }, [visibleHouseholds, initPendingListener]);
+  }, [ownerHouseholdIds, initPendingListener]);
 
   interface alertProps {
     open: boolean;
@@ -200,21 +210,22 @@ const visibleHouseholds = (households ?? [])
               style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
             >
               <Surface style={s.householdSurface} elevation={1}>
-                <Text style={[s.text, (pending || paused) && s.textDisabled]}>
-                  {h.name} {suffix}
-                </Text>
-                <View style={s.spacer} />
-                {h.isOwner && pendingCounts[h.id] > 0 && (
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      handleOpenSettings(h);
-                    }}
-                    style={s.badge}
-                  >
-                    <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                  </Pressable>
-                )}
+                <View style={s.householdContent}>
+                  <Text style={[s.text, (pending || paused) && s.textDisabled]}>
+                    {h.name} {suffix}
+                  </Text>
+                  {h.isOwner && pendingCounts[h.id] > 0 && (
+                    <Pressable
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleOpenSettings(h);
+                      }}
+                      style={s.badge}
+                    >
+                      <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                    </Pressable>
+                  )}
+                </View>
               </Surface>
             </Pressable>
           );
@@ -271,6 +282,11 @@ const s = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
   },
+  householdContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   buttonContainer: {
     flexDirection: "column",
     justifyContent: "center",
@@ -281,7 +297,6 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    flex: 1,
   },
   householdContainer: { paddingHorizontal: 16, marginBottom: 20 },
   surface: {
@@ -299,11 +314,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  spacer: {
-    width: 8,
-  },
-  icon: { opacity: 0.8 },
-  itemText: { fontSize: 16 },
   rowDisabled: { opacity: 0.5 },
   textDisabled: { color: "#888", fontStyle: "italic" },
   badge: {
@@ -314,7 +324,6 @@ const s = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 6,
-    marginRight: 8,
   },
   badgeText: {
     color: "white",

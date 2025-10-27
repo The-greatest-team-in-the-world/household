@@ -8,7 +8,7 @@ import {
   startRecording,
   stopRecording,
   uploadAudioToFirebase,
-} from "../../api/media";
+} from "../../api/audio";
 import { CustomPaperButton } from "../custom-paper-button";
 
 interface AudioRecorderProps {

@@ -39,6 +39,7 @@ export function useChoreOperations() {
   const householdId = currentMember?.householdId || "";
   const [isCompleted, setIsCompleted] = useState(false);
 
+  //TODO kan vi tar bort denna useEffect? //LAX
   useEffect(() => {
     if (!selectedChore || !currentMember) return;
 
