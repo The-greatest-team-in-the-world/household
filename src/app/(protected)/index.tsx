@@ -17,7 +17,7 @@ import { ReauthModal } from "@/components/reauth-modal";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text } from "react-native-paper";
 
@@ -41,6 +41,17 @@ export default function HouseholdsScreen() {
   const [alertHeadline, setAlertHeadline] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
 
+  // Get household IDs for owner households (stable reference)
+  const ownerHouseholdIds = useMemo(() => {
+    if (!households) return [];
+    return households
+      .filter(
+        (h: any) =>
+          h.isOwner && (h.status === "active" || h.status === "pending"),
+      )
+      .map((h: any) => h.id);
+  }, [households]);
+
   // Set up real-time listener for households
   useEffect(() => {
     if (!user?.uid) return;
@@ -56,22 +67,20 @@ export default function HouseholdsScreen() {
 
   // Set up listeners for pending members count for each household where user is owner
   useEffect(() => {
-    if (!visibleHouseholds || visibleHouseholds.length === 0) return;
+    if (ownerHouseholdIds.length === 0) return;
 
     const unsubscribers: (() => void)[] = [];
 
-    visibleHouseholds.forEach((h: any) => {
-      if (h.isOwner) {
-        const unsubscribe = initPendingListener(h.id);
-        unsubscribers.push(unsubscribe);
-      }
+    ownerHouseholdIds.forEach((householdId) => {
+      const unsubscribe = initPendingListener(householdId);
+      unsubscribers.push(unsubscribe);
     });
 
     // Cleanup all listeners when component unmounts or households change
     return () => {
       unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
-  }, [visibleHouseholds, initPendingListener]);
+  }, [ownerHouseholdIds, initPendingListener]);
 
   interface alertProps {
     open: boolean;
