@@ -1,10 +1,11 @@
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Icon, Surface, Text, TextInput } from "react-native-paper";
+import MediaButtons from "./media-buttons";
 
 export type ChoreFormData = {
   name: string;
@@ -22,6 +23,7 @@ type Props = {
   onRequestDelete?: () => void;
   showDelete?: boolean;
   mode?: "onBlur" | "onChange" | "onSubmit" | "onTouched" | "all";
+  isCreating?: boolean;
 };
 
 export default function ChoreForm({
@@ -33,6 +35,7 @@ export default function ChoreForm({
   onRequestDelete,
   showDelete = true,
   mode = "onBlur",
+  isCreating,
 }: Props) {
   const {
     control,
@@ -48,6 +51,25 @@ export default function ChoreForm({
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  const frequencyScrollRef = useRef<ScrollView>(null);
+
+  // Scrolla till valt frequency värde vid mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const frequency = defaultValues.frequency;
+      if (frequency && frequency > 5) {
+        // Varje knapp är ca 45px bred, scrolla så att valt värde syns
+        const scrollPosition = (frequency - 3) * 45;
+        frequencyScrollRef.current?.scrollTo({
+          x: Math.max(0, scrollPosition),
+          animated: true,
+        });
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [defaultValues.frequency]);
 
   return (
     <Surface style={s.container} elevation={4}>
@@ -115,7 +137,11 @@ export default function ChoreForm({
               render={({ field: { onChange, value } }) => (
                 <View>
                   <Text style={s.editText}>Återkommer var (dagar)</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <ScrollView
+                    ref={frequencyScrollRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                  >
                     <SegmentedButtonsComponent
                       value={value?.toString() || ""}
                       onValueChange={(newValue) =>
@@ -153,10 +179,10 @@ export default function ChoreForm({
                 </View>
               )}
             />
+            <MediaButtons header="Lägg till media" isCreating={isCreating} />
           </View>
         </KeyboardAwareScrollView>
       </View>
-
       <View style={s.saveCancelButtonsContainer}>
         <CustomPaperButton
           onPress={onCancel}
@@ -164,6 +190,7 @@ export default function ChoreForm({
           icon="close"
           disabled={isSubmitting}
           mode="outlined"
+          style={{ flex: 1 }}
         />
         <CustomPaperButton
           onPress={handleSubmit(onSubmit)}
@@ -171,6 +198,7 @@ export default function ChoreForm({
           icon="content-save"
           disabled={isSubmitting}
           mode="contained"
+          style={{ flex: 1 }}
         />
       </View>
     </Surface>
@@ -185,21 +213,39 @@ const s = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
   },
-  contentContainer: { flex: 1 },
+  contentContainer: {
+    flex: 1,
+  },
   choreNameContainer: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
   },
-  choreName: { textAlign: "center", fontSize: 22, fontWeight: "bold" },
-  formContainer: { gap: 16, marginTop: 16 },
+  choreName: {
+    textAlign: "center",
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  formContainer: {
+    gap: 16,
+  },
   saveCancelButtonsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
   },
-  editText: { fontSize: 14, fontWeight: "bold", marginBottom: 5 },
-  helpText: { fontSize: 12, marginBottom: 5 },
-  errorText: { fontSize: 12, marginLeft: 12 },
+  editText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  helpText: {
+    fontSize: 12,
+    marginBottom: 5,
+  },
+  errorText: {
+    fontSize: 12,
+    marginLeft: 12,
+  },
 });
