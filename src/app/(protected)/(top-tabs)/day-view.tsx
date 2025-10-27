@@ -124,22 +124,15 @@ export default function DayViewScreen() {
           text="Skapa syssla"
           onPress={() => router.push("/(protected)/create-chore")}
         />
-      </View>
-
-      <View style={s.buttonContainer}>
-        <CustomPaperButton
-          icon="information-outline"
-          text="Mer info"
-          onPress={() => console.log("Mer info")}
-          mode="contained-tonal"
-        />
+      
         <CustomPaperButton
           icon="account-details-outline"
           text="Mina sysslor"
           onPress={() => console.log("Mina sysslor")}
           mode="contained"
         />
-      </View>
+        </View>
+     
     </Surface>
   );
 }
