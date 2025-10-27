@@ -86,7 +86,7 @@ export default function HouseHoldDetailsScreen() {
 
   const handleTogglePause = async (userId: string) => {
     if (!currentHousehold?.id) return;
-    
+
     try {
       const result = await toggleMemberPause(currentHousehold.id, userId);
       if (!result.success) {
