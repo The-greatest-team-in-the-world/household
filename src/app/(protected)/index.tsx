@@ -30,9 +30,16 @@ export default function HouseholdsScreen() {
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
   const canEnter = (h: any) => h.status === "active" && !h.isPaused;
-  const visibleHouseholds = (households ?? []).filter(
-    (h: any) => h.status === "active" || h.status === "pending",
-  );
+const visibleHouseholds = (households ?? [])
+  .filter((h: any) => h.status === "active" || h.status === "pending")
+  .sort((a: any, b: any) => {
+    // aktiva ska hamna först, pausade/pending sist
+    const aInactive = a.status === "pending" || a.isPaused;
+    const bInactive = b.status === "pending" || b.isPaused;
+
+    // true blir 1, false blir 0 — så vi flyttar alla "inaktiva" ner
+    return Number(aInactive) - Number(bInactive);
+  });
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
