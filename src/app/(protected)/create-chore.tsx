@@ -43,6 +43,7 @@ export default function CreateChoreScreen() {
       onCancel={() => router.back()}
       showDelete={false}
       mode="onBlur"
+      isCreating={true}
     />
   );
 }
