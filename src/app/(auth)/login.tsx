@@ -64,7 +64,7 @@ export default function LoginScreen() {
         <Surface style={s.surface} elevation={4}>
           <Text style={s.infoText}>Välkommen till hushållet!</Text>
           <Image
-            source={require("../../assets/images/houseHoldTransparent.png")}
+            source={require("../../assets/images/cleanTeam.png")}
             style={s.image}
           />
         </Surface>
@@ -150,6 +150,7 @@ const s = StyleSheet.create({
   container: {
     padding: 20,
     gap: 10,
+    flex: 1,
   },
   surface: {
     alignItems: "center",
@@ -187,7 +188,10 @@ const s = StyleSheet.create({
     paddingTop: 10,
   },
   actions: {
-    padding: 20,
-    gap: 15,
+    flex: 1,
+    paddingTop: 10,
+    paddingBottom: 10,
+    gap: 25,
+    justifyContent: "flex-end",
   },
 });
