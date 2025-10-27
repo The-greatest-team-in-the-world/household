@@ -128,6 +128,7 @@ export default function HouseHoldDetailsScreen() {
             members={members}
             householdName={currentHousehold.name}
             householdCode={currentHousehold.code}
+            isOwner={currentHousehold.isOwner}
           />
         )}
       </ScrollView>
