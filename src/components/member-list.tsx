@@ -1,6 +1,8 @@
+import { toggleMemberPause } from "@/api/members";
 import { HouseholdMember } from "@/types/household-member";
 import { MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
 import {
   Divider,
   IconButton,
@@ -14,6 +16,7 @@ interface MemberListProps {
   members: HouseholdMember[];
   householdName: string;
   householdCode: string;
+  householdId: string;
   currentUserId?: string;
   isOwner: boolean;
 }
@@ -22,22 +25,31 @@ export function MemberList({
   members,
   householdName,
   householdCode,
+  householdId,
   currentUserId,
   isOwner,
 }: MemberListProps) {
   // Visa alla aktiva medlemmar, även de som är pausade
   const activeMembers = members.filter((m) => m.status === "active");
   const theme = useTheme();
+  const [loading, setLoading] = useState(false);
 
-  const handleTogglePause = (member: HouseholdMember) => {
-    // TODO: Implementera pause/unpause logik
-    console.log(
-      "Toggle pause for:",
-      member.nickName,
-      "isPaused:",
-      member.isPaused,
-    );
+  const handleTogglePause = async (member: HouseholdMember) => {
+    setLoading(true);
+    try {
+      const result = await toggleMemberPause(householdId, member.userId);
+      if (!result.success) {
+        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
+      }
+    } catch (error) {
+      console.error("Error toggling pause:", error);
+      Alert.alert("Fel", "Ett oväntat fel uppstod");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  console.log("MemberList - isOwner:", isOwner);
 
   return (
     <>
@@ -100,6 +112,7 @@ export function MemberList({
                 icon={member.isPaused ? "play" : "pause"}
                 size={24}
                 onPress={() => handleTogglePause(member)}
+                disabled={loading}
               />
             )}
           </View>
