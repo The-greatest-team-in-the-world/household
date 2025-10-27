@@ -39,6 +39,19 @@ export default function ReactivateUser({ household, householdMembers }: Props) {
           Du har varit medlem i detta hushåll tidigare. Vill du ansöka om att
           återaktivera ditt medlemsskap?
         </Text>
+        <Text style={s.title}>Din sparade avatar och smeknamn:</Text>
+        <View style={s.infoContainer}>
+          <View
+            style={[
+              s.infoEmojiContainer,
+              ,
+              { backgroundColor: retiredUser.avatar.color },
+            ]}
+          >
+            <Text style={s.emoji}>{retiredUser.avatar.emoji}</Text>
+          </View>
+          <Text style={s.infoNickname}>{retiredUser.nickName}</Text>
+        </View>
       </View>
       <View style={s.buttonContainer}>
         <CustomPaperButton
@@ -91,9 +104,32 @@ const s = StyleSheet.create({
   infoMessage: {
     fontSize: 15,
   },
+  title: {
+    fontWeight: 700,
+    fontSize: 15,
+  },
   buttonContainer: {
     flex: 1,
     justifyContent: "flex-end",
     gap: 20,
+  },
+  infoContainer: {
+    flexDirection: "column",
+    gap: 10,
+    alignItems: "center",
+  },
+  infoEmojiContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    width: 90,
+    height: 90,
+  },
+  emoji: {
+    fontSize: 50,
+  },
+  infoNickname: {
+    fontSize: 25,
+    fontWeight: 700,
   },
 });
