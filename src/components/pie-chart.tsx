@@ -39,6 +39,9 @@ export default function PieChart({
   const totalTitle = "Totalt";
   const activeCompletions = omitPausedUsers(completedChores, members);
 
+  // Return null if no active completions (all users paused or no data)
+  if (!activeCompletions || activeCompletions.length === 0) return null;
+
   function getEffortPerUser() {
     const effortPerUser: Record<string, number> = {};
 

@@ -2,8 +2,8 @@ import { deleteAccount, signOutUser } from "@/api/auth";
 import { userAtom } from "@/atoms/auth-atoms";
 import {
   currentHouseholdAtom,
-  getUsersHouseholdsAtom,
   householdsAtom,
+  initHouseholdsListenerAtom,
 } from "@/atoms/household-atom";
 import {
   getMemberByUserIdAtom,
@@ -24,7 +24,7 @@ import { IconButton, Surface, Text } from "react-native-paper";
 export default function HouseholdsScreen() {
   const [reauthVisible, setReauthVisible] = useState(false);
   const [, setDeleting] = useState(false);
-  const getHouseholds = useSetAtom(getUsersHouseholdsAtom);
+  const initHouseholdsListener = useSetAtom(initHouseholdsListenerAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
@@ -41,9 +41,18 @@ export default function HouseholdsScreen() {
   const [alertHeadline, setAlertHeadline] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
 
+  // Set up real-time listener for households
   useEffect(() => {
-    getHouseholds();
-  }, [getHouseholds]);
+    if (!user?.uid) return;
+
+    console.log("Setting up households listener for user:", user.uid);
+    const unsubscribe = initHouseholdsListener(user.uid);
+
+    return () => {
+      console.log("Cleaning up households listener");
+      unsubscribe();
+    };
+  }, [user?.uid, initHouseholdsListener]);
 
   // Set up listeners for pending members count for each household where user is owner
   useEffect(() => {
@@ -277,7 +286,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   surfaceInner: {
-    paddingVertical: 8, //space between households
+    paddingVertical: 8,
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",

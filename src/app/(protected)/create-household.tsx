@@ -145,12 +145,14 @@ export default function CreateHousholdScreen() {
             {errors.avatar.message}
           </Text>
         )}
-        <CustomPaperButton
-          text="Skapa"
-          mode="contained"
-          disabled={isSubmitting}
-          onPress={handleSubmit(onSubmit)}
-        />
+        <View style={s.buttonContainer}>
+          <CustomPaperButton
+            text="Skapa hushåll"
+            mode="contained"
+            disabled={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+          />
+        </View>
       </View>
       {errorMessage && (
         <Text style={[s.errorText, { color: theme.colors.error }]}>
@@ -167,6 +169,7 @@ const s = StyleSheet.create({
   },
   container: {
     padding: 20,
+    flex: 1,
     gap: 20,
   },
   title: {
@@ -200,5 +203,10 @@ const s = StyleSheet.create({
     fontWeight: 600,
     paddingBottom: 5,
     fontStyle: "italic",
+  },
+  buttonContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    gap: 20,
   },
 });

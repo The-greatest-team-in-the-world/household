@@ -173,8 +173,8 @@ export function useMemberManagement(
     const result = await leaveMemberFromHousehold(householdId, userId);
 
     if (result.success) {
-      // Navigate back to index after leaving
-      router.replace("/(protected)");
+      // Navigate back to index - real-time listener will update atoms automatically
+      router.dismissTo("/(protected)");
     } else {
       setErrorDialog({
         open: true,
@@ -192,8 +192,8 @@ export function useMemberManagement(
     const result = await deleteHousehold(householdId);
 
     if (result.success) {
-      // Navigate back to index after deleting household
-      router.replace("/(protected)");
+      // Navigate back to index - real-time listener will update atoms automatically
+      router.dismissTo("/(protected)");
     } else {
       setErrorDialog({
         open: true,
