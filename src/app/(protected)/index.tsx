@@ -11,15 +11,19 @@ import {
   pendingMembersCountAtom,
 } from "@/atoms/member-atom";
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
+import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
+import { ReauthModal } from "@/components/reauth-modal";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text } from "react-native-paper";
 
 export default function HouseholdsScreen() {
+  const [reauthVisible, setReauthVisible] = useState(false);
+  const [, setDeleting] = useState(false);
   const initHouseholdsListener = useSetAtom(initHouseholdsListenerAtom);
   const households = useAtomValue(householdsAtom);
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
@@ -33,6 +37,9 @@ export default function HouseholdsScreen() {
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
   const pendingCounts = useAtomValue(pendingMembersCountAtom);
+  const [isAlertOpen, setAlertOpen] = useState(false);
+  const [alertHeadline, setAlertHeadline] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
   // Set up real-time listener for households
   useEffect(() => {
@@ -66,6 +73,65 @@ export default function HouseholdsScreen() {
     };
   }, [visibleHouseholds, initPendingListener]);
 
+  interface alertProps {
+    open: boolean;
+    onClose: () => void;
+    headLine: string;
+    alertMsg: string;
+    agreeText: string;
+  }
+
+  const alertPropsMsg: alertProps = {
+    open: isAlertOpen,
+    onClose: () => setAlertOpen(false),
+    headLine: alertHeadline,
+    alertMsg: alertMessage,
+    agreeText: "OK",
+  };
+
+  async function performFinalDeleteAfterReauth() {
+    try {
+      setDeleting(true);
+
+      const res = await deleteAccount();
+
+      if (!res.success) {
+        console.log("[delete] UI error:", res.error);
+
+        switch (res.error?.code) {
+          case "single-owner":
+            setAlertHeadline("Kan inte ta bort kontot");
+            setAlertMessage(
+              "Du är enda admin i minst ett hushåll. Du måste antingen lämna över admin-rollen till någon annan eller ta bort hushållet först.",
+            );
+            setAlertOpen(true);
+            break;
+          default:
+            setAlertHeadline("Fel");
+            setAlertMessage(
+              res.error?.message ?? "Något gick fel vid borttagning av kontot.",
+            );
+            setAlertOpen(true);
+        }
+
+        setDeleting(false);
+        return;
+      }
+
+      // success:
+      setVisible(false);
+      setShouldRender(false);
+      setDeleting(false);
+      router.replace("/(auth)/login");
+    } catch (err: any) {
+      setDeleting(false);
+      Alert.alert(
+        "Fel",
+        err.message ?? "Något oväntat gick fel vid borttagning av kontot.",
+      );
+    }
+  }
+
   async function handleSelectHousehold(h: any) {
     if (user) {
       await getMemberByUserId({ householdId: h.id, userId: user.uid });
@@ -92,50 +158,8 @@ export default function HouseholdsScreen() {
   }
 
   function handleDeleteAccount() {
-    Alert.alert(
-      "Ta bort konto",
-      "Detta tar bort ditt konto permanent. Är du säker?",
-      [
-        {
-          text: "Avbryt",
-          style: "cancel",
-        },
-        {
-          text: "Ta bort",
-          style: "destructive",
-          onPress: async () => {
-            const res = await deleteAccount();
-            if (!res.success) {
-              console.log("[delete] UI error:", res.error);
-              switch (res.error?.code) {
-                case "single-owner":
-                  Alert.alert(
-                    "Kan inte ta bort kontot",
-                    "Du är enda admin i minst ett hushåll. Du måste antingen lämna över admin-rollen till någon annan eller ta bort hushållet först.",
-                  );
-                  break;
-                case "reauth-required":
-                  Alert.alert(
-                    "Logga in igen",
-                    "Av säkerhetsskäl måste du logga in igen innan du kan radera kontot. Logga ut och sedan in igen, och försök sedan ta bort kontot direkt.",
-                  );
-                  break;
-                default:
-                  Alert.alert(
-                    "Fel",
-                    res.error?.message ??
-                      "Något gick fel vid borttagning av kontot.",
-                  );
-              }
-              return;
-            }
-            setVisible(false);
-            setShouldRender(false);
-            router.replace("/(auth)/login");
-          },
-        },
-      ],
-    );
+    setReauthVisible(true);
+    setVisible(false);
   }
 
   return (
@@ -194,6 +218,15 @@ export default function HouseholdsScreen() {
         onLogout={handleSignOut}
         onDelete={handleDeleteAccount}
       />
+      <ReauthModal
+        visible={reauthVisible}
+        onDismiss={() => setReauthVisible(false)}
+        onSuccess={async () => {
+          setReauthVisible(false);
+
+          await performFinalDeleteAfterReauth();
+        }}
+      />
       <View style={s.buttonContainer}>
         <CustomPaperButton
           mode="contained"
@@ -208,6 +241,7 @@ export default function HouseholdsScreen() {
           onPress={() => router.push("/(protected)/create-household")}
         />
       </View>
+      <AlertDialog {...alertPropsMsg}></AlertDialog>
     </View>
   );
 }
