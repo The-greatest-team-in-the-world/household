@@ -1,7 +1,7 @@
 import { Household } from "@/types/household";
 import { HouseholdMember } from "@/types/household-member";
 import { StyleSheet, View } from "react-native";
-import { MD3Theme, Text, useTheme } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
 import JoinHouseholdForm from "./join-houshold-form";
 import ReactivateUser from "./reactivate-user";
 
@@ -21,10 +21,10 @@ interface Props {
 }
 
 function HouseHoldDetails(
-  theme: MD3Theme,
   householdStatus: HouseholdStatus,
   household: Household | null,
 ) {
+  const theme = useTheme();
   if (!household) {
     return (
       <View style={s.padding}>
@@ -55,12 +55,12 @@ function HouseHoldDetails(
 }
 
 function MemberDetails(
-  theme: MD3Theme,
   householdStatus: HouseholdStatus,
   memberStatus: MemberStatus,
   householdMembers: HouseholdMember[],
   household: Household | null,
 ) {
+  const theme = useTheme();
   // Om inget hushåll finns eller om hushållet är fullt ska inget i switchen visas.
   if (!household || householdStatus === "full") return null;
 
@@ -105,12 +105,10 @@ export default function ShowHouseholdDetails({
   household,
   householdMembers,
 }: Props) {
-  const theme = useTheme();
   return (
     <>
-      {HouseHoldDetails(theme, householdStatus, household)}
+      {HouseHoldDetails(householdStatus, household)}
       {MemberDetails(
-        theme,
         householdStatus,
         memberStatus,
         householdMembers,
