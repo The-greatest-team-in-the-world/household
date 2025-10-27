@@ -4,7 +4,7 @@ import {
   reauthenticateWithCredential,
 } from "@firebase/auth";
 import { useState } from "react";
-import { Portal, Dialog, Text, TextInput } from "react-native-paper";
+import { Dialog, Portal, Text, TextInput } from "react-native-paper";
 import { CustomPaperButton } from "./custom-paper-button";
 
 type ReauthModalProps = {
@@ -44,6 +44,7 @@ export function ReauthModal({
       setPassword("");
       onSuccess();
     } catch (error: any) {
+      console.error(error);
       setSubmitting(false);
       setErrorText(
         "Autentisering misslyckades. Kontrollera ditt lösenord och försök igen.",

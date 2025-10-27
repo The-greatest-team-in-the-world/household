@@ -72,7 +72,7 @@ export default function HouseholdsScreen() {
     agreeText: string;
   }
 
-  const alertProps: alertProps = {
+  const alertPropsMsg: alertProps = {
     open: isAlertOpen,
     onClose: () => setAlertOpen(false),
     headLine: alertHeadline,
@@ -173,8 +173,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -232,7 +232,7 @@ export default function HouseholdsScreen() {
           onPress={() => router.push("/(protected)/create-household")}
         />
       </View>
-      <AlertDialog {...alertProps}></AlertDialog>
+      <AlertDialog {...alertPropsMsg}></AlertDialog>
     </View>
   );
 }
