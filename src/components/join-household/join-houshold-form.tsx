@@ -41,8 +41,8 @@ export default function JoinHouseholdForm({
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({ resolver: zodResolver(details) });
-  const avatars = householdMembers.map((a) => a.avatar.emoji);
 
+  const avatars = householdMembers.map((a) => a.avatar.emoji);
   const filteredAvatars = avatarColors.filter(
     (a) => !avatars.includes(a.emoji),
   );
@@ -59,7 +59,6 @@ export default function JoinHouseholdForm({
 
     try {
       // vad händer om två väljer kycklingen samtidigt?
-
       const result = await addNewMemberToHousehold(
         household.id,
         selectedAvatar,

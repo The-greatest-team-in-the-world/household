@@ -82,8 +82,8 @@ export default function JoinHouseholdScreen() {
               currentMember.status === "pending"
                 ? "pending"
                 : currentMember.status === "left"
-                ? "retired"
-                : "member",
+                  ? "retired"
+                  : "member",
             );
           } else {
             setMemberStatus("not-member");
