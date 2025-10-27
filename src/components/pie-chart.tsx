@@ -61,12 +61,10 @@ export default function PieChart({
 
       const color = avatar.color;
       const value = effort;
-      const label: SliceLabel = total
-        ? {
-            text: avatar.emoji,
-            fontSize: iconSize ?? 24,
-          }
-        : { text: "" };
+      const label: SliceLabel = {
+        text: !total ? avatar.emoji : "",
+        fontSize: iconSize ?? 24,
+      };
 
       return { color, value, label };
     },
