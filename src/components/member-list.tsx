@@ -1,24 +1,55 @@
+import { toggleMemberPause } from "@/api/members";
 import { HouseholdMember } from "@/types/household-member";
 import { MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, View } from "react-native";
-import { Divider, Surface, Text, useTheme } from "react-native-paper";
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
+import {
+  Divider,
+  IconButton,
+  Surface,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import { HouseholdInfoHeader } from "./household-info-header";
 
 interface MemberListProps {
   members: HouseholdMember[];
   householdName: string;
   householdCode: string;
+  householdId: string;
   currentUserId?: string;
+  isOwner: boolean;
 }
 
 export function MemberList({
   members,
   householdName,
   householdCode,
+  householdId,
   currentUserId,
+  isOwner,
 }: MemberListProps) {
+  // Visa alla aktiva medlemmar, även de som är pausade
   const activeMembers = members.filter((m) => m.status === "active");
   const theme = useTheme();
+  const [loading, setLoading] = useState(false);
+
+  const handleTogglePause = async (member: HouseholdMember) => {
+    setLoading(true);
+    try {
+      const result = await toggleMemberPause(householdId, member.userId);
+      if (!result.success) {
+        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
+      }
+    } catch (error) {
+      console.error("Error toggling pause:", error);
+      Alert.alert("Fel", "Ett oväntat fel uppstod");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log("MemberList - isOwner:", isOwner);
 
   return (
     <>
@@ -50,11 +81,16 @@ export function MemberList({
               style={[
                 styles.avatarCircle,
                 { backgroundColor: member.avatar.color },
+                member.isPaused && styles.paused,
               ]}
             >
-              <Text style={styles.avatarEmoji}>{member.avatar.emoji}</Text>
+              <Text
+                style={[styles.avatarEmoji, member.isPaused && styles.paused]}
+              >
+                {member.avatar.emoji}
+              </Text>
             </View>
-            <View style={styles.memberText}>
+            <View style={[styles.memberText, member.isPaused && styles.paused]}>
               <Text variant="bodyLarge">{member.nickName}</Text>
               <Text
                 variant="bodySmall"
@@ -71,6 +107,14 @@ export function MemberList({
                 <MaterialIcons name="star" size={20} color="#FFD700" />
               )}
             </View>
+            {isOwner && (
+              <IconButton
+                icon={member.isPaused ? "play" : "pause"}
+                size={24}
+                onPress={() => handleTogglePause(member)}
+                disabled={loading}
+              />
+            )}
           </View>
         ))}
       </Surface>
@@ -124,5 +168,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 8,
+  },
+  paused: {
+    opacity: 0.5,
   },
 });
