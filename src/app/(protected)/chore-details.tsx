@@ -30,10 +30,9 @@ export default function ChoreDetailsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-  const assignedMember = members.find((m) =>
-  Array.isArray(selectedChore?.assignedTo) &&
-  selectedChore.assignedTo.includes(m.userId)
-);
+  const assignedMember = members.find(
+    (m) => m.userId === selectedChore?.assignedTo,
+  );
 
   // Bounce hint när vi mountar
   useEffect(() => {
@@ -64,25 +63,30 @@ export default function ChoreDetailsScreen() {
     setDialogOpen(true);
   };
 
-  const onSubmit = async (data: ChoreFormData) => {
-    if (!selectedChore) return;
+const onSubmit = async (data: ChoreFormData) => {
+  if (!selectedChore) return;
 
-    setIsSubmitting(true);
-    try {
-      const assignedArray: string[] = data.assignedTo
-      ? [data.assignedTo]
-      : [];
-          await updateChoreData({
-      ...data,
-      assignedTo: assignedArray,
+  setIsSubmitting(true);
+  try {
+    await updateChoreData({
+      name: data.name,
+      description: data.description,
+      frequency: data.frequency,
+      effort: data.effort, 
+
+      assignedTo:
+        typeof data.assignedTo === "string" && data.assignedTo.trim() !== ""
+          ? data.assignedTo
+          : null,
     });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating chore:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+
+    setIsEditing(false);
+  } catch (error) {
+    console.error("Error updating chore:", error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   if (isEditing && selectedChore) {
     return (
@@ -374,5 +378,5 @@ const s = StyleSheet.create({
     color: "#666",
     paddingVertical: 8,
     paddingHorizontal: 4,
-  },
+   },
 });

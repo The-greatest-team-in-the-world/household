@@ -25,7 +25,7 @@ type UpdateChoreData = {
   effort?: number;
   audioUrl?: string | null;
   imageUrl?: string | null;
-  assignedTo?: string[];
+  assignedTo: string | null;
 };
 
 export function useChoreOperations() {

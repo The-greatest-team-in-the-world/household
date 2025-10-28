@@ -35,14 +35,18 @@ export default function DayViewScreen() {
 
   const myChores = useMemo(() => {
     if (!member) return [];
-    const completedTodayIds = new Set(todaysCompletions.map((c) => c.choreId));
-    return chores.filter(
-      (chore) =>
-        Array.isArray(chore.assignedTo) &&
-        chore.assignedTo.includes(member.userId) &&
-        !completedTodayIds.has(chore.id),
-    );
-  }, [chores, member, todaysCompletions]);
+  const completedTodayIds = new Set(
+    todaysCompletions.map((c) => c.choreId)
+  );
+
+  return chores.filter((chore) => {
+    const isMine = chore.assignedTo === member.userId;
+
+    const doneToday = completedTodayIds.has(chore.id);
+
+    return isMine && !doneToday;
+  });
+}, [chores, member, todaysCompletions]);
 
 
   const completedChoresToday = useMemo(() => {
@@ -52,26 +56,26 @@ export default function DayViewScreen() {
     return chores.filter((chore) => uniqueChoreIds.has(chore.id));
   }, [todaysCompletions, chores]);
 
-  const incompleteChoresToday = useMemo(() => {
-    const completedChoreIds = new Set(
-      todaysCompletions.map((completion) => completion.choreId),
-    );
+const incompleteChoresToday = useMemo(() => {
+  const completedChoreIds = new Set(
+    todaysCompletions.map((c) => c.choreId)
+  );
 
-    return chores.filter((chore) => {
-      if (completedChoreIds.has(chore.id)) return false;
+  return chores.filter((chore) => {
+   
+    if (completedChoreIds.has(chore.id)) return false;
 
-      if (
-        showMine &&
-        member &&
-        Array.isArray(chore.assignedTo) &&
-        chore.assignedTo.includes(member.userId)
-      ) {
-        return false;
-      }
+    if (
+      showMine &&
+      member &&
+      chore.assignedTo === member.userId
+    ) {
+      return false;
+    }
 
-      return true;
-    });
-  }, [todaysCompletions, chores, showMine, member]);
+    return true;
+  });
+}, [chores, todaysCompletions, showMine, member]);
 
   const renderCompletedChore = (chore: Chore) => {
     const choreCompletionsToday = todaysCompletions.filter(

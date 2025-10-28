@@ -44,7 +44,7 @@ export default function CreateChoreScreen() {
         description: (data.description ?? "").trim(),
         frequency: data.frequency,
         effort: data.effort,
-        assignedTo: assignedArray,
+        assignedTo: data.assignedTo ?? null,
       })
 
       if (newChore) {
