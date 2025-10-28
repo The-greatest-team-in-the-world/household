@@ -33,16 +33,22 @@ export function isChoreCompleted(
 
 /**
  * Beräknar hur många dagar sedan en chore senast gjordes
+ * Räknar kalenderdagar, inte 24-timmarsperioder
  */
 export function getDaysSinceLastCompletion(
   chore: Chore,
   completions: ChoreCompletion[],
 ): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   if (completions.length === 0) {
-    const daysSinceCreated =
-      (Timestamp.now().toMillis() - chore.createdAt.toMillis()) /
-      (1000 * 60 * 60 * 24);
-    return Math.floor(daysSinceCreated);
+    const createdDate = chore.createdAt.toDate();
+    createdDate.setHours(0, 0, 0, 0);
+    const daysSinceCreated = Math.floor(
+      (today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    return daysSinceCreated;
   }
 
   const latestCompletion = completions.reduce((latest, current) => {
@@ -51,11 +57,14 @@ export function getDaysSinceLastCompletion(
       : latest;
   });
 
-  const daysSince =
-    (Timestamp.now().toMillis() - latestCompletion.completedAt.toMillis()) /
-    (1000 * 60 * 60 * 24);
+  const completionDate = latestCompletion.completedAt.toDate();
+  completionDate.setHours(0, 0, 0, 0);
 
-  return Math.floor(daysSince);
+  const daysSince = Math.floor(
+    (today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  return daysSince;
 }
 
 /**
