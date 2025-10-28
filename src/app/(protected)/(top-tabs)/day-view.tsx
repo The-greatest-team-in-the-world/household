@@ -8,6 +8,7 @@ import {
   getDaysSinceLastCompletion,
   getTodaysCompletions,
 } from "@/utils/chore-helpers";
+import { router } from "expo-router";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -115,6 +116,15 @@ export default function DayViewScreen() {
             </View>
           )}
       </ScrollView>
+
+      <View style={s.buttonContainer}>
+        <CustomPaperButton
+          mode="contained"
+          icon="home-plus"
+          text="Skapa syssla"
+          onPress={() => router.push("/(protected)/create-chore")}
+        />
+      </View>
 
       <View style={s.buttonContainer}>
         <CustomPaperButton

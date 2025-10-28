@@ -1,14 +1,23 @@
 import { Chore } from "@/types/chore";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
+  serverTimestamp,
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
+
+export type CreateChoreData = Partial<
+  Omit<
+    Chore,
+    "id" | "createdAt" | "updatedAt" | "lastCompletedAt" | "lastCompletedBy"
+  >
+>;
 
 export async function getChores(householdId: string): Promise<Chore[]> {
   const choresRef = collection(db, "households", householdId, "chores");
@@ -55,7 +64,12 @@ export async function getChoreById(
 export async function updateChore(
   householdId: string,
   choreId: string,
-  data: Partial<Pick<Chore, "name" | "description" | "frequency" | "effort">>,
+  data: Partial<
+    Pick<
+      Chore,
+      "name" | "description" | "frequency" | "effort" | "audioUrl" | "imageUrl"
+    >
+  >,
 ): Promise<void> {
   const choreRef = doc(db, "households", householdId, "chores", choreId);
   await updateDoc(choreRef, {
@@ -81,4 +95,37 @@ export async function deleteChorePermanently(
 ): Promise<void> {
   const choreRef = doc(db, "households", householdId, "chores", choreId);
   await deleteDoc(choreRef);
+}
+
+export async function apiCreateChore(
+  householdId: string,
+  data: CreateChoreData,
+): Promise<Chore> {
+  const ref = collection(db, "households", householdId, "chores");
+
+  const payload = {
+    ...data,
+    isArchived: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  const docRef = await addDoc(ref, payload);
+
+  const newChore: Chore = {
+    id: docRef.id,
+    name: data.name ?? "",
+    description: data.description ?? "",
+    frequency: data.frequency ?? 1,
+    effort: data.effort ?? 1,
+    audioUrl: data.audioUrl ?? null,
+    imageUrl: data.imageUrl ?? null,
+    isArchived: false,
+    lastCompletedAt: null,
+    lastCompletedBy: null,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
+
+  return newChore;
 }

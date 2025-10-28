@@ -6,8 +6,8 @@ import {
 import { useRouter } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { IconButton } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Badge, IconButton } from "react-native-paper";
 
 export function HouseholdHeader() {
   const router = useRouter();
@@ -32,16 +32,16 @@ export function HouseholdHeader() {
 
   return (
     <View style={styles.container}>
-      {currentHousehold?.isOwner && pendingCount > 0 && (
-        <Pressable style={styles.badge} onPress={handleOpenSettings}>
-          <Text style={styles.badgeText}>{pendingCount}</Text>
-        </Pressable>
-      )}
-      <IconButton
-        icon={currentHousehold?.isOwner ? "cog" : "information"}
-        size={24}
-        onPress={handleOpenSettings}
-      />
+      <View>
+        <IconButton
+          icon={currentHousehold?.isOwner ? "cog" : "information"}
+          size={24}
+          onPress={handleOpenSettings}
+        />
+        {currentHousehold?.isOwner && pendingCount > 0 && (
+          <Badge style={styles.badge}>{pendingCount}</Badge>
+        )}
+      </View>
     </View>
   );
 }
@@ -54,18 +54,8 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   badge: {
-    backgroundColor: "#f44336",
-    borderRadius: 12,
-    minWidth: 24,
-    height: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 4,
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "bold",
-    paddingHorizontal: 6,
+    position: "absolute",
+    top: 4,
+    right: 4,
   },
 });

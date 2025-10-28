@@ -1,22 +1,16 @@
 import AlertDialog from "@/components/alertDialog";
-import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
+import ChoreForm, {
+  ChoreFormData,
+} from "@/components/chore-details/chore-form";
+import MediaButtons from "@/components/chore-details/media-buttons";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
 import getMemberAvatar from "@/utils/get-member-avatar";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Divider, Icon, Surface, Text, TextInput } from "react-native-paper";
-
-type ChoreFormData = {
-  name: string;
-  description: string;
-  frequency: number;
-  effort: number;
-};
+import { Divider, Icon, Surface, Text } from "react-native-paper";
 
 export default function ChoreDetailsScreen() {
   const {
@@ -35,31 +29,19 @@ export default function ChoreDetailsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ChoreFormData>({
-    defaultValues: {
-      name: selectedChore?.name || "",
-      description: selectedChore?.description || "",
-      frequency: selectedChore?.frequency || 0,
-      effort: selectedChore?.effort || 1,
-    },
-  });
-
+  // Bounce hint när vi mountar
   useEffect(() => {
-    if (selectedChore) {
-      reset({
-        name: selectedChore.name,
-        description: selectedChore.description,
-        frequency: selectedChore.frequency || 0,
-        effort: selectedChore.effort,
-      });
-    }
-  }, [selectedChore, reset]);
+    const timer = setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ y: 30, animated: true });
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }, 300);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePressDone = () => {
     if (selectedChore) {
@@ -92,152 +74,52 @@ export default function ChoreDetailsScreen() {
     }
   };
 
-  return isEditing ? (
-    <Surface style={s.container} elevation={4}>
-      <View style={s.contentContainer}>
-        <View style={s.choreNameContainer}>
-          <Text style={s.choreName}>{selectedChore?.name}</Text>
-          <Pressable onPress={handlePressDelete}>
-            <Icon source="trash-can-outline" size={25} />
-          </Pressable>
-        </View>
-        <KeyboardAwareScrollView>
-          <View style={s.formContainer}>
-            <Controller
-              control={control}
-              name="name"
-              rules={{ required: "Namn är obligatoriskt" }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    label="Namn"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    mode="outlined"
-                    error={!!errors.name}
-                  />
-                  {errors.name && (
-                    <Text style={s.errorText}>{errors.name.message}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="description"
-              rules={{ required: "Beskrivning är obligatoriskt" }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    label="Beskrivning"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    mode="outlined"
-                    multiline={true}
-                    numberOfLines={4}
-                    error={!!errors.description}
-                  />
-                  {errors.description && (
-                    <Text style={s.errorText}>
-                      {errors.description.message}
-                    </Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="frequency"
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <Text style={s.editText}>Återkommer var (dagar)</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <SegmentedButtonsComponent
-                      value={value?.toString() || ""}
-                      onValueChange={(newValue) =>
-                        onChange(parseInt(newValue) || 0)
-                      }
-                      options={Array.from({ length: 30 }, (_, i) => {
-                        const val = (i + 1).toString();
-                        return { value: val, label: val };
-                      })}
-                    />
-                  </ScrollView>
-                  {errors.frequency && (
-                    <Text style={s.errorText}>{errors.frequency.message}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="effort"
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <Text style={s.editText}>Värde</Text>
-                  <Text style={s.helpText}>Hur energikrävande är sysslan?</Text>
-                  <SegmentedButtonsComponent
-                    value={value?.toString() || ""}
-                    onValueChange={(newValue) =>
-                      onChange(parseInt(newValue) || 0)
-                    }
-                  />
-                  {errors.effort && (
-                    <Text style={s.errorText}>{errors.effort.message}</Text>
-                  )}
-                </View>
-              )}
-            />
-          </View>
-        </KeyboardAwareScrollView>
-      </View>
-      <AlertDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        headLine="Vill du verkligen ta bort sysslan?"
-        alertMsg={`Vill du arkivera sysslan eller ta bort den permanent? Om du tar bort sysslan permanent så försvinner all historik kopplad till den.`}
-        agreeText="Ta bort"
-        secondOption="Arkivera"
-        disagreeText="Avbryt"
-        agreeAction={() => {
-          if (selectedChore) {
-            deleteChore();
-            setDialogOpen(false);
-            router.replace("/(protected)/(top-tabs)/day-view");
-          }
-        }}
-        secondOptionAction={() => {
-          if (selectedChore) {
-            softDeleteChore();
-            setDialogOpen(false);
-            router.replace("/(protected)/(top-tabs)/day-view");
-          }
-        }}
-      />
-
-      <View style={s.saveCancelButtonsContainer}>
-        <CustomPaperButton
-          onPress={() => setIsEditing(false)}
-          text="Avbryt"
-          icon="close"
-          disabled={isSubmitting}
-          mode="outlined"
+  if (isEditing && selectedChore) {
+    return (
+      <>
+        <ChoreForm
+          title={selectedChore.name}
+          defaultValues={{
+            name: selectedChore.name ?? "",
+            description: selectedChore.description ?? "",
+            frequency: selectedChore.frequency ?? 0,
+            effort: selectedChore.effort ?? 1,
+          }}
+          isSubmitting={isSubmitting}
+          onSubmit={onSubmit}
+          onCancel={() => setIsEditing(false)}
+          onRequestDelete={handlePressDelete}
         />
-        <CustomPaperButton
-          onPress={handleSubmit(onSubmit)}
-          text="Spara"
-          icon="content-save"
-          disabled={isSubmitting}
-          mode="contained"
+
+        <AlertDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          headLine="Vill du verkligen ta bort sysslan?"
+          alertMsg="Vill du arkivera sysslan eller ta bort den permanent? Om du tar bort permanent så försvinner all historik."
+          agreeText="Ta bort"
+          secondOption="Arkivera"
+          disagreeText="Avbryt"
+          agreeAction={() => {
+            if (selectedChore) {
+              deleteChore();
+              setDialogOpen(false);
+              router.replace("/(protected)/(top-tabs)/day-view");
+            }
+          }}
+          secondOptionAction={() => {
+            if (selectedChore) {
+              softDeleteChore();
+              setDialogOpen(false);
+              router.replace("/(protected)/(top-tabs)/day-view");
+            }
+          }}
         />
-      </View>
-    </Surface>
-  ) : (
+      </>
+    );
+  }
+
+  // ---- visningsläge (oförändrat) ----
+  return (
     <Surface style={s.container} elevation={4}>
       <View style={s.contentContainer}>
         <View style={s.choreNameContainer}>
@@ -249,57 +131,84 @@ export default function ChoreDetailsScreen() {
           )}
         </View>
         <Divider />
-        <View style={s.secondContainer}>
-          <View style={s.descriptionsContainer}>
-            <Text style={s.titleText}>Beskrivning</Text>
-            <Text style={s.textMedium}>{selectedChore?.description}</Text>
-          </View>
-          <Divider />
-          <View style={s.textContainer}>
-            <Text style={s.titleText}>Senast gjord: </Text>
-            <View style={s.dateAvatarContainer}>
-              <Text style={s.text}>
-                {selectedChore?.lastCompletedAt
-                  ? selectedChore.lastCompletedAt
-                      .toDate()
-                      .toLocaleDateString("sv-SE")
-                  : "Aldrig"}
-              </Text>
-              {selectedChore?.lastCompletedBy && (
-                <Text style={s.avatarText}>
-                  {
-                    getMemberAvatar(members, selectedChore.lastCompletedBy)
-                      .emoji
-                  }
-                </Text>
-              )}
+        <ScrollView ref={scrollViewRef} fadingEdgeLength={20}>
+          <View style={s.secondContainer}>
+            <View>
+              <Text style={s.titleText}>Beskrivning</Text>
+              <ScrollView
+                fadingEdgeLength={
+                  (selectedChore?.description?.length ?? 0) > 200 ? 20 : 0
+                }
+                style={s.descriptionScrollView}
+                contentContainerStyle={s.descriptionContent}
+                nestedScrollEnabled={true}
+              >
+                <View style={s.descriptionContainer}>
+                  <Text style={s.text}>{selectedChore?.description}</Text>
+                </View>
+              </ScrollView>
             </View>
+            <Divider />
+            <View style={s.textContainer}>
+              <Text style={s.titleText}>Senast gjord: </Text>
+              <View style={s.dateAvatarContainer}>
+                <Text style={s.text}>
+                  {selectedChore?.lastCompletedAt
+                    ? selectedChore.lastCompletedAt
+                        .toDate()
+                        .toLocaleDateString("sv-SE")
+                    : "Aldrig"}
+                </Text>
+                {selectedChore?.lastCompletedBy && (
+                  <Text style={s.avatarText}>
+                    {
+                      getMemberAvatar(members, selectedChore.lastCompletedBy)
+                        .emoji
+                    }
+                  </Text>
+                )}
+              </View>
+            </View>
+            <Divider />
+            <View style={s.textContainer}>
+              <Text style={s.titleText}>Återkommer var: </Text>
+              <Text style={s.text}>{selectedChore?.frequency} dag</Text>
+            </View>
+            <Divider />
+            <View style={s.textContainer}>
+              <Text style={s.titleText}>Värde: </Text>
+              <Text style={s.text}>{selectedChore?.effort}</Text>
+            </View>
+            <Divider />
+            <View style={s.mediaButtonsContainer}>
+              <MediaButtons header="Media" />
+            </View>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
+            <Text style={s.editText}>HÄR KOMMER ASSIGNMENT</Text>
           </View>
-          <Divider />
-          <View style={s.textContainer}>
-            <Text style={s.titleText}>Återkommer var: </Text>
-            <Text style={s.text}>{selectedChore?.frequency} dag</Text>
-          </View>
-          <Divider />
-          <View style={s.textContainer}>
-            <Text style={s.titleText}>Värde: </Text>
-            <Text style={s.text}>{selectedChore?.effort}</Text>
-          </View>
-          <Divider />
-        </View>
+        </ScrollView>
       </View>
+
+      <Text style={s.text}>Klarmarkera syssla</Text>
+      <Divider />
       <View style={s.doneButtonsContainer}>
         <CustomPaperButton
           onPress={() => handlePressRemoveCompletion()}
-          text="Markera som inte klar"
+          text="Ångra"
           icon="undo"
           mode="outlined"
+          style={{ flex: 1 }}
         />
         <CustomPaperButton
           onPress={() => handlePressDone()}
-          text="Markera som klar"
+          text="Klar"
           icon="check"
           mode="contained"
+          style={{ flex: 1 }}
         />
       </View>
     </Surface>
@@ -317,7 +226,12 @@ const s = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
+  descriptionContainer: {
+    paddingBottom: 30,
+  },
   doneButtonsContainer: {
+    marginTop: 10,
+    flexDirection: "row",
     justifyContent: "center",
     gap: 10,
   },
@@ -330,18 +244,24 @@ const s = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 5,
   },
-  descriptionsContainer: {
-    padding: 10,
-    gap: 5,
+  mediaButtonsContainer: {
+    flexDirection: "row",
+    marginTop: 5,
+  },
+  descriptionScrollView: {
+    maxHeight: 130,
+    padding: 8,
     borderRadius: 8,
+  },
+  descriptionContent: {
+    paddingBottom: 8,
   },
   textContainer: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 10,
     borderRadius: 8,
   },
   dateAvatarContainer: {
@@ -351,15 +271,12 @@ const s = StyleSheet.create({
   },
   secondContainer: {
     gap: 10,
-    marginTop: 20,
+    marginTop: 10,
   },
   choreName: {
     textAlign: "center",
     fontSize: 22,
     fontWeight: "bold",
-  },
-  textMedium: {
-    fontSize: 24,
   },
   text: {
     fontSize: 18,

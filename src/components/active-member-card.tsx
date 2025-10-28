@@ -1,32 +1,72 @@
 import { HouseholdMember } from "@/types/household-member";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
-import { IconButton, Surface, Text } from "react-native-paper";
+import { IconButton, Surface, Text, useTheme } from "react-native-paper";
 
 interface ActiveMemberCardProps {
   member: HouseholdMember;
   onMakeOwner?: (userId: string) => void;
   onRemoveOwnership?: (userId: string) => void;
+  onTogglePause?: (userId: string) => void;
+  currentUserId?: string;
 }
 
 export function ActiveMemberCard({
   member,
   onMakeOwner,
   onRemoveOwnership,
+  onTogglePause,
+  currentUserId,
 }: ActiveMemberCardProps) {
+  const theme = useTheme();
+  const isCurrentUser = member.userId === currentUserId;
+
   return (
-    <Surface style={styles.card} elevation={1}>
+    <Surface
+      style={[
+        styles.card,
+        isCurrentUser && {
+          borderWidth: 2,
+          borderColor: theme.colors.primary,
+        },
+        member.isPaused && styles.pausedCard,
+      ]}
+      elevation={1}
+    >
       {/* Avatar */}
-      <View style={[styles.avatar, { backgroundColor: member.avatar.color }]}>
-        <Text style={styles.emoji}>{member.avatar.emoji}</Text>
+      <View
+        style={[
+          styles.avatar,
+          { backgroundColor: member.avatar.color },
+          member.isPaused && styles.paused,
+        ]}
+      >
+        <Text style={[styles.emoji, member.isPaused && styles.paused]}>
+          {member.avatar.emoji}
+        </Text>
       </View>
 
       {/* Member info */}
-      <View style={styles.info}>
+      <View style={[styles.info, member.isPaused && styles.paused]}>
         <Text variant="bodyLarge" style={styles.nickname}>
           {member.nickName}
         </Text>
+        {member.isPaused && (
+          <Text variant="bodySmall" style={styles.pausedText}>
+            Pausad
+          </Text>
+        )}
       </View>
+
+      {/* Pause/Play button */}
+      {onTogglePause && (
+        <IconButton
+          icon={member.isPaused ? "play" : "pause"}
+          size={24}
+          onPress={() => onTogglePause(member.userId)}
+          style={styles.iconButton}
+        />
+      )}
 
       {/* Owner icon or Make Owner button */}
       <View style={styles.ownerBadge}>
@@ -92,5 +132,16 @@ const styles = StyleSheet.create({
   iconButton: {
     margin: 0,
     padding: 0,
+  },
+  paused: {
+    opacity: 0.5,
+  },
+  pausedCard: {
+    opacity: 0.9,
+  },
+  pausedText: {
+    color: "#ff9800",
+    fontStyle: "italic",
+    fontSize: 12,
   },
 });

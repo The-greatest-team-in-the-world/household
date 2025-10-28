@@ -56,17 +56,15 @@ export default function TabsLayout() {
         initialParams={{ chartSize: pieChartSize }}
         options={{ title: "Denna veckan" }}
       />
-      {screens.map((s) => {
-        return (
-          <MaterialTopTabs.Screen
-            key={s.name}
-            name={s.name}
-            initialParams={{ chartSize: pieChartSize }}
-            options={s.options}
-            redirect={s.data.length === 0 ? true : false}
-          />
-        );
-      })}
+      {screens.map((s) => (
+        <MaterialTopTabs.Screen
+          key={s.name}
+          name={s.name}
+          initialParams={{ chartSize: pieChartSize }}
+          options={s.options}
+          redirect={s.data.length === 0 ? true : false}
+        />
+      ))}
     </MaterialTopTabs>
   );
 }

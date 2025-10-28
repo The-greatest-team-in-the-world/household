@@ -1,5 +1,5 @@
 import { Avatar } from "@/types/household-member";
-import { Dimensions, FlatList, Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 
 interface AvatarPressableProps {
@@ -13,56 +13,48 @@ export const AvatarPressablePicker = ({
   value,
   avatars,
 }: AvatarPressableProps) => {
-  const SCREEN_WIDTH = Dimensions.get("window").width;
-  const BUTTON_SIZE = (SCREEN_WIDTH - 80) / 4;
   const theme = useTheme();
 
   return (
-    <FlatList
-      data={avatars}
-      numColumns={4}
-      keyExtractor={(e) => e.emoji}
-      renderItem={(renderItem) => (
+    <View style={s.container}>
+      {avatars.map((item) => (
         <Pressable
+          key={item.emoji}
           style={[
-            {
-              backgroundColor: renderItem.item.color,
-              width: BUTTON_SIZE,
-              height: BUTTON_SIZE,
-              borderRadius: 15,
-              alignItems: "center",
-              justifyContent: "center",
-            },
-            // Om en avatar är vald OCH det inte är denna → tona ner
+            s.avatarButton,
+            { backgroundColor: item.color },
+            // Om en avatar är vald OCH det inte är den valda → tona ner
+            value && value.emoji !== item.emoji && { opacity: 0.3 },
             value &&
-              value.emoji !== renderItem.item.emoji && {
-                opacity: 0.3,
-              },
-            value &&
-              value.emoji === renderItem.item.emoji && {
-                borderWidth: 2,
+              value.emoji === item.emoji && {
+                borderWidth: 4,
                 borderColor: theme.colors.onBackground,
               },
           ]}
-          onPress={() => onChange(renderItem.item)}
+          onPress={() => onChange(item)}
         >
-          <Text style={s.avatarEmoji}>{renderItem.item.emoji}</Text>
+          <Text style={s.avatarEmoji}>{item.emoji}</Text>
         </Pressable>
-      )}
-      columnWrapperStyle={s.row}
-      scrollEnabled={false}
-    />
+      ))}
+    </View>
   );
 };
 
 const s = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    flex: 1,
+    gap: 7,
+  },
   avatarEmoji: {
     fontSize: 50,
   },
-  row: {
-    justifyContent: "flex-start",
-    gap: 10,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+  avatarButton: {
+    borderRadius: 10,
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

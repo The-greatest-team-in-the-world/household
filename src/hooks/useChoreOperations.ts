@@ -4,7 +4,9 @@ import {
   getAllCompletions,
 } from "@/api/chore-completions";
 import {
+  apiCreateChore,
   archiveChore,
+  CreateChoreData,
   deleteChorePermanently,
   updateChore,
 } from "@/api/chores";
@@ -17,10 +19,12 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
 type UpdateChoreData = {
-  name: string;
-  description: string;
-  frequency: number;
-  effort: number;
+  name?: string;
+  description?: string;
+  frequency?: number;
+  effort?: number;
+  audioUrl?: string | null;
+  imageUrl?: string | null;
 };
 
 export function useChoreOperations() {
@@ -35,6 +39,7 @@ export function useChoreOperations() {
   const householdId = currentMember?.householdId || "";
   const [isCompleted, setIsCompleted] = useState(false);
 
+  //TODO kan vi tar bort denna useEffect? //LAX
   useEffect(() => {
     if (!selectedChore || !currentMember) return;
 
@@ -63,19 +68,13 @@ export function useChoreOperations() {
   const updateChoreData = async (data: UpdateChoreData) => {
     if (!selectedChore) return;
 
-    await updateChore(householdId, selectedChore.id, {
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort,
-    });
+    // Uppdatera bara de fält som finns i data
+    await updateChore(householdId, selectedChore.id, data);
 
+    // Mergea nya data med befintlig chore
     const updatedChore: Chore = {
       ...selectedChore,
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort,
+      ...data,
     };
 
     setSelectedChore(updatedChore);
@@ -99,6 +98,15 @@ export function useChoreOperations() {
     await deleteChorePermanently(householdId, selectedChore.id);
     setChores(chores.filter((chore) => chore.id !== selectedChore.id));
   };
+
+  const createChore = async (data: CreateChoreData) => {
+    if (!householdId) return;
+
+    const newChore = await apiCreateChore(householdId, data);
+
+    setChores([...chores, newChore]);
+  };
+
   return {
     selectedChore,
     currentMember,
@@ -109,5 +117,6 @@ export function useChoreOperations() {
     updateChoreData,
     softDeleteChore,
     deleteChore,
+    createChore,
   };
 }

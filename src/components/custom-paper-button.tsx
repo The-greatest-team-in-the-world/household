@@ -56,7 +56,7 @@ export const CustomPaperButton = ({
       onPress={onPress}
       disabled={disabled}
       style={[{ borderRadius: 8, minWidth: 100 }, style]}
-      contentStyle={{ paddingVertical: 8 }}
+      contentStyle={{ paddingVertical: 2 }}
       labelStyle={s.buttonText}
     >
       {currentText}
@@ -66,6 +66,6 @@ export const CustomPaperButton = ({
 
 const s = StyleSheet.create({
   buttonText: {
-    fontSize: 18,
+    fontSize: 16,
   },
 });

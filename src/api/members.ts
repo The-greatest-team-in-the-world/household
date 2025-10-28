@@ -1,4 +1,4 @@
-import { Avatar, HouseholdMember } from "@/types/household-member";
+import { Avatar, HouseholdMember, UserStatus } from "@/types/household-member";
 import { getAuth } from "@firebase/auth";
 import {
   addDoc,
@@ -11,6 +11,7 @@ import {
   getDocs,
   query,
   serverTimestamp,
+  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -244,7 +245,7 @@ export async function leaveMemberFromHousehold(
 }
 
 export async function updateStatusOnHouseholdMember(
-  status: string,
+  status: UserStatus,
   householdId: string,
   userId: string,
 ): Promise<{ success: boolean; error?: string }> {
@@ -273,5 +274,66 @@ export async function updateStatusOnHouseholdMember(
   } catch (error) {
     console.error(error);
     return { success: false, error: "Fel vid uppdatering av status" };
+  }
+}
+
+export async function toggleMemberPause(
+  householdId: string,
+  userId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return { success: false, error: "Medlemmen hittades inte" };
+  }
+
+  const memberDoc = snapshot.docs[0];
+  const memberData = memberDoc.data() as HouseholdMember;
+
+  try {
+    if (memberData.isPaused) {
+      // Aktivera medlem - sätt endDate på sista pause-perioden
+      const updatedPausePeriods = [...memberData.pausePeriods];
+      if (updatedPausePeriods.length > 0) {
+        const lastPeriod = updatedPausePeriods[updatedPausePeriods.length - 1];
+        if (lastPeriod.endDate === null) {
+          lastPeriod.endDate = Timestamp.now();
+        }
+      }
+
+      await updateDoc(
+        doc(db, "households", householdId, "members", memberDoc.id),
+        {
+          isPaused: false,
+          pausePeriods: updatedPausePeriods,
+          updatedAt: serverTimestamp(),
+        },
+      );
+    } else {
+      // Pausa medlem - lägg till ny pause-period med startDate
+      const newPausePeriod = {
+        startDate: Timestamp.now(),
+        endDate: null,
+      };
+
+      await updateDoc(
+        doc(db, "households", householdId, "members", memberDoc.id),
+        {
+          isPaused: true,
+          pausePeriods: arrayUnion(newPausePeriod),
+          updatedAt: serverTimestamp(),
+        },
+      );
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in toggleMemberPause:", error);
+    return {
+      success: false,
+      error: "Ett fel uppstod vid pausning/aktivering av medlem",
+    };
   }
 }
