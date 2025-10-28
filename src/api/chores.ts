@@ -11,6 +11,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import { deleteCompletionsByChoreId } from "./chore-completions";
 
 export type CreateChoreData = Partial<
   Omit<
@@ -100,6 +101,8 @@ export async function deleteChorePermanently(
   householdId: string,
   choreId: string,
 ): Promise<void> {
+  await deleteCompletionsByChoreId(householdId, choreId);
+
   const choreRef = doc(db, "households", householdId, "chores", choreId);
   await deleteDoc(choreRef);
 }

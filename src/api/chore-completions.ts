@@ -5,9 +5,11 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  query,
   serverTimestamp,
   Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase-config";
 
@@ -31,6 +33,29 @@ export async function getAllCompletions(
       completedAt: data.completedAt,
     } as ChoreCompletion;
   });
+}
+
+export async function deleteCompletionsByChoreId(
+  householdId: string,
+  choreId: string,
+): Promise<void> {
+  const completionsRef = collection(
+    db,
+    "households",
+    householdId,
+    "completions",
+  );
+  const queryByChoreId = query(completionsRef, where("choreId", "==", choreId));
+  const snapshot = await getDocs(queryByChoreId);
+
+  console.log("🔍 Searching for completions with choreId:", choreId);
+  console.log("Found", snapshot.size, "matching completions");
+
+  const deletionPromises = snapshot.docs.map((completionDoc) =>
+    deleteDoc(completionDoc.ref),
+  );
+
+  await Promise.all(deletionPromises);
 }
 
 export async function addChoreCompletion(householdId: string, choreId: string) {
