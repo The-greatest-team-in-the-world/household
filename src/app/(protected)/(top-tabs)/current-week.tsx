@@ -9,7 +9,7 @@ import {
 } from "@/utils/get-statistics-from-range";
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
 export default function CurrentWeekStatisticsScreen() {
@@ -38,8 +38,16 @@ export default function CurrentWeekStatisticsScreen() {
   if (completions.length === 0) {
     return (
       <View style={s.noChoresContainer}>
-        <Text>Inga sysslor är registrerade för den här veckan ännu.</Text>
-        <Text>Börja med att lägga till eller markera en syssla som klar!</Text>
+        <Image
+          source={require("@/assets/images/not-found.png")}
+          style={s.image}
+        />
+        <Text style={[s.noChoresText, s.largeText]}>
+          Inga sysslor är registrerade för den här veckan ännu.
+        </Text>
+        <Text style={s.noChoresText}>
+          Börja med att lägga till eller markera en syssla som klar!
+        </Text>
       </View>
     );
   }
@@ -91,6 +99,19 @@ const s = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 50,
+    gap: 30,
+  },
+  image: {
+    maxWidth: "70%",
+    maxHeight: 300,
+    objectFit: "scale-down",
+  },
+  noChoresText: {
+    textAlign: "center",
+  },
+  largeText: {
+    fontSize: 20,
   },
   chartContainerTotal: {
     margin: 20,
