@@ -4,6 +4,7 @@ import {
   AudioQuality,
   IOSOutputFormat,
   requestRecordingPermissionsAsync,
+  setAudioModeAsync,
 } from "expo-audio";
 import {
   deleteObject,
@@ -49,6 +50,12 @@ export async function requestAudioPermissions(): Promise<boolean> {
 
 // Starta inspelning (tillstånd bör redan vara givet i komponenten)
 export async function startRecording(recorder: AudioRecorder): Promise<void> {
+  // Sätt audio mode för iOS
+  await setAudioModeAsync({
+    allowsRecording: true,
+    playsInSilentMode: true,
+  });
+
   // Förbered inspelningen först om den inte redan pågår
   if (!recorder.isRecording) {
     await recorder.prepareToRecordAsync();
