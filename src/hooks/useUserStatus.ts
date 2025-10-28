@@ -1,12 +1,11 @@
 import { updateStatusOnHouseholdMember } from "@/api/members";
+import { UserStatus } from "@/types/household-member";
 import { useState } from "react";
 
 export default function UseUserStatus() {
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  type UserStatus = "pending" | "active" | "left";
 
   async function updateUserStatus(
     status: UserStatus,
