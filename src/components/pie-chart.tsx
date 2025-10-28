@@ -15,6 +15,8 @@ interface Props {
   iconSize?: number;
   titleSize?: number;
   total?: boolean;
+  startDate: Date;
+  endDate: Date;
 }
 
 export default function PieChart({
@@ -25,6 +27,8 @@ export default function PieChart({
   iconSize,
   titleSize,
   total,
+  startDate,
+  endDate,
 }: Props) {
   if (!completedChores || completedChores.length === 0) return null;
 
@@ -42,30 +46,34 @@ export default function PieChart({
   // Return null if no active completions (all users paused or no data)
   if (!activeCompletions || activeCompletions.length === 0) return null;
 
-  function getEffortPerUser() {
-    const effortPerUser: Record<string, number> = {};
+  const effortPerUser = getEffortPerUser(activeCompletions, chores);
+  const normalizedEffortPerUser = normalizeDataForPeriod(
+    effortPerUser,
+    members,
+    startDate,
+    endDate,
+  );
 
-    const choreId = activeCompletions[0].choreId;
-    const chore = chores.find((c) => c.id === choreId);
-    const perCompletionEffort = chore?.effort ?? 1;
-
-    for (const completion of activeCompletions) {
-      const memberId = completion.userId;
-      if (!effortPerUser[memberId]) effortPerUser[memberId] = 0;
-      effortPerUser[memberId] += perCompletionEffort;
-    }
-
-    return effortPerUser;
+  for (const entry of Object.entries(effortPerUser)) {
+    console.log(
+      "effortPerUser:          userId: " + entry[0] + ", effort: " + entry[1],
+    );
   }
 
-  const series: Slice[] = Object.entries(getEffortPerUser()).map(
+  for (const entry of Object.entries(normalizedEffortPerUser)) {
+    console.log(
+      "normalizedEffortPerUser userId: " + entry[0] + ", effort: " + entry[1],
+    );
+  }
+
+  const series: Slice[] = Object.entries(normalizedEffortPerUser).map(
     ([memberId, effort]) => {
       const avatar = getMemberAvatar(members, memberId);
 
       const color = avatar.color;
       const value = effort;
       const label: SliceLabel = {
-        text: !total ? avatar.emoji : "",
+        text: total ? avatar.emoji : "",
         fontSize: iconSize ?? 24,
       };
 
@@ -85,6 +93,25 @@ export default function PieChart({
   );
 }
 
+function getEffortPerUser(
+  activeCompletions: ChoreCompletion[],
+  chores: Chore[],
+) {
+  const effortPerUser: Record<string, number> = {};
+
+  const choreId = activeCompletions[0].choreId;
+  const chore = chores.find((c) => c.id === choreId);
+  const perCompletionEffort = chore?.effort ?? 1;
+
+  for (const completion of activeCompletions) {
+    const memberId = completion.userId;
+    if (!effortPerUser[memberId]) effortPerUser[memberId] = 0;
+    effortPerUser[memberId] += perCompletionEffort;
+  }
+
+  return effortPerUser;
+}
+
 function omitPausedUsers(
   completions: ChoreCompletion[],
   members: HouseholdMember[],
@@ -95,6 +122,51 @@ function omitPausedUsers(
   });
 
   return sortedCompletedChores;
+}
+
+function normalizeDataForPeriod(
+  effortPerUser: Record<string, number>,
+  members: HouseholdMember[],
+  startDate: Date,
+  endDate: Date,
+) {
+  const totalDays = Math.max(
+    1,
+    Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+    ),
+  );
+
+  const normalized: Record<string, number> = {};
+
+  for (const [userId, effort] of Object.entries(effortPerUser)) {
+    const member = members.find((m) => m.userId === userId);
+    if (!member) continue;
+
+    let pausedDays = 0;
+    for (const period of member.pausePeriods ?? []) {
+      if (!period.startDate) continue;
+
+      const startPeriod = period.startDate.toDate();
+      const endPeriod = period.endDate ? period.endDate.toDate() : new Date();
+      startPeriod.setHours(0, 0, 0, 0);
+      endPeriod.setHours(0, 0, 0, 0);
+
+      const overlapStart = Math.max(startDate.getTime(), startPeriod.getTime());
+      const overlapEnd = Math.min(endDate.getTime(), endPeriod.getTime());
+
+      if (overlapStart < overlapEnd) {
+        pausedDays += (overlapEnd - overlapStart) / (1000 * 60 * 60 * 24);
+      }
+    }
+
+    const activeDays = Math.max(1, totalDays - pausedDays);
+    const multiplier = totalDays / activeDays;
+
+    normalized[userId] = effort * multiplier;
+  }
+
+  return normalized;
 }
 
 const s = StyleSheet.create({
