@@ -31,6 +31,7 @@ export const mockChores: Chore[] = [
     lastCompletedBy: FIREBASE_USER_IDS.kalle,
     createdAt: daysAgo(10),
     updatedAt: daysAgo(1),
+    assignedTo: null,
   },
   {
     id: "chore-2",
@@ -45,6 +46,7 @@ export const mockChores: Chore[] = [
     lastCompletedBy: FIREBASE_USER_IDS.joakim,
     createdAt: daysAgo(14),
     updatedAt: daysAgo(2),
+    assignedTo: null,
   },
   {
     id: "chore-3",
@@ -59,6 +61,7 @@ export const mockChores: Chore[] = [
     lastCompletedBy: FIREBASE_USER_IDS.kalle,
     createdAt: daysAgo(20),
     updatedAt: daysAgo(5),
+    assignedTo: null,
   },
   {
     id: "chore-4",
@@ -73,6 +76,7 @@ export const mockChores: Chore[] = [
     lastCompletedBy: FIREBASE_USER_IDS.knatte,
     createdAt: daysAgo(30),
     updatedAt: daysAgo(3),
+    assignedTo: null,
   },
   {
     id: "chore-5",
@@ -87,6 +91,7 @@ export const mockChores: Chore[] = [
     lastCompletedBy: FIREBASE_USER_IDS.joakim,
     createdAt: daysAgo(25),
     updatedAt: daysAgo(4),
+    assignedTo: null,
   },
 ];
 
