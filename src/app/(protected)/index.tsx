@@ -29,19 +29,20 @@ export default function HouseholdsScreen() {
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
-  const canEnter = (h: any) =>    { if (h.isOwner) {
+  const canEnter = (h: any) => {
+    if (h.isOwner) {
       return h.status === "active";
     }
     return h.status === "active" && !h.isPaused;
   };
-const visibleHouseholds = (households ?? [])
-  .filter((h: any) => h.status === "active" || h.status === "pending")
-  .sort((a: any, b: any) => {
-    const aInactive = a.status === "pending" || a.isPaused;
-    const bInactive = b.status === "pending" || b.isPaused;
+  const visibleHouseholds = (households ?? [])
+    .filter((h: any) => h.status === "active" || h.status === "pending")
+    .sort((a: any, b: any) => {
+      const aInactive = a.status === "pending" || a.isPaused;
+      const bInactive = b.status === "pending" || b.isPaused;
 
-    return Number(aInactive) - Number(bInactive);
-  });
+      return Number(aInactive) - Number(bInactive);
+    });
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);

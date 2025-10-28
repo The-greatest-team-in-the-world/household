@@ -25,9 +25,7 @@ export default function MemberSelector({
 
   const selectedMember = members.find((m) => m.userId === value);
 
-  const displayEmoji = selectedMember
-    ? selectedMember.avatar.emoji
-    : "👥";
+  const displayEmoji = selectedMember ? selectedMember.avatar.emoji : "👥";
 
   const displayName = selectedMember
     ? selectedMember.nickName
@@ -40,23 +38,19 @@ export default function MemberSelector({
         avatar: { emoji: string; color: string };
       }
     | HouseholdMember
-  > = [
-    ...members,
-  ];
+  > = [...members];
 
   function handleSelect(userId: string | null) {
-  if (value === userId) {
-    onValueChange(null);
-  } else {
-    onValueChange(userId);
+    if (value === userId) {
+      onValueChange(null);
+    } else {
+      onValueChange(userId);
+    }
+    close();
   }
-  close();
-}
 
   return (
     <View style={s.wrapper}>
-      
-
       <Pressable style={s.selectorRow} onPress={toggle}>
         <View style={s.leftContent}>
           <Text style={s.emoji}>{displayEmoji}</Text>
@@ -101,9 +95,7 @@ export default function MemberSelector({
                     ]}
                     elevation={isSelected ? 3 : 1}
                   >
-                    <Text style={s.avatarEmoji}>
-                      {option.avatar.emoji}
-                    </Text>
+                    <Text style={s.avatarEmoji}>{option.avatar.emoji}</Text>
                   </Surface>
 
                   <Text

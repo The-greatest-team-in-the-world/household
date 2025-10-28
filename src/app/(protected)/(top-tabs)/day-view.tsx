@@ -136,10 +136,7 @@ export default function DayViewScreen() {
           text="Mina sysslor"
           onPress={() => console.log("Mina sysslor")}
           mode="contained"
-          style={[
-            s.button,
-            !canCreate && s.fullWidthButton,
-          ]}
+          style={[s.button, !canCreate && s.fullWidthButton]}
         />
       </View>
     </Surface>
@@ -196,11 +193,10 @@ const s = StyleSheet.create({
     gap: 10,
     paddingBottom: 20,
   },
-    button: {
+  button: {
     flex: 1,
   },
   fullWidthButton: {
     flex: 1,
   },
 });
-

@@ -39,7 +39,7 @@ export async function getChores(householdId: string): Promise<Chore[]> {
         lastCompletedBy: data.lastCompletedBy,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
-        assignedTo: data.assignedTo
+        assignedTo: data.assignedTo,
       } as Chore;
     })
     .filter((chore) => !chore.isArchived);
@@ -68,7 +68,13 @@ export async function updateChore(
   data: Partial<
     Pick<
       Chore,
-      "name" | "description" | "frequency" | "effort" | "audioUrl" | "imageUrl" | "assignedTo"
+      | "name"
+      | "description"
+      | "frequency"
+      | "effort"
+      | "audioUrl"
+      | "imageUrl"
+      | "assignedTo"
     >
   >,
 ): Promise<void> {
