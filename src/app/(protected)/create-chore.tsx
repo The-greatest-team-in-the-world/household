@@ -1,3 +1,4 @@
+import { selectedChoreAtom } from "@/atoms/chore-atom";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { getMembersAtom, membersAtom } from "@/atoms/member-atom";
 import ChoreForm, {
@@ -9,6 +10,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
 export default function CreateChoreScreen() {
+  const setSelectedChore = useSetAtom(selectedChoreAtom);
   const { createChore, householdId } = useChoreOperations();
   const members = useAtomValue(membersAtom);
   const currentHousehold = useAtomValue(currentHouseholdAtom);
@@ -34,14 +36,20 @@ export default function CreateChoreScreen() {
     if (!householdId || submitting) return;
     setSubmitting(true);
     try {
-      await createChore({
+      const newChore = await createChore({
         name: data.name.trim(),
         description: (data.description ?? "").trim(),
         frequency: data.frequency,
         effort: data.effort,
         assignedTo: (data.assignedTo ?? "").trim(),
       });
-      router.back();
+
+      if (newChore) {
+        setSelectedChore(newChore);
+        router.replace("/chore-details");
+      } else {
+        router.back();
+      }
     } catch (e) {
       console.error("createChore failed:", e);
     } finally {
