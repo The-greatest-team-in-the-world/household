@@ -27,7 +27,7 @@ export const AvatarPressablePicker = ({
             value && value.emoji !== item.emoji && { opacity: 0.3 },
             value &&
               value.emoji === item.emoji && {
-                borderWidth: 2,
+                borderWidth: 4,
                 borderColor: theme.colors.onBackground,
               },
           ]}
