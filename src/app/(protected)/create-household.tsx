@@ -1,4 +1,4 @@
-import { createNewHousehold } from "@/api/households";
+import { createNewHousehold, deleteHousehold } from "@/api/households";
 import { addNewMemberToHousehold } from "@/api/members";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
 import { CustomPaperButton } from "@/components/custom-paper-button";
@@ -39,31 +39,49 @@ export default function CreateHousholdScreen() {
   const theme = useTheme();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    let householdId: string | null = null;
+
     try {
-      const householdId = await createNewHousehold(data.householdName);
-      // Hitta avatar-objektet som matchar vald emoji
       const selectedAvatar = avatarColors.find((a) => a.emoji === data.avatar);
       if (!selectedAvatar) {
+        setErrorMessage("Ingen avatar vald");
         return;
       }
 
+      // Steg 1: Skapa hushåll
+      householdId = await createNewHousehold(data.householdName);
+
+      // Steg 2: Lägg till medlem
       const result = await addNewMemberToHousehold(
         householdId,
         selectedAvatar,
         data.nickName,
-        false, // isPaused
-        true, // IsOwner
-        "active", // Status
+        false,
+        true,
+        "active",
       );
-      if (result.success) {
-        setErrorMessage(null);
-        router.replace("/(protected)");
-      } else {
-        setErrorMessage(result.error || "Uppdateringen misslyckades.");
+
+      if (!result.success) {
+        // Radera hushållet om medlem inte kunde läggas till
+        await deleteHousehold(householdId);
+        throw new Error(result.error || "Kunde inte lägga till medlem");
       }
+
+      setErrorMessage(null);
+      router.replace("/(protected)");
     } catch (error) {
       console.error("Error creating household:", error);
-      console.error(errorMessage);
+
+      // Cleanup: Om hushåll skapades men något gick fel, radera det
+      if (householdId) {
+        try {
+          await deleteHousehold(householdId);
+        } catch (cleanupError) {
+          console.error("Error during cleanup:", cleanupError);
+        }
+      }
+
+      setErrorMessage("Kunde inte skapa hushållet. Försök igen.");
     }
   };
 

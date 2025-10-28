@@ -1,8 +1,8 @@
 import { HouseholdMember } from "@/types/household-member";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Surface, Text, useTheme } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type Props = {
   members: HouseholdMember[];
@@ -31,14 +31,14 @@ export default function MemberSelector({
     ? selectedMember.nickName
     : "Ingen tilldelad";
 
-  const allOptions: Array<
+  const allOptions: (
     | {
         userId: null;
         nickName: string;
         avatar: { emoji: string; color: string };
       }
     | HouseholdMember
-  > = [...members];
+  )[] = [...members];
 
   function handleSelect(userId: string | null) {
     if (value === userId) {

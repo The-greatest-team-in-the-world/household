@@ -68,7 +68,18 @@ export default function ChoreDetailsScreen() {
 
     setIsSubmitting(true);
     try {
-      await updateChoreData(data);
+      await updateChoreData({
+        name: data.name,
+        description: data.description,
+        frequency: data.frequency,
+        effort: data.effort,
+
+        assignedTo:
+          data.assignedTo && data.assignedTo.trim() !== ""
+            ? data.assignedTo
+            : null,
+      });
+
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating chore:", error);
@@ -87,7 +98,11 @@ export default function ChoreDetailsScreen() {
             description: selectedChore.description ?? "",
             frequency: selectedChore.frequency ?? 0,
             effort: selectedChore.effort ?? 1,
-            assignedTo: selectedChore.assignedTo ?? null,
+            assignedTo:
+              Array.isArray(selectedChore.assignedTo) &&
+              selectedChore.assignedTo.length > 0
+                ? selectedChore.assignedTo[0]
+                : null,
           }}
           isSubmitting={isSubmitting}
           onSubmit={onSubmit}

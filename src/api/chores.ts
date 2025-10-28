@@ -27,17 +27,18 @@ export async function getChores(householdId: string): Promise<Chore[]> {
   return snapshot.docs
     .map((doc) => {
       const data = doc.data();
+
       return {
         id: doc.id,
         name: data.name,
         description: data.description,
         frequency: data.frequency,
         effort: data.effort,
-        audioUrl: data.audioUrl,
-        imageUrl: data.imageUrl,
+        audioUrl: data.audioUrl ?? null,
+        imageUrl: data.imageUrl ?? null,
         isArchived: data.isArchived,
-        lastCompletedAt: data.lastCompletedAt,
-        lastCompletedBy: data.lastCompletedBy,
+        lastCompletedAt: data.lastCompletedAt ?? null,
+        lastCompletedBy: data.lastCompletedBy ?? null,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         assignedTo: data.assignedTo,
@@ -118,6 +119,8 @@ export async function apiCreateChore(
     isArchived: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    lastCompletedAt: null,
+    lastCompletedBy: null,
   };
 
   const docRef = await addDoc(ref, payload);
@@ -135,7 +138,7 @@ export async function apiCreateChore(
     lastCompletedBy: null,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    assignedTo: null,
+    assignedTo: data.assignedTo ?? null,
   };
 
   return newChore;

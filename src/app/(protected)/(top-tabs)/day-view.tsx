@@ -25,62 +25,85 @@ export default function DayViewScreen() {
   const { completions, chores, members, isLoading } = useHouseholdData(
     householdId || "",
   );
+  console.log("current member object:", member);
 
   const todaysCompletions = useMemo(() => {
     if (!householdId) return [];
     return getTodaysCompletions(completions) ?? [];
   }, [completions, householdId]);
 
-  const completedChoresToday = useMemo(() => {
-    const uniqueChoreIds = new Set(
-      todaysCompletions.map((completion) => completion.choreId),
-    );
-    return chores.filter((chore) => uniqueChoreIds.has(chore.id));
-  }, [todaysCompletions, chores]);
+  const myChores = useMemo(() => {
+    if (!member) return [];
+    const completedTodayIds = new Set(todaysCompletions.map((c) => c.choreId));
 
-  const incompleteChoresToday = useMemo(() => {
-    const completedChoreIds = new Set(
-      todaysCompletions.map((completion) => completion.choreId),
-    );
-    return chores.filter((chore) => !completedChoreIds.has(chore.id));
-  }, [todaysCompletions, chores]);
+    return chores.filter((chore) => {
+      const isMine = chore.assignedTo === member.userId;
+      const doneToday = completedTodayIds.has(chore.id);
+      return isMine && !doneToday;
+    });
+  }, [chores, member, todaysCompletions]);
 
-  const renderCompletedChore = (chore: Chore) => {
+  const allChoresToShow = useMemo(() => {
+    const completedChoreIds = new Set(todaysCompletions.map((c) => c.choreId));
+
+    return chores.filter((chore) => {
+      if (
+        member &&
+        chore.assignedTo === member.userId &&
+        !completedChoreIds.has(chore.id)
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [chores, todaysCompletions, member]);
+
+  const sortedAllChoresToShow = useMemo(() => {
+    return [...allChoresToShow].sort((a, b) => {
+      const aCompletedToday = todaysCompletions.some((c) => c.choreId === a.id);
+      const bCompletedToday = todaysCompletions.some((c) => c.choreId === b.id);
+      if (aCompletedToday === bCompletedToday) return 0;
+      return aCompletedToday ? 1 : -1;
+    });
+  }, [allChoresToShow, todaysCompletions]);
+
+  const renderChore = (chore: Chore) => {
+    const choreCompletions = completions.filter((c) => c.choreId === chore.id);
     const choreCompletionsToday = todaysCompletions.filter(
       (completion) => completion.choreId === chore.id,
     );
+    const isCompletedToday = choreCompletionsToday.length > 0;
 
-    return (
-      <ChoreCard
-        key={chore.id}
-        choreId={chore.id}
-        choreName={chore.name}
-        displayType="avatar"
-        completedByList={choreCompletionsToday}
-        members={members}
-      />
-    );
-  };
+    if (isCompletedToday) {
+      return (
+        <ChoreCard
+          key={chore.id}
+          choreId={chore.id}
+          choreName={chore.name}
+          displayType="avatar"
+          completedByList={choreCompletionsToday}
+          members={members}
+        />
+      );
+    } else {
+      const daysOverdue = getDaysOverdue(chore, choreCompletions);
+      const daysSinceCompletion = getDaysSinceLastCompletion(
+        chore,
+        choreCompletions,
+      );
 
-  const renderIncompleteChore = (chore: Chore) => {
-    const choreCompletions = completions.filter((c) => c.choreId === chore.id);
-    const daysOverdue = getDaysOverdue(chore, choreCompletions);
-    const daysSinceCompletion = getDaysSinceLastCompletion(
-      chore,
-      choreCompletions,
-    );
-
-    return (
-      <ChoreCard
-        key={chore.id}
-        choreId={chore.id}
-        choreName={chore.name}
-        displayType="days"
-        displayValue={daysSinceCompletion.toString()}
-        isOverdue={daysOverdue > 0}
-        daysOverdue={daysOverdue}
-      />
-    );
+      return (
+        <ChoreCard
+          key={chore.id}
+          choreId={chore.id}
+          choreName={chore.name}
+          displayType="days"
+          displayValue={daysSinceCompletion.toString()}
+          isOverdue={daysOverdue > 0}
+          daysOverdue={daysOverdue}
+        />
+      );
+    }
   };
 
   if (isLoading) {
@@ -91,35 +114,64 @@ export default function DayViewScreen() {
     );
   }
 
+  const completedCount = todaysCompletions.length;
+  const incompleteCount = allChoresToShow.filter((chore) => {
+    const completedChoreIds = new Set(todaysCompletions.map((c) => c.choreId));
+    return !completedChoreIds.has(chore.id);
+  }).length;
+
   return (
     <Surface style={s.container} elevation={0}>
       <View style={s.headerContainer}>
         <Text style={s.subheader}>
-          {todaysCompletions.length} klara • {incompleteChoresToday.length} kvar
+          {completedCount} klara • {incompleteCount} kvar
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={s.choreContentContainer}>
-        {incompleteChoresToday.length > 0 && (
+        {myChores.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Behöver göras</Text>
-            {incompleteChoresToday.map(renderIncompleteChore)}
+            <Text style={s.sectionTitle}>Mina sysslor</Text>
+            {myChores.map((chore) => {
+              const choreCompletions = completions.filter(
+                (c) => c.choreId === chore.id,
+              );
+              const daysSinceCompletion = getDaysSinceLastCompletion(
+                chore,
+                choreCompletions,
+              );
+              const daysOverdue = getDaysOverdue(chore, choreCompletions);
+
+              return (
+                <ChoreCard
+                  key={chore.id}
+                  choreId={chore.id}
+                  choreName={chore.name}
+                  displayType="days"
+                  displayValue={daysSinceCompletion.toString()}
+                  isOverdue={daysOverdue > 0}
+                  daysOverdue={daysOverdue}
+                />
+              );
+            })}
           </View>
         )}
-        {completedChoresToday.length > 0 && (
+
+        {allChoresToShow.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Klart för idag ✓</Text>
-            {completedChoresToday.map(renderCompletedChore)}
+            <Text style={s.sectionTitle}>Alla sysslor</Text>
+            {sortedAllChoresToShow.map(renderChore)}
           </View>
         )}
-        {todaysCompletions.length === 0 &&
-          incompleteChoresToday.length === 0 && (
-            <View style={s.emptyState}>
-              <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
-            </View>
-          )}
+
+        {allChoresToShow.length === 0 && myChores.length === 0 && (
+          <View style={s.emptyState}>
+            <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
+          </View>
+        )}
       </ScrollView>
-      <View style={s.buttonContainer}>
+
+      <View style={canCreate ? s.buttonRowSingle : s.buttonRowSingle}>
         {canCreate && (
           <CustomPaperButton
             text="Skapa syssla"
@@ -128,16 +180,9 @@ export default function DayViewScreen() {
             onPress={() => {
               router.push("/(protected)/create-chore");
             }}
+            style={s.buttonFull}
           />
         )}
-
-        <CustomPaperButton
-          icon="account-details-outline"
-          text="Mina sysslor"
-          onPress={() => console.log("Mina sysslor")}
-          mode="contained"
-          style={[s.button, !canCreate && s.fullWidthButton]}
-        />
       </View>
     </Surface>
   );
@@ -165,6 +210,11 @@ const s = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
+  choreContentContainer: {
+    gap: 16,
+    paddingHorizontal: 5,
+    paddingBottom: 20,
+  },
   section: {
     marginBottom: 20,
   },
@@ -174,11 +224,6 @@ const s = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 5,
   },
-  choreContentContainer: {
-    gap: 5,
-    paddingHorizontal: 5,
-    paddingBottom: 20,
-  },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -187,16 +232,26 @@ const s = StyleSheet.create({
   emptyStateText: {
     fontSize: 18,
   },
-  buttonContainer: {
+
+  mineEmpty: {
+    fontSize: 14,
+    fontStyle: "italic",
+    marginLeft: 5,
+    marginTop: 4,
+  },
+
+  buttonRowTwo: {
     flexDirection: "row",
-    justifyContent: "center",
     gap: 10,
     paddingBottom: 20,
   },
-  button: {
+  buttonRowSingle: {
+    paddingBottom: 20,
+  },
+  buttonFlex: {
     flex: 1,
   },
-  fullWidthButton: {
-    flex: 1,
+  buttonFull: {
+    width: "100%",
   },
 });
