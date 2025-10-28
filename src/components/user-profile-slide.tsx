@@ -134,7 +134,7 @@ export default function SettingsSideSheet({
                 Inställningar
               </Text>
               {displayName && (
-                <Text variant="bodyMedium" style={{ marginTop: 4, margin: 10 }}>
+                <Text variant="bodyLarge" style={{ marginTop: 4, margin: 10 }}>
                   {displayName}
                 </Text>
               )}
