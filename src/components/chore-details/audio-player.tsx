@@ -21,15 +21,18 @@ export function AudioPlayerComponent({
   showDeleteButton = false,
 }: AudioPlayerProps) {
   const theme = useTheme();
-  //   const [isLoading2, setIsLoading2] = useState(true);
 
-  // Skapa audio player med URL från Firebase
   const player = useAudioPlayer(audioUrl);
-
-  // Få player status
   const status = useAudioPlayerStatus(player);
+  const progress =
+    status.duration > 0 ? status.currentTime / status.duration : 0;
+  const isLoading = status.timeControlStatus === "waitingToPlayAtSpecifiedRate";
 
   const togglePlayPause = () => {
+    if (!status.playing && status.currentTime >= status.duration - 0.1) {
+      player.seekTo(0);
+    }
+
     if (status.playing) {
       player.pause();
     } else {
@@ -47,10 +50,6 @@ export function AudioPlayerComponent({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
-
-  const progress =
-    status.duration > 0 ? status.currentTime / status.duration : 0;
-  const isLoading = status.timeControlStatus === "waitingToPlayAtSpecifiedRate";
 
   return (
     <View
@@ -108,7 +107,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    // marginBottom: 12,
   },
   progressBar: {
     height: 4,
@@ -121,6 +119,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     flexDirection: "row",
+    alignContent: "center",
     gap: 8,
   },
   error: {
