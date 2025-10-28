@@ -1,22 +1,35 @@
 import { selectedChoreAtom } from "@/atoms/chore-atom";
+import { currentHouseholdAtom } from "@/atoms/household-atom";
+import { getMembersAtom, membersAtom } from "@/atoms/member-atom";
 import ChoreForm, {
   ChoreFormData,
 } from "@/components/chore-details/chore-form";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { router } from "expo-router";
-import { useSetAtom } from "jotai";
-import { useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useState } from "react";
 
 export default function CreateChoreScreen() {
-  const { createChore, householdId } = useChoreOperations();
   const setSelectedChore = useSetAtom(selectedChoreAtom);
+  const { createChore, householdId } = useChoreOperations();
+  const members = useAtomValue(membersAtom);
+  const currentHousehold = useAtomValue(currentHouseholdAtom);
+  const loadMembers = useSetAtom(getMembersAtom);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const idToUse = householdId ?? currentHousehold?.id;
+    if (!idToUse) return;
+
+    loadMembers(idToUse);
+  }, [householdId, currentHousehold, loadMembers]);
 
   const defaultValues: ChoreFormData = {
     name: "",
     description: "",
     frequency: 1,
     effort: 1,
+    assignedTo: null,
   };
 
   const onSubmit = async (data: ChoreFormData) => {
@@ -28,6 +41,7 @@ export default function CreateChoreScreen() {
         description: (data.description ?? "").trim(),
         frequency: data.frequency,
         effort: data.effort,
+        assignedTo: (data.assignedTo ?? "").trim(),
       });
 
       if (newChore) {
@@ -53,6 +67,7 @@ export default function CreateChoreScreen() {
       showDelete={false}
       mode="onBlur"
       isCreating={true}
+      members={members}
     />
   );
 }

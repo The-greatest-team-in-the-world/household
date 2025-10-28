@@ -1,17 +1,20 @@
 import SegmentedButtonsComponent from "@/components/chore-details/segmented-button";
 import { CustomPaperButton } from "@/components/custom-paper-button";
+import { HouseholdMember } from "@/types/household-member";
 import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Icon, Surface, Text, TextInput } from "react-native-paper";
 import MediaButtons from "./media-buttons";
+import MemberSelector from "./member-selector";
 
 export type ChoreFormData = {
   name: string;
   description: string;
   frequency: number;
   effort: number;
+  assignedTo?: string | null;
 };
 
 type Props = {
@@ -24,6 +27,7 @@ type Props = {
   showDelete?: boolean;
   mode?: "onBlur" | "onChange" | "onSubmit" | "onTouched" | "all";
   isCreating?: boolean;
+  members?: HouseholdMember[];
 };
 
 export default function ChoreForm({
@@ -36,6 +40,7 @@ export default function ChoreForm({
   showDelete = true,
   mode = "onBlur",
   isCreating,
+  members,
 }: Props) {
   const {
     control,
@@ -179,6 +184,20 @@ export default function ChoreForm({
                 </View>
               )}
             />
+            {members && members.length > 0 && (
+              <Controller
+                control={control}
+                name="assignedTo"
+                render={({ field: { onChange, value } }) => (
+                  <MemberSelector
+                    members={members}
+                    value={value || null}
+                    onValueChange={onChange}
+                    error={errors.assignedTo?.message}
+                  />
+                )}
+              />
+            )}
             {!isCreating && (
               <MediaButtons header="Lägg till media" isCreating={isCreating} />
             )}

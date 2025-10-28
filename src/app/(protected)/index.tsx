@@ -35,9 +35,14 @@ export default function HouseholdsScreen() {
     }
     return h.status === "active" && !h.isPaused;
   };
-  const visibleHouseholds = (households ?? []).filter(
-    (h: any) => h.status === "active" || h.status === "pending",
-  );
+  const visibleHouseholds = (households ?? [])
+    .filter((h: any) => h.status === "active" || h.status === "pending")
+    .sort((a: any, b: any) => {
+      const aInactive = a.status === "pending" || a.isPaused;
+      const bInactive = b.status === "pending" || b.isPaused;
+
+      return Number(aInactive) - Number(bInactive);
+    });
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
@@ -46,7 +51,6 @@ export default function HouseholdsScreen() {
   const [alertHeadline, setAlertHeadline] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
 
-  // Get household IDs for owner households
   const ownerHouseholdIds = useMemo(() => {
     if (!households) return [];
     return households

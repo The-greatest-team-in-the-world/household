@@ -169,7 +169,7 @@ export default function SettingsSideSheet({
 
         <View style={{ paddingTop: 16, paddingBottom: insets.bottom }}>
           <CustomPaperButton
-            mode="contained"
+            mode="outlined"
             text="Logga ut"
             style={styles.actionButton}
             icon="logout"
@@ -178,7 +178,7 @@ export default function SettingsSideSheet({
             }}
           ></CustomPaperButton>
           <CustomPaperButton
-            mode="contained"
+            mode="text"
             text="Avsluta konto"
             style={[styles.actionButton, { marginTop: 8 }]}
             icon="delete-outline"
