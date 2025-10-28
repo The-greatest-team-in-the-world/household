@@ -54,18 +54,6 @@ export default function PieChart({
     endDate,
   );
 
-  for (const entry of Object.entries(effortPerUser)) {
-    console.log(
-      "effortPerUser:          userId: " + entry[0] + ", effort: " + entry[1],
-    );
-  }
-
-  for (const entry of Object.entries(normalizedEffortPerUser)) {
-    console.log(
-      "normalizedEffortPerUser userId: " + entry[0] + ", effort: " + entry[1],
-    );
-  }
-
   const series: Slice[] = Object.entries(normalizedEffortPerUser).map(
     ([memberId, effort]) => {
       const avatar = getMemberAvatar(members, memberId);
