@@ -1,4 +1,5 @@
 import { updateStatusOnHouseholdMember } from "@/api/members";
+import { UserStatus } from "@/types/household-member";
 import { useState } from "react";
 
 export default function UseUserStatus() {
@@ -7,7 +8,7 @@ export default function UseUserStatus() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function updateUserStatus(
-    status: string,
+    status: UserStatus,
     householdId: string,
     userId: string,
   ) {

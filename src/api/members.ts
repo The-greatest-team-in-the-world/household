@@ -1,4 +1,4 @@
-import { Avatar, HouseholdMember } from "@/types/household-member";
+import { Avatar, HouseholdMember, UserStatus } from "@/types/household-member";
 import { getAuth } from "@firebase/auth";
 import {
   addDoc,
@@ -245,7 +245,7 @@ export async function leaveMemberFromHousehold(
 }
 
 export async function updateStatusOnHouseholdMember(
-  status: string,
+  status: UserStatus,
   householdId: string,
   userId: string,
 ): Promise<{ success: boolean; error?: string }> {

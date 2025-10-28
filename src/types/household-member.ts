@@ -5,6 +5,9 @@ export interface Avatar {
   color: string;
 }
 
+// För typning vid uppdatering av status.
+export type UserStatus = "pending" | "active" | "left";
+
 export type HouseholdMember = {
   userId: string;
   householdId: string;
