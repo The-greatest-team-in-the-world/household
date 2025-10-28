@@ -24,35 +24,27 @@ export async function getChores(householdId: string): Promise<Chore[]> {
   const choresRef = collection(db, "households", householdId, "chores");
   const snapshot = await getDocs(choresRef);
 
-return snapshot.docs
-  .map((doc) => {
-    const data = doc.data();
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data();
 
-    const assignedToValue: string | null = Array.isArray(data.assignedTo)
-      ? data.assignedTo.length > 0
-        ? data.assignedTo[0]
-        : null
-      : typeof data.assignedTo === "string"
-      ? data.assignedTo
-      : null;
-
-    return {
-      id: doc.id,
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort,
-      audioUrl: data.audioUrl ?? null,
-      imageUrl: data.imageUrl ?? null,
-      isArchived: data.isArchived,
-      lastCompletedAt: data.lastCompletedAt ?? null,
-      lastCompletedBy: data.lastCompletedBy ?? null,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-      assignedTo: assignedToValue,
-    } as Chore;
-  })
-  .filter((chore) => !chore.isArchived);
+      return {
+        id: doc.id,
+        name: data.name,
+        description: data.description,
+        frequency: data.frequency,
+        effort: data.effort,
+        audioUrl: data.audioUrl ?? null,
+        imageUrl: data.imageUrl ?? null,
+        isArchived: data.isArchived,
+        lastCompletedAt: data.lastCompletedAt ?? null,
+        lastCompletedBy: data.lastCompletedBy ?? null,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        assignedTo: data.assignedTo,
+      } as Chore;
+    })
+    .filter((chore) => !chore.isArchived);
 }
 
 export async function getChoreById(
@@ -122,12 +114,8 @@ export async function apiCreateChore(
 ): Promise<Chore> {
   const ref = collection(db, "households", householdId, "chores");
 
-  const assignedToValue =
-    typeof data.assignedTo === "string" ? data.assignedTo : null;
-
   const payload = {
     ...data,
-    assignedTo: assignedToValue,
     isArchived: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -150,7 +138,7 @@ export async function apiCreateChore(
     lastCompletedBy: null,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    assignedTo: assignedToValue,
+    assignedTo: data.assignedTo ?? null,
   };
 
   return newChore;

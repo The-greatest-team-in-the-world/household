@@ -63,30 +63,30 @@ export default function ChoreDetailsScreen() {
     setDialogOpen(true);
   };
 
-const onSubmit = async (data: ChoreFormData) => {
-  if (!selectedChore) return;
+  const onSubmit = async (data: ChoreFormData) => {
+    if (!selectedChore) return;
 
-  setIsSubmitting(true);
-  try {
-    await updateChoreData({
-      name: data.name,
-      description: data.description,
-      frequency: data.frequency,
-      effort: data.effort, 
+    setIsSubmitting(true);
+    try {
+      await updateChoreData({
+        name: data.name,
+        description: data.description,
+        frequency: data.frequency,
+        effort: data.effort,
 
-      assignedTo:
-        typeof data.assignedTo === "string" && data.assignedTo.trim() !== ""
-          ? data.assignedTo
-          : null,
-    });
+        assignedTo:
+          data.assignedTo && data.assignedTo.trim() !== ""
+            ? data.assignedTo
+            : null,
+      });
 
-    setIsEditing(false);
-  } catch (error) {
-    console.error("Error updating chore:", error);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating chore:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (isEditing && selectedChore) {
     return (
@@ -378,5 +378,5 @@ const s = StyleSheet.create({
     color: "#666",
     paddingVertical: 8,
     paddingHorizontal: 4,
-   },
+  },
 });

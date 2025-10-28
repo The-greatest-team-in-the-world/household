@@ -11,7 +11,7 @@ import {
 } from "@/utils/chore-helpers";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
@@ -19,7 +19,6 @@ export default function DayViewScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
   const member = useAtomValue(currentHouseholdMember);
   const canCreate = member?.isOwner;
-
 
   const householdId = currentHousehold?.id;
 
@@ -35,9 +34,7 @@ export default function DayViewScreen() {
 
   const myChores = useMemo(() => {
     if (!member) return [];
-    const completedTodayIds = new Set(
-      todaysCompletions.map((c) => c.choreId)
-    );
+    const completedTodayIds = new Set(todaysCompletions.map((c) => c.choreId));
 
     return chores.filter((chore) => {
       const isMine = chore.assignedTo === member.userId;
@@ -47,9 +44,7 @@ export default function DayViewScreen() {
   }, [chores, member, todaysCompletions]);
 
   const allChoresToShow = useMemo(() => {
-    const completedChoreIds = new Set(
-      todaysCompletions.map((c) => c.choreId)
-    );
+    const completedChoreIds = new Set(todaysCompletions.map((c) => c.choreId));
 
     return chores.filter((chore) => {
       if (
@@ -62,6 +57,15 @@ export default function DayViewScreen() {
       return true;
     });
   }, [chores, todaysCompletions, member]);
+
+  const sortedAllChoresToShow = useMemo(() => {
+    return [...allChoresToShow].sort((a, b) => {
+      const aCompletedToday = todaysCompletions.some((c) => c.choreId === a.id);
+      const bCompletedToday = todaysCompletions.some((c) => c.choreId === b.id);
+      if (aCompletedToday === bCompletedToday) return 0;
+      return aCompletedToday ? 1 : -1;
+    });
+  }, [allChoresToShow, todaysCompletions]);
 
   const renderChore = (chore: Chore) => {
     const choreCompletions = completions.filter((c) => c.choreId === chore.id);
@@ -156,7 +160,7 @@ export default function DayViewScreen() {
         {allChoresToShow.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Alla sysslor</Text>
-            {allChoresToShow.map(renderChore)}
+            {sortedAllChoresToShow.map(renderChore)}
           </View>
         )}
 
