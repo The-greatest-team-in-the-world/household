@@ -15,10 +15,10 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 
 ### Kravlista (4)
 
-- [ ] **En logga, splashscreen och appikon ska designas och användas.**
+- [x] **En logga, splashscreen och appikon ska designas och användas.**
 - [x] **Applikationen ska byggas med RN, Expo & TS.**
-- [ ] **Designen av appen ska utgå ifrån befintliga skisser, undantag kan ges men ska diskuteras med produktägare, godkännas och dokumenteras.**
-- [ ] Information ska kommuniceras till och från en server.
+- [x] **Designen av appen ska utgå ifrån befintliga skisser, undantag kan ges men ska diskuteras med produktägare, godkännas och dokumenteras.**
+- [x] Information ska kommuniceras till och från en server.
 
 ### Hushåll (7)
 
@@ -27,8 +27,8 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 - [x] En ägare av ett hushåll ska kunna se förfrågningar om att gå med i hushållet.
 - [x] En ägare ska kunna acceptera eller neka förfrågningar.
 - [x] En ägare ska kunna göra andra till ägare.
-- [ ] En ägare ska kunna pausa en användare och under pausade perioder ska användare inte tas med i statistiken.
-- [ ] Om en använder har pausats under en del av en period i statistiken ska graferna normaliseras.
+- [x] En ägare ska kunna pausa en användare och under pausade perioder ska användare inte tas med i statistiken.
+- [x] Om en användaer har pausats under en del av en period i statistiken ska graferna normaliseras.
 
 ### Konto (5)
 
@@ -36,7 +36,7 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 - [x] **En användare ska kunna skapa ett nytt hushåll.**
 - [x] **En användare ska kunna gå med i ett hushåll genom att ange hushållets kod.**
 - [x] När en användare har valt att gå med i ett hushåll behöver en ägare av hushållet först godkänna användaren.
-- [ ] En användare ska kunna lämna ett hushåll.
+- [x] En användare ska kunna lämna ett hushåll.
 
 ### Profil (6)
 
@@ -49,18 +49,18 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 
 ### Sysslor (6)
 
-- [ ] **En ägare ska kunna lägga till sysslor att göra i hemmet.**
-- [ ] **En syssla ska ha ett namn, en beskrivning (text), hur ofta den ska göras (dagar), och en vikt som beskriver hur energikrävande den är.**
-- [ ] En användare ska kunna lägga till en ljudinspelning och en bild för att beskriva sysslan ytterligare.
-- [ ] **En ägare ska kunna redigera en syssla.**
-- [ ] En ägare ska kunna ta bort en syssla.
-- [ ] När en syssla tas bort ska användaren få en varning om att all statistik gällande sysslan också kommer att tas bort och få valet att arkivera sysslan istället.
+- [x] **En ägare ska kunna lägga till sysslor att göra i hemmet.**
+- [x] **En syssla ska ha ett namn, en beskrivning (text), hur ofta den ska göras (dagar), och en vikt som beskriver hur energikrävande den är.**
+- [x] En användare ska kunna lägga till en ljudinspelning och en bild för att beskriva sysslan ytterligare.
+- [x] **En ägare ska kunna redigera en syssla.**
+- [x] En ägare ska kunna ta bort en syssla.
+- [x] När en syssla tas bort ska användaren få en varning om att all statistik gällande sysslan också kommer att tas bort och få valet att arkivera sysslan istället.
 
 ### Dagsvyn (3)
 
-- [ ] **Alla sysslor ska listas i en dagsvy och ge en översikt kring vad som behöver göras.**
-- [ ] **Utöver sysslans namn ska även vem/vilka som har gjort sysslan visas, hur många dagar sedan sysslan gjordes senast samt om den är försenad.**
-- [ ] **När en användare väljer en syssla ska beskrivningen av sysslan visas och det ska även med ett enkelt tryck gå att markera sysslan som gjord.**
+- [x] **Alla sysslor ska listas i en dagsvy och ge en översikt kring vad som behöver göras.**
+- [x] **Utöver sysslans namn ska även vem/vilka som har gjort sysslan visas, hur många dagar sedan sysslan gjordes senast samt om den är försenad.**
+- [x] **När en användare väljer en syssla ska beskrivningen av sysslan visas och det ska även med ett enkelt tryck gå att markera sysslan som gjord.**
 
 ### Statistik (6)
 
@@ -73,8 +73,8 @@ I den här inlämningen ska ni i grupp om 5 skapa en nativ app med med hjälp av
 
 ### Schemaläggning (3)
 
-- [ ] En ägare ska kunna tilldela och ta bort sysslor från användare i hushållet.
-- [ ] Användare ska kunna se de tilldelade sysslorna i sitt gränssnitt.
+- [x] En ägare ska kunna tilldela och ta bort sysslor från användare i hushållet.
+- [x] Användare ska kunna se de tilldelade sysslorna i sitt gränssnitt.
 - [ ] En ägare ska kunna skapa grupper av sysslor som automatiskt tilldelas användarna i hushållet och roteras baserat på ett intervall i dagar.
 
 ## Inlämning
@@ -93,14 +93,14 @@ I slutet av kursen ska ni genomföra en opponering på varandras arbeten och i s
 
 ### Krav för godkänt:
 
-1. [ ] De nödvändiga kraven ifrån kravlistan ovan är uppfyllda
-2. [ ] Applikationen kommunicerar data till och från en backend tjänst (ni väljer).
-3. [ ] Git & GitHub har använts.
-4. [ ] Projektmappen innehåller en README.md fil - (läs ovan för mer info)
-5. [ ] Uppgiften lämnas in i tid!
-6. [ ] Muntlig presentation är genomförd
+1. [x] De nödvändiga kraven ifrån kravlistan ovan är uppfyllda
+2. [x] Applikationen kommunicerar data till och från en backend tjänst (ni väljer).
+3. [x] Git & GitHub har använts.
+4. [x] Projektmappen innehåller en README.md fil - (läs ovan för mer info)
+5. [x] Uppgiften lämnas in i tid!
+6. [x] Muntlig presentation är genomförd
 
 ### Krav för väl godkänt:
 
-7. [ ] Alla punkter för godkänt är uppfyllda
+7. [x] Alla punkter för godkänt är uppfyllda
 8. [x] Ni har använt CI<del>/CD</del> under projektet.
