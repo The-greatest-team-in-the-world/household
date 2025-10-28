@@ -165,7 +165,6 @@ export default function SettingsSideSheet({
                     color={theme.colors.onSurfaceVariant}
                     style={{ marginRight: 2 }}
                   />
-
                 </View>
               )}
             />
