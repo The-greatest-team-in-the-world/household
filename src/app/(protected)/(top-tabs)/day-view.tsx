@@ -1,4 +1,5 @@
 import { currentHouseholdAtom } from "@/atoms/household-atom";
+import { currentHouseholdMember } from "@/atoms/member-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
@@ -16,6 +17,8 @@ import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function DayViewScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
+  const member = useAtomValue(currentHouseholdMember);
+  const canCreate = member?.isOwner;
 
   const householdId = currentHousehold?.id;
 
@@ -116,23 +119,29 @@ export default function DayViewScreen() {
             </View>
           )}
       </ScrollView>
-
       <View style={s.buttonContainer}>
-        <CustomPaperButton
-          mode="contained"
-          icon="home-plus"
-          text="Skapa syssla"
-          onPress={() => router.push("/(protected)/create-chore")}
-        />
-      
+        {canCreate && (
+          <CustomPaperButton
+            text="Skapa syssla"
+            icon="plus"
+            mode="contained"
+            onPress={() => {
+              router.push("/(protected)/create-chore");
+            }}
+          />
+        )}
+
         <CustomPaperButton
           icon="account-details-outline"
           text="Mina sysslor"
           onPress={() => console.log("Mina sysslor")}
           mode="contained"
+          style={[
+            s.button,
+            !canCreate && s.fullWidthButton,
+          ]}
         />
-        </View>
-     
+      </View>
     </Surface>
   );
 }
@@ -187,4 +196,11 @@ const s = StyleSheet.create({
     gap: 10,
     paddingBottom: 20,
   },
+    button: {
+    flex: 1,
+  },
+  fullWidthButton: {
+    flex: 1,
+  },
 });
+

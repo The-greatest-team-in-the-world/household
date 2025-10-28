@@ -136,7 +136,7 @@ const s = StyleSheet.create({
   selectorRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 15,
+    paddingVertical: 20,
     paddingHorizontal: 4,
     justifyContent: "space-between",
   },

@@ -313,6 +313,7 @@ const s = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5,
+    marginVertical: 20,
   },
   helpText: {
     fontSize: 12,

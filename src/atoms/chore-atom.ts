@@ -1,9 +1,8 @@
 import { getChores } from "@/api/chores";
 import { Chore } from "@/types/chore";
-import { HouseholdMember } from "@/types/household-member";
+import { currentHouseholdMember } from "@/atoms/member-atom";
 import { atom } from "jotai";
 
-export const currentHouseholdMember = atom<HouseholdMember | null>(null);
 export const selectedChoreAtom = atom<Chore | null>(null);
 export const choresAtom = atom<Chore[]>([]);
 
