@@ -179,7 +179,17 @@ export default function ChoreForm({
                 </View>
               )}
             />
-            <MediaButtons header="Lägg till media" isCreating={isCreating} />
+            {!isCreating && (
+              <MediaButtons header="Lägg till media" isCreating={isCreating} />
+            )}
+            {isCreating && (
+              <View>
+                <Text style={s.editText}>Media</Text>
+                <Text style={s.helpText}>
+                  Ljud och bild kan läggas till efter att du skapat sysslan.
+                </Text>
+              </View>
+            )}
           </View>
         </KeyboardAwareScrollView>
       </View>

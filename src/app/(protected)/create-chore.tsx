@@ -1,12 +1,15 @@
+import { selectedChoreAtom } from "@/atoms/chore-atom";
 import ChoreForm, {
   ChoreFormData,
 } from "@/components/chore-details/chore-form";
 import { useChoreOperations } from "@/hooks/useChoreOperations";
 import { router } from "expo-router";
+import { useSetAtom } from "jotai";
 import { useState } from "react";
 
 export default function CreateChoreScreen() {
   const { createChore, householdId } = useChoreOperations();
+  const setSelectedChore = useSetAtom(selectedChoreAtom);
   const [submitting, setSubmitting] = useState(false);
 
   const defaultValues: ChoreFormData = {
@@ -20,13 +23,19 @@ export default function CreateChoreScreen() {
     if (!householdId || submitting) return;
     setSubmitting(true);
     try {
-      await createChore({
+      const newChore = await createChore({
         name: data.name.trim(),
         description: (data.description ?? "").trim(),
         frequency: data.frequency,
         effort: data.effort,
       });
-      router.back();
+
+      if (newChore) {
+        setSelectedChore(newChore);
+        router.replace("/chore-details");
+      } else {
+        router.back();
+      }
     } catch (e) {
       console.error("createChore failed:", e);
     } finally {
