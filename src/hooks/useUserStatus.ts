@@ -6,8 +6,10 @@ export default function UseUserStatus() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  type UserStatus = "pending" | "active" | "left";
+
   async function updateUserStatus(
-    status: string,
+    status: UserStatus,
     householdId: string,
     userId: string,
   ) {
