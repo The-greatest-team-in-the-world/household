@@ -1,6 +1,7 @@
 import { userAtom } from "@/atoms/auth-atoms";
 import { userThemeAtom } from "@/atoms/theme-atom";
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import React, { useEffect, useRef } from "react";
 import {
@@ -116,22 +117,24 @@ export default function SettingsSideSheet({
           },
         ]}
       >
-        <View>
+        <View
+          style={{
+            backgroundColor: theme.colors.surfaceVariant,
+            borderRadius: 6,
+          }}
+        >
           <View style={styles.topRow}>
             <IconButton icon="close" onPress={onClose} />
           </View>
 
           <View style={styles.header}>
-            <View style={{ marginLeft: 12 }}>
+            <View>
               <Text variant="titleLarge" style={{ fontWeight: "600" }}>
                 {" "}
                 Inställningar
               </Text>
               {displayName && (
-                <Text
-                  variant="bodyMedium"
-                  style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}
-                >
+                <Text variant="bodyMedium" style={{ marginTop: 4, margin: 10 }}>
                   {displayName}
                 </Text>
               )}
@@ -139,12 +142,32 @@ export default function SettingsSideSheet({
           </View>
         </View>
         <Divider />
-        <View style={{ flex: 1, padding: 8 }}>
+        <View style={{ flex: 1, padding: 8, marginVertical: 20 }}>
           <List.Section>
-            <List.Subheader>Utseende</List.Subheader>
             <List.Item
               title="Tema"
-              left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
+              titleStyle={{
+                fontWeight: "600",
+                fontSize: 18,
+                color: theme.colors.onSurface,
+              }}
+              right={(props) => (
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="brightness-6"
+                    size={25}
+                    color={theme.colors.onSurfaceVariant}
+                    style={{ marginRight: 2 }}
+                  />
+
+                </View>
+              )}
             />
             <View style={[styles.themeButton]}>
               <SegmentedButtons
@@ -212,9 +235,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
   actionButton: {
     borderRadius: 10,
@@ -224,7 +248,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     paddingHorizontal: 16,
+    paddingVertical: 20,
     marginTop: 8,
     marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    borderRadius: 24,
   },
 });

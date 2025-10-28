@@ -185,7 +185,7 @@ export default function HouseholdsScreen() {
       <View style={s.headerContainer}>
         <Text style={s.header}>Dina hushåll</Text>
         <IconButton
-          icon="account-circle-outline"
+          icon="human"
           size={40}
           onPress={() => setVisible(true)}
         />
