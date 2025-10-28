@@ -33,13 +33,16 @@ export default function CreateChoreScreen() {
   const onSubmit = async (data: ChoreFormData) => {
     if (!householdId || submitting) return;
     setSubmitting(true);
-    try {
-      await createChore({
+        try {
+      const assignedArray: string[] = data.assignedTo
+        ? [data.assignedTo]
+        : []; 
+     await createChore({
         name: data.name.trim(),
         description: (data.description ?? "").trim(),
         frequency: data.frequency,
         effort: data.effort,
-        assignedTo: (data.assignedTo ?? "").trim(),
+        assignedTo: assignedArray,
       });
       router.back();
     } catch (e) {

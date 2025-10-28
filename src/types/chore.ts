@@ -13,5 +13,5 @@ export type Chore = {
   lastCompletedBy: string | null;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  assignedTo: string | null;
+  assignedTo: string[];
 };

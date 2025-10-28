@@ -11,7 +11,7 @@ import {
 } from "@/utils/chore-helpers";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
@@ -19,17 +19,31 @@ export default function DayViewScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
   const member = useAtomValue(currentHouseholdMember);
   const canCreate = member?.isOwner;
+  const [showMine, setShowMine] = useState(false);
 
   const householdId = currentHousehold?.id;
 
   const { completions, chores, members, isLoading } = useHouseholdData(
     householdId || "",
   );
+  console.log("current member object:", member);
 
-  const todaysCompletions = useMemo(() => {
+    const todaysCompletions = useMemo(() => {
     if (!householdId) return [];
     return getTodaysCompletions(completions) ?? [];
   }, [completions, householdId]);
+
+  const myChores = useMemo(() => {
+    if (!member) return [];
+    const completedTodayIds = new Set(todaysCompletions.map((c) => c.choreId));
+    return chores.filter(
+      (chore) =>
+        Array.isArray(chore.assignedTo) &&
+        chore.assignedTo.includes(member.userId) &&
+        !completedTodayIds.has(chore.id),
+    );
+  }, [chores, member, todaysCompletions]);
+
 
   const completedChoresToday = useMemo(() => {
     const uniqueChoreIds = new Set(
@@ -42,8 +56,22 @@ export default function DayViewScreen() {
     const completedChoreIds = new Set(
       todaysCompletions.map((completion) => completion.choreId),
     );
-    return chores.filter((chore) => !completedChoreIds.has(chore.id));
-  }, [todaysCompletions, chores]);
+
+    return chores.filter((chore) => {
+      if (completedChoreIds.has(chore.id)) return false;
+
+      if (
+        showMine &&
+        member &&
+        Array.isArray(chore.assignedTo) &&
+        chore.assignedTo.includes(member.userId)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [todaysCompletions, chores, showMine, member]);
 
   const renderCompletedChore = (chore: Chore) => {
     const choreCompletionsToday = todaysCompletions.filter(
@@ -100,26 +128,63 @@ export default function DayViewScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.choreContentContainer}>
+        {showMine && (
+          <Surface style={s.mineBox} elevation={2}>
+            <Text style={s.mineTitle}>Mina sysslor</Text>
+
+            {myChores.length === 0 ? (
+              <Text style={s.mineEmpty}>Du har inget tilldelat</Text>
+            ) : (
+              myChores.map((chore) => {
+                const choreCompletions = completions.filter(
+                  (c) => c.choreId === chore.id,
+                );
+                const daysSinceCompletion = getDaysSinceLastCompletion(
+                  chore,
+                  choreCompletions,
+                );
+                const daysOverdue = getDaysOverdue(chore, choreCompletions);
+
+                return (
+                  <ChoreCard
+                    key={chore.id}
+                    choreId={chore.id}
+                    choreName={chore.name}
+                    displayType="days"
+                    displayValue={daysSinceCompletion.toString()}
+                    isOverdue={daysOverdue > 0}
+                    daysOverdue={daysOverdue}
+                  />
+                );
+              })
+            )}
+          </Surface>
+        )}
+
         {incompleteChoresToday.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Behöver göras</Text>
             {incompleteChoresToday.map(renderIncompleteChore)}
           </View>
         )}
+
         {completedChoresToday.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Klart för idag ✓</Text>
             {completedChoresToday.map(renderCompletedChore)}
           </View>
         )}
+
         {todaysCompletions.length === 0 &&
-          incompleteChoresToday.length === 0 && (
+          incompleteChoresToday.length === 0 &&
+          (!showMine || myChores.length === 0) && (
             <View style={s.emptyState}>
               <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
             </View>
           )}
       </ScrollView>
-      <View style={s.buttonContainer}>
+
+      <View style={[canCreate ? s.buttonRowTwo : s.buttonRowSingle]}>
         {canCreate && (
           <CustomPaperButton
             text="Skapa syssla"
@@ -128,15 +193,16 @@ export default function DayViewScreen() {
             onPress={() => {
               router.push("/(protected)/create-chore");
             }}
+            style={s.buttonFlex}
           />
         )}
 
         <CustomPaperButton
           icon="account-details-outline"
-          text="Mina sysslor"
-          onPress={() => console.log("Mina sysslor")}
+          text={showMine ? "Dölj mina sysslor" : "Mina sysslor"}
+          onPress={() => setShowMine(!showMine)}
           mode="contained"
-          style={[s.button, !canCreate && s.fullWidthButton]}
+          style={canCreate ? s.buttonFlex : s.buttonFull}
         />
       </View>
     </Surface>
@@ -165,6 +231,11 @@ const s = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
+  choreContentContainer: {
+    gap: 16,
+    paddingHorizontal: 5,
+    paddingBottom: 20,
+  },
   section: {
     marginBottom: 20,
   },
@@ -174,11 +245,6 @@ const s = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 5,
   },
-  choreContentContainer: {
-    gap: 5,
-    paddingHorizontal: 5,
-    paddingBottom: 20,
-  },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -187,16 +253,40 @@ const s = StyleSheet.create({
   emptyStateText: {
     fontSize: 18,
   },
-  buttonContainer: {
+
+  mineBox: {
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+
+    gap: 8,
+  },
+  mineTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    opacity: 0.8,
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  mineEmpty: {
+    fontSize: 14,
+    fontStyle: "italic",
+  },
+
+  // knapplayout
+  buttonRowTwo: {
     flexDirection: "row",
-    justifyContent: "center",
     gap: 10,
     paddingBottom: 20,
   },
-  button: {
+  buttonRowSingle: {
+    paddingBottom: 20,
+  },
+  buttonFlex: {
     flex: 1,
   },
-  fullWidthButton: {
-    flex: 1,
+  buttonFull: {
+    width: "100%",
   },
 });

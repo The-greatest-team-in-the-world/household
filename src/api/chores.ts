@@ -39,7 +39,9 @@ export async function getChores(householdId: string): Promise<Chore[]> {
         lastCompletedBy: data.lastCompletedBy,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
-        assignedTo: data.assignedTo,
+        assignedTo: Array.isArray(data.assignedTo)
+          ? data.assignedTo
+          : [],
       } as Chore;
     })
     .filter((chore) => !chore.isArchived);
@@ -110,8 +112,17 @@ export async function apiCreateChore(
 ): Promise<Chore> {
   const ref = collection(db, "households", householdId, "chores");
 
+    let assignedToArray: string[] = [];
+
+      if (Array.isArray(data.assignedTo)) {
+    assignedToArray = data.assignedTo;
+  } else if (typeof data.assignedTo === "string") {
+    assignedToArray = [data.assignedTo];
+  }
+
   const payload = {
     ...data,
+    assignedTo: assignedToArray,
     isArchived: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -132,7 +143,7 @@ export async function apiCreateChore(
     lastCompletedBy: null,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    assignedTo: null,
+    assignedTo: assignedToArray,
   };
 
   return newChore;

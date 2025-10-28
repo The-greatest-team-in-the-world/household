@@ -30,9 +30,10 @@ export default function ChoreDetailsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-  const assignedMember = members.find(
-    (m) => m.userId === selectedChore?.assignedTo,
-  );
+  const assignedMember = members.find((m) =>
+  Array.isArray(selectedChore?.assignedTo) &&
+  selectedChore.assignedTo.includes(m.userId)
+);
 
   // Bounce hint när vi mountar
   useEffect(() => {
@@ -68,7 +69,13 @@ export default function ChoreDetailsScreen() {
 
     setIsSubmitting(true);
     try {
-      await updateChoreData(data);
+      const assignedArray: string[] = data.assignedTo
+      ? [data.assignedTo]
+      : [];
+          await updateChoreData({
+      ...data,
+      assignedTo: assignedArray,
+    });
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating chore:", error);
@@ -87,7 +94,11 @@ export default function ChoreDetailsScreen() {
             description: selectedChore.description ?? "",
             frequency: selectedChore.frequency ?? 0,
             effort: selectedChore.effort ?? 1,
-            assignedTo: selectedChore.assignedTo ?? null,
+            assignedTo:
+              Array.isArray(selectedChore.assignedTo) &&
+              selectedChore.assignedTo.length > 0
+                ? selectedChore.assignedTo[0]
+                : null,
           }}
           isSubmitting={isSubmitting}
           onSubmit={onSubmit}
