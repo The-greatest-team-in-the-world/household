@@ -82,15 +82,18 @@ export function AudioPlayerComponent({
           icon={status.playing ? "pause" : "play"}
           disabled={isLoading}
           loading={isLoading}
+          style={{ minWidth: 120 }}
         >
           {status.playing ? "Pausa" : "Spela"}
         </Button>
-
-        {status.playing && (
-          <Button mode="outlined" onPress={handleStop} icon="stop">
-            Stoppa
-          </Button>
-        )}
+        <Button
+          mode="outlined"
+          onPress={handleStop}
+          icon="stop"
+          style={{ minWidth: 120 }}
+        >
+          Stoppa
+        </Button>
       </View>
     </View>
   );
@@ -119,7 +122,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     flexDirection: "row",
-    alignContent: "center",
+    justifyContent: "center",
     gap: 8,
   },
   error: {
