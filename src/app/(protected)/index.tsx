@@ -184,11 +184,7 @@ export default function HouseholdsScreen() {
     <View style={s.Container}>
       <View style={s.headerContainer}>
         <Text style={s.header}>Dina hushåll</Text>
-        <IconButton
-          icon="human"
-          size={40}
-          onPress={() => setVisible(true)}
-        />
+        <IconButton icon="human" size={40} onPress={() => setVisible(true)} />
       </View>
 
       <ScrollView style={s.householdContainer}>
