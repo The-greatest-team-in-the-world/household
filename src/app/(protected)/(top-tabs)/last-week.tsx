@@ -3,12 +3,16 @@ import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { membersAtom } from "@/atoms/member-atom";
 import PieChart from "@/components/pie-chart";
 import { ChoreCompletion } from "@/types/chore-completion";
-import { getChoresFromLastWeek } from "@/utils/get-statistics-from-range";
+import {
+  getChoresFromLastWeek,
+  getLastWeekEnd,
+  getLastWeekStart,
+} from "@/utils/get-statistics-from-range";
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 import { ScrollView, StyleSheet, View } from "react-native";
 
-export default function CurrentWeekStatisticsScreen() {
+export default function LastWeekStatisticsScreen() {
   const completions = getChoresFromLastWeek(useAtomValue(choreCompletionsAtom));
   const members = useAtomValue(membersAtom);
   const chores = useAtomValue(choresAtom);
@@ -40,6 +44,8 @@ export default function CurrentWeekStatisticsScreen() {
           size={250}
           iconSize={24}
           titleSize={18}
+          startDate={getLastWeekStart()}
+          endDate={getLastWeekEnd()}
         />
       </View>
       <View style={s.chartContainerIndividual}>
@@ -55,6 +61,8 @@ export default function CurrentWeekStatisticsScreen() {
                 members={members}
                 size={pieChartSize}
                 titleSize={12}
+                startDate={getLastWeekStart()}
+                endDate={getLastWeekEnd()}
               />
             </View>
           );

@@ -36,7 +36,7 @@ export function getChoresFromLastXDays(
   return chores.filter((c) => c.completedAt.toDate() >= startDate);
 }
 
-function getThisWeekStart() {
+export function getThisWeekStart() {
   const today = new Date();
   let currentWeekDay = today.getDay() === 0 ? 7 : today.getDay();
 
@@ -48,7 +48,7 @@ function getThisWeekStart() {
   return thisWeek;
 }
 
-function getLastWeekStart() {
+export function getLastWeekStart() {
   const today = new Date();
   let currentWeekDay = today.getDay() === 0 ? 7 : today.getDay();
 
@@ -60,7 +60,17 @@ function getLastWeekStart() {
   return lastWeek;
 }
 
-function getThisMonthStart() {
+export function getLastWeekEnd() {
+  const lastWeekStart = getLastWeekStart();
+  const lastWeekEnd = new Date(lastWeekStart);
+
+  lastWeekEnd.setDate(lastWeekStart.getDate() + 7);
+  lastWeekEnd.setHours(23, 59, 59, 999);
+
+  return lastWeekEnd;
+}
+
+export function getThisMonthStart() {
   const today = new Date();
   const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   thisMonth.setHours(0, 0, 0, 0);
@@ -68,10 +78,20 @@ function getThisMonthStart() {
   return thisMonth;
 }
 
-function getLastMonthStart() {
+export function getLastMonthStart() {
   const today = new Date();
   const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   lastMonth.setHours(0, 0, 0, 0);
 
   return lastMonth;
+}
+
+export function getLastMonthEnd() {
+  const thisMonthStart = getThisMonthStart();
+  const lastMonthEnd = new Date(thisMonthStart);
+
+  lastMonthEnd.setDate(thisMonthStart.getDate() - 1);
+  lastMonthEnd.setHours(23, 59, 59, 999);
+
+  return lastMonthEnd;
 }
