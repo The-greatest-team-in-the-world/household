@@ -78,7 +78,7 @@ export async function addNewMemberToHousehold(
       success: true,
     };
   } catch (error) {
-    console.error("addNewMemberToHousehold  misslyckades", error);
+    console.error("addNewMemberToHousehold misslyckades", error);
     return {
       success: false,
       error: "Ett oväntat fel uppstod försök igen senare",
