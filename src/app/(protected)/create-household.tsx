@@ -1,10 +1,18 @@
-import { createNewHousehold, deleteHousehold } from "@/api/households";
+import {
+  createNewHousehold,
+  deleteHousehold,
+  getHouseholdById,
+} from "@/api/households";
 import { addNewMemberToHousehold } from "@/api/members";
+import { userAtom } from "@/atoms/auth-atoms";
+import { currentHouseholdAtom } from "@/atoms/household-atom";
+import { getMemberByUserIdAtom } from "@/atoms/member-atom";
 import { AvatarPressablePicker } from "@/components/avatar-pressable-picker";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { avatarColors, avatarEmojis } from "@/data/avatar-index";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
@@ -26,8 +34,11 @@ const newHouseHold = z.object({
 
 type FormFields = z.infer<typeof newHouseHold>;
 
-export default function CreateHousholdScreen() {
+export default function CreateHouseholdScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
+  const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
+  const user = useAtomValue(userAtom);
   const {
     control,
     handleSubmit,
@@ -65,8 +76,22 @@ export default function CreateHousholdScreen() {
         throw new Error(result.error || "Kunde inte lägga till medlem");
       }
 
+      const household = await getHouseholdById(householdId);
+
+      if (!household) {
+        throw new Error("Kunde inte hitta det skapade hushållet");
+      }
+
+      if (user) {
+        await getMemberByUserId({
+          householdId: household.id,
+          userId: user.uid,
+        });
+      }
+
       setErrorMessage(null);
-      router.replace("/(protected)");
+      setCurrentHousehold({ ...household, isOwner: true });
+      router.dismissTo("/(protected)/(top-tabs)/day-view");
     } catch (error) {
       console.error("Error creating household:", error);
 
@@ -162,20 +187,20 @@ export default function CreateHousholdScreen() {
             {errors.avatar.message}
           </Text>
         )}
+        {errorMessage && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errorMessage}
+          </Text>
+        )}
         <View style={s.buttonContainer}>
           <CustomPaperButton
-            text="Skapa hushåll"
+            text={isSubmitting ? "Skapar hushåll..." : "Skapa hushåll"}
             mode="contained"
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />
         </View>
       </View>
-      {errorMessage && (
-        <Text style={[s.errorText, { color: theme.colors.error }]}>
-          {errorMessage}
-        </Text>
-      )}
     </KeyboardAwareScrollView>
   );
 }
@@ -219,7 +244,6 @@ const s = StyleSheet.create({
     fontSize: 15,
     fontWeight: 600,
     paddingBottom: 5,
-    fontStyle: "italic",
   },
   buttonContainer: {
     flex: 1,
