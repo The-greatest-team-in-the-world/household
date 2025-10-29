@@ -20,6 +20,7 @@ const CombinedDarkTheme = merge(MD3DarkTheme, DarkTheme);
 export const AppDefaultTheme = merge(CombinedDefaultTheme, {
   colors: {
     primary: "rgb(16, 109, 32)",
+    pausedText: "rgb(120, 124, 118)",
     onPrimary: "rgb(255, 255, 255)",
     primaryContainer: "rgb(157, 248, 152)",
     onPrimaryContainer: "rgb(0, 34, 4)",
@@ -65,6 +66,7 @@ export const AppDefaultTheme = merge(CombinedDefaultTheme, {
 export const AppDarkTheme = merge(CombinedDarkTheme, {
   colors: {
     primary: "rgba(105, 174, 101, 1)",
+    pausedText: "rgb(120, 124, 118)",
     onPrimary: "rgb(0, 57, 10)",
     primaryContainer: "rgb(0, 83, 18)",
     onPrimaryContainer: "rgb(157, 248, 152)",
