@@ -45,7 +45,6 @@ export default function ReactivateUser({ household, householdMembers }: Props) {
           <View
             style={[
               s.emojiContainer,
-              ,
               { backgroundColor: retiredUser.avatar.color },
             ]}
           >
