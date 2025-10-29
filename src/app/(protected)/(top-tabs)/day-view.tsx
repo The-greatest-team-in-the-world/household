@@ -11,6 +11,7 @@ import {
 } from "@/utils/chore-helpers";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
+import LottieView from "lottie-react-native";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
@@ -157,7 +158,17 @@ export default function DayViewScreen() {
 
         {allChoresToShow.length === 0 && myChores.length === 0 && (
           <View style={s.emptyState}>
-            <Text style={s.emptyStateText}>🎉 Allt är klart!</Text>
+            <Text style={[s.noChoresText, s.largeText]}>
+              Du har inga sysslor ännu.
+            </Text>
+            <Text style={s.noChoresText}>
+              Du kan skapa sysslor genom att trycka på knappen skapa syssla.
+            </Text>
+            <LottieView
+              source={require("../../../assets/animations/Tumbleweed.json")}
+              autoPlay
+              style={s.lottieAni}
+            />
           </View>
         )}
       </ScrollView>
@@ -200,6 +211,11 @@ const s = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
+  lottieAni: {
+    width: 300,
+    height: 300,
+    alignSelf: "center",
+  },
   choreContentContainer: {
     paddingHorizontal: 10,
   },
@@ -214,8 +230,7 @@ const s = StyleSheet.create({
   },
   emptyState: {
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 40,
+    paddingVertical: 120,
   },
   emptyStateText: {
     fontSize: 18,
@@ -225,5 +240,25 @@ const s = StyleSheet.create({
     fontStyle: "italic",
     marginLeft: 5,
     marginTop: 4,
+  },
+  buttonRowTwo: {
+    flexDirection: "row",
+    gap: 10,
+    paddingBottom: 20,
+  },
+  buttonRowSingle: {
+    paddingBottom: 20,
+  },
+  buttonFlex: {
+    flex: 1,
+  },
+  buttonFull: {
+    width: "100%",
+  },
+  noChoresText: {
+    textAlign: "center",
+  },
+  largeText: {
+    fontSize: 20,
   },
 });
