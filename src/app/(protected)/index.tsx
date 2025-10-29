@@ -196,8 +196,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -264,7 +264,7 @@ export default function HouseholdsScreen() {
 const s = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: 20,
+    padding: 25,
   },
   headerContainer: {
     alignItems: "center",
@@ -275,7 +275,7 @@ const s = StyleSheet.create({
   householdSurface: {
     width: "100%",
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: 20,
     borderRadius: 8,
   },
   householdContent: {
