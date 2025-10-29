@@ -200,8 +200,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
@@ -281,7 +281,6 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 20,
     borderRadius: 8,
-    backgroundColor: "#f00",
   },
   householdContent: {
     flexDirection: "row",
