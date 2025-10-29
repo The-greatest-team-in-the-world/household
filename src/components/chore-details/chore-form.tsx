@@ -94,7 +94,13 @@ export default function ChoreForm({
             <Controller
               control={control}
               name="name"
-              rules={{ required: "Namn är obligatoriskt" }}
+              rules={{
+                required: "Namn är obligatoriskt",
+                maxLength: {
+                  value: 30,
+                  message: "Namnet får inte vara längre än 30 tecken",
+                },
+              }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
                   <TextInput
@@ -104,6 +110,7 @@ export default function ChoreForm({
                     onBlur={onBlur}
                     mode="outlined"
                     error={!!errors.name}
+                    maxLength={30}
                   />
                   {errors.name && (
                     <Text style={s.errorText}>{errors.name.message}</Text>
