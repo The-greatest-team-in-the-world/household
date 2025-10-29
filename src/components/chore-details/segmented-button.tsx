@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { SegmentedButtons } from "react-native-paper";
+import { SegmentedButtons, useTheme } from "react-native-paper";
 
 type SegmentOption = {
   value: string;
@@ -26,6 +26,8 @@ export default function SegmentedButtonsComponent({
   onValueChange,
   options = DEFAULT_OPTIONS,
 }: SegmentedButtonsComponentProps) {
+  const theme = useTheme();
+
   return (
     <SegmentedButtons
       value={value}
@@ -35,8 +37,18 @@ export default function SegmentedButtonsComponent({
       buttons={options.map(({ value: optionValue, label }) => ({
         value: optionValue,
         label,
-        style: styles.button,
-        labelStyle: styles.label,
+        style: [
+          { flex: 1, minWidth: 0 },
+          value === optionValue
+            ? {
+                backgroundColor: (theme.colors as any).primary,
+              }
+            : undefined,
+        ],
+        labelStyle:
+          value === optionValue
+            ? { color: (theme.colors as any).onPrimary }
+            : { color: theme.colors.onSurface },
       }))}
     />
   );
@@ -45,12 +57,5 @@ export default function SegmentedButtonsComponent({
 const styles = StyleSheet.create({
   segmentedButtons: {
     width: "100%",
-  },
-  button: {
-    flex: 1,
-    minWidth: 0,
-  },
-  label: {
-    fontSize: 12,
   },
 });

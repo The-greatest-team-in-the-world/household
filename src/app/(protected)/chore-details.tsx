@@ -140,7 +140,7 @@ export default function ChoreDetailsScreen() {
 
   // ---- visningsläge (oförändrat) ----
   return (
-    <Surface style={s.container} elevation={4}>
+    <Surface style={s.container}>
       <View style={s.contentContainer}>
         <View style={s.choreNameContainer}>
           <Text style={s.choreName}>{selectedChore?.name}</Text>
@@ -151,7 +151,11 @@ export default function ChoreDetailsScreen() {
           )}
         </View>
         <Divider />
-        <ScrollView ref={scrollViewRef} fadingEdgeLength={20}>
+        <ScrollView
+          ref={scrollViewRef}
+          fadingEdgeLength={20}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+        >
           <View style={s.secondContainer}>
             <View>
               <Text style={s.titleText}>Beskrivning</Text>
@@ -203,7 +207,8 @@ export default function ChoreDetailsScreen() {
             <View style={s.mediaButtonsContainer}>
               <MediaButtons header="Media" />
             </View>
-            <View style={{ marginTop: 16 }}>
+            <Divider />
+            <View>
               <Text style={s.editText}>Tilldelad till</Text>
 
               {assignedMember ? (
@@ -232,14 +237,14 @@ export default function ChoreDetailsScreen() {
         </ScrollView>
       </View>
 
-      <Text style={s.text}>Klarmarkera syssla</Text>
+      <Text style={s.editText}>Klarmarkera syssla</Text>
       <Divider />
       <View style={s.doneButtonsContainer}>
         <CustomPaperButton
           onPress={() => handlePressRemoveCompletion()}
           text="Ångra"
           icon="undo"
-          mode="outlined"
+          mode="text"
           style={{ flex: 1 }}
         />
         <CustomPaperButton
@@ -328,7 +333,6 @@ const s = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5,
-    marginVertical: 20,
   },
   helpText: {
     fontSize: 12,

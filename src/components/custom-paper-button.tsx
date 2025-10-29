@@ -44,15 +44,24 @@ export const CustomPaperButton = ({
   const currentText = isToggle && isToggled ? toggledText || text : text;
   const currentMode = isToggle && isToggled ? toggledMode || mode : mode;
 
-  // Use theme colors if no color is provided
-  const buttonColor = color || theme.colors.primary;
-
   return (
     <Button
       mode={currentMode}
       icon={currentIcon}
-      buttonColor={currentMode === "contained" ? buttonColor : undefined}
-      textColor={currentMode === "outlined" ? theme.colors.primary : undefined}
+      buttonColor={
+        currentMode === "contained"
+          ? color || theme.colors.primary
+          : currentMode === "contained-tonal"
+            ? color || (theme.colors as any).secondaryToned
+            : undefined
+      }
+      textColor={
+        currentMode === "outlined"
+          ? theme.colors.primary
+          : currentMode === "contained-tonal"
+            ? (theme.colors as any).onTertiary || undefined
+            : undefined
+      }
       onPress={onPress}
       disabled={disabled}
       style={[{ borderRadius: 8, minWidth: 100 }, style]}

@@ -133,7 +133,7 @@ export default function ImageModal({
             )}
 
             <CustomPaperButton
-              mode="outlined"
+              mode={previewImageUrl ? "text" : "outlined"}
               text={previewImageUrl ? "Avbryt" : "Stäng"}
               icon="close"
               onPress={handleDismiss}

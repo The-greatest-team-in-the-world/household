@@ -111,7 +111,7 @@ export default function ImageButtons({ onImageSelected }: Props) {
 
       <View style={styles.buttonContainer}>
         <CustomPaperButton
-          mode="contained"
+          mode="text"
           text="Lägg till bild"
           icon="image"
           onPress={() => pickImage()}
@@ -119,7 +119,7 @@ export default function ImageButtons({ onImageSelected }: Props) {
           disabled={!mediaLibraryPermissionGranted}
         />
         <CustomPaperButton
-          mode="contained"
+          mode="text"
           text="Ta ny bild"
           icon="camera"
           onPress={() => takePhoto()}

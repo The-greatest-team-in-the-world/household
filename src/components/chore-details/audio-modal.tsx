@@ -116,7 +116,7 @@ export default function AudioModal({
           {/* Stäng-knapp */}
           {!isRecording && (
             <CustomPaperButton
-              mode="outlined"
+              mode="text"
               text="Stäng"
               onPress={onDismiss}
               style={styles.closeButton}

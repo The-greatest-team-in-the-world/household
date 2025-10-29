@@ -58,6 +58,7 @@ export default function ChoreForm({
   }, [defaultValues, reset]);
 
   const frequencyScrollRef = useRef<ScrollView>(null);
+  const mainScrollRef = useRef<KeyboardAwareScrollView>(null);
 
   // Scrolla till valt frequency värde vid mount
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function ChoreForm({
   }, [defaultValues.frequency]);
 
   return (
-    <Surface style={s.container} elevation={4}>
+    <Surface style={s.container}>
       <View style={s.contentContainer}>
         <View style={s.choreNameContainer}>
           <Text style={s.choreName}>{title}</Text>
@@ -88,12 +89,18 @@ export default function ChoreForm({
           )}
         </View>
 
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView ref={mainScrollRef}>
           <View style={s.formContainer}>
             <Controller
               control={control}
               name="name"
-              rules={{ required: "Namn är obligatoriskt" }}
+              rules={{
+                required: "Namn är obligatoriskt",
+                maxLength: {
+                  value: 30,
+                  message: "Namnet får inte vara längre än 30 tecken",
+                },
+              }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
                   <TextInput
@@ -103,6 +110,7 @@ export default function ChoreForm({
                     onBlur={onBlur}
                     mode="outlined"
                     error={!!errors.name}
+                    maxLength={30}
                   />
                   {errors.name && (
                     <Text style={s.errorText}>{errors.name.message}</Text>
@@ -184,6 +192,9 @@ export default function ChoreForm({
                 </View>
               )}
             />
+            {!isCreating && (
+              <MediaButtons header="Lägg till media" isCreating={isCreating} />
+            )}
             {members && members.length > 0 && (
               <Controller
                 control={control}
@@ -194,12 +205,14 @@ export default function ChoreForm({
                     value={value || null}
                     onValueChange={onChange}
                     error={errors.assignedTo?.message}
+                    onOpen={() => {
+                      setTimeout(() => {
+                        mainScrollRef.current?.scrollToEnd(true);
+                      }, 100);
+                    }}
                   />
                 )}
               />
-            )}
-            {!isCreating && (
-              <MediaButtons header="Lägg till media" isCreating={isCreating} />
             )}
             {isCreating && (
               <View>
@@ -218,7 +231,7 @@ export default function ChoreForm({
           text="Avbryt"
           icon="close"
           disabled={isSubmitting}
-          mode="outlined"
+          mode="text"
           style={{ flex: 1 }}
         />
         <CustomPaperButton
