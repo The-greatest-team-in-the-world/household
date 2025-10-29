@@ -1,4 +1,3 @@
-import { toggleMemberPause } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
@@ -10,7 +9,7 @@ import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
@@ -20,24 +19,22 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
-  const [pauseDialog, setPauseDialog] = useState({
-    open: false,
-    userId: "",
-    nickName: "",
-    isPaused: false,
-  });
 
   const {
     handleApprove,
     handleReject,
     handleMakeOwner,
     handleRemoveOwnership,
+    handlePauseClick,
     makeOwnerDialog,
     setMakeOwnerDialog,
     confirmMakeOwner,
     removeOwnerDialog,
     setRemoveOwnerDialog,
     confirmRemoveOwnership,
+    pauseDialog,
+    setPauseDialog,
+    confirmTogglePause,
     errorDialog,
     setErrorDialog,
     handleLeaveHousehold,
@@ -88,42 +85,6 @@ export default function HouseHoldDetailsScreen() {
 
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
-
-  const handlePauseClick = (userId: string) => {
-    const member = members.find((m) => m.userId === userId);
-    if (!member) return;
-
-    setPauseDialog({
-      open: true,
-      userId: member.userId,
-      nickName: member.nickName,
-      isPaused: member.isPaused,
-    });
-  };
-
-  const confirmTogglePause = async () => {
-    if (!currentHousehold?.id || !pauseDialog.userId) return;
-
-    try {
-      const result = await toggleMemberPause(
-        currentHousehold.id,
-        pauseDialog.userId,
-      );
-      if (!result.success) {
-        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
-      }
-    } catch (error) {
-      console.error("Error toggling pause:", error);
-      Alert.alert("Fel", "Ett oväntat fel uppstod");
-    } finally {
-      setPauseDialog({
-        open: false,
-        userId: "",
-        nickName: "",
-        isPaused: false,
-      });
-    }
-  };
 
   return (
     <Surface style={styles.container} elevation={0}>

@@ -132,6 +132,34 @@ export function useMemberManagement(
     }
   };
 
+  const handlePauseClick = (userId: string) => {
+    const member = members.find((m) => m.userId === userId);
+    if (!member) return;
+
+    setPauseDialog({
+      open: true,
+      userId: member.userId,
+      nickName: member.nickName,
+      isPaused: member.isPaused,
+    });
+  };
+
+  const confirmTogglePause = async () => {
+    if (!householdId || !pauseDialog.userId) return;
+
+    setPauseDialog({ open: false, userId: "", nickName: "", isPaused: false });
+
+    const { toggleMemberPause } = await import("@/api/members");
+    const result = await toggleMemberPause(householdId, pauseDialog.userId);
+
+    if (!result.success) {
+      setErrorDialog({
+        open: true,
+        message: result.error || "Ett fel uppstod vid pausning av medlem",
+      });
+    }
+  };
+
   const handleLeaveHousehold = () => {
     const auth = getAuth();
     const currentUserId = auth.currentUser?.uid;
@@ -220,12 +248,16 @@ export function useMemberManagement(
     handleReject,
     handleMakeOwner,
     handleRemoveOwnership,
+    handlePauseClick,
     makeOwnerDialog,
     setMakeOwnerDialog,
     confirmMakeOwner,
     removeOwnerDialog,
     setRemoveOwnerDialog,
     confirmRemoveOwnership,
+    pauseDialog,
+    setPauseDialog,
+    confirmTogglePause,
     errorDialog,
     setErrorDialog,
     handleLeaveHousehold,
