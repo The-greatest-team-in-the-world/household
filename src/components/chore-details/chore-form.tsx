@@ -58,6 +58,7 @@ export default function ChoreForm({
   }, [defaultValues, reset]);
 
   const frequencyScrollRef = useRef<ScrollView>(null);
+  const mainScrollRef = useRef<KeyboardAwareScrollView>(null);
 
   // Scrolla till valt frequency värde vid mount
   useEffect(() => {
@@ -88,7 +89,7 @@ export default function ChoreForm({
           )}
         </View>
 
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView ref={mainScrollRef}>
           <View style={s.formContainer}>
             <Controller
               control={control}
@@ -184,6 +185,9 @@ export default function ChoreForm({
                 </View>
               )}
             />
+            {!isCreating && (
+              <MediaButtons header="Lägg till media" isCreating={isCreating} />
+            )}
             {members && members.length > 0 && (
               <Controller
                 control={control}
@@ -194,12 +198,14 @@ export default function ChoreForm({
                     value={value || null}
                     onValueChange={onChange}
                     error={errors.assignedTo?.message}
+                    onOpen={() => {
+                      setTimeout(() => {
+                        mainScrollRef.current?.scrollToEnd(true);
+                      }, 100);
+                    }}
                   />
                 )}
               />
-            )}
-            {!isCreating && (
-              <MediaButtons header="Lägg till media" isCreating={isCreating} />
             )}
             {isCreating && (
               <View>

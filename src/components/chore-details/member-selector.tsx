@@ -9,6 +9,7 @@ type Props = {
   value: string | null; // userId eller null
   onValueChange: (value: string | null) => void;
   error?: string;
+  onOpen?: () => void;
 };
 
 export default function MemberSelector({
@@ -16,11 +17,18 @@ export default function MemberSelector({
   value,
   onValueChange,
   error,
+  onOpen,
 }: Props) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
 
-  const toggle = () => setOpen((prev) => !prev);
+  const toggle = () => {
+    const willOpen = !open;
+    setOpen(willOpen);
+    if (willOpen && onOpen) {
+      onOpen();
+    }
+  };
   const close = () => setOpen(false);
 
   const selectedMember = members.find((m) => m.userId === value);

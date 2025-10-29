@@ -203,7 +203,8 @@ export default function ChoreDetailsScreen() {
             <View style={s.mediaButtonsContainer}>
               <MediaButtons header="Media" />
             </View>
-            <View style={{ marginTop: 16 }}>
+            <Divider />
+            <View>
               <Text style={s.editText}>Tilldelad till</Text>
 
               {assignedMember ? (
@@ -328,7 +329,6 @@ const s = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5,
-    marginVertical: 20,
   },
   helpText: {
     fontSize: 12,
