@@ -3,13 +3,7 @@ import { HouseholdMember } from "@/types/household-member";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import {
-  Divider,
-  IconButton,
-  Surface,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { IconButton, Surface, Text, useTheme } from "react-native-paper";
 import { HouseholdInfoHeader } from "./household-info-header";
 
 interface MemberListProps {
@@ -33,6 +27,10 @@ export function MemberList({
   const activeMembers = members.filter((m) => m.status === "active");
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<HouseholdMember | null>(
+    null,
+  );
 
   const handleTogglePause = async (member: HouseholdMember) => {
     setLoading(true);
@@ -58,24 +56,23 @@ export function MemberList({
         householdCode={householdCode}
       />
 
-      <Surface style={styles.card} elevation={1}>
-        <Divider style={styles.divider} />
-
+      <View style={styles.container}>
         <Text variant="titleMedium" style={styles.sectionTitle}>
           Medlemmar:
         </Text>
+
         {activeMembers.map((member) => (
-          <View
+          <Surface
             key={member.userId}
             style={[
-              styles.memberRow,
+              styles.card,
               member.userId === currentUserId && {
                 borderWidth: 2,
                 borderColor: theme.colors.primary,
-                borderRadius: 8,
-                paddingHorizontal: 8,
               },
+              member.isPaused && styles.pausedCard,
             ]}
+            elevation={1}
           >
             <View
               style={[
@@ -115,30 +112,27 @@ export function MemberList({
                 disabled={loading}
               />
             )}
-          </View>
+          </Surface>
         ))}
-      </Surface>
+      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    margin: 16,
+  container: {
     padding: 16,
-    borderRadius: 12,
   },
-  divider: {
-    marginVertical: 16,
+  card: {
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
   },
   sectionTitle: {
     marginBottom: 12,
     fontWeight: "bold",
-  },
-  memberRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
   },
   avatarCircle: {
     width: 48,
@@ -171,5 +165,8 @@ const styles = StyleSheet.create({
   },
   paused: {
     opacity: 0.5,
+  },
+  pausedCard: {
+    opacity: 0.9,
   },
 });

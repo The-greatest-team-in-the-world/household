@@ -6,7 +6,6 @@ import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { HouseholdInfoHeader } from "@/components/household-info-header";
-import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -143,14 +142,28 @@ export default function HouseHoldDetailsScreen() {
             </View>
           </View>
         ) : (
-          <MemberList
-            members={members}
-            householdName={currentHousehold.name}
-            householdCode={currentHousehold.code}
-            householdId={currentHousehold.id}
-            currentUserId={user?.uid}
-            isOwner={currentHousehold.isOwner}
-          />
+          <View style={styles.memberContainer}>
+            <HouseholdInfoHeader
+              householdName={currentHousehold.name}
+              householdCode={currentHousehold.code}
+            />
+
+            <View style={styles.section}>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Medlemmar:
+              </Text>
+              {activeMembers.map((member) => (
+                <ActiveMemberCard
+                  key={member.userId}
+                  member={member}
+                  onTogglePause={
+                    currentHousehold.isOwner ? handleTogglePause : undefined
+                  }
+                  currentUserId={user?.uid}
+                />
+              ))}
+            </View>
+          </View>
         )}
       </ScrollView>
 
@@ -229,6 +242,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   adminContainer: {
+    padding: 16,
+  },
+  memberContainer: {
     padding: 16,
   },
   heading: {
