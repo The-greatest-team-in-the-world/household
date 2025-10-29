@@ -36,7 +36,7 @@ export default function LastMonthStatisticsScreen() {
   const groupedChoresList = Object.values(groupedChores);
 
   return (
-    <ScrollView>
+    <ScrollView fadingEdgeLength={20}>
       <View style={s.chartContainerTotal}>
         <PieChart
           total
@@ -88,6 +88,7 @@ const s = StyleSheet.create({
     alignItems: "flex-start",
     paddingHorizontal: "auto",
     gap: 15,
+    paddingBottom: 15,
   },
   pieChart: {
     alignItems: "center",
