@@ -281,7 +281,6 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 20,
     borderRadius: 8,
-    backgroundColor: "#f00",
   },
   householdContent: {
     flexDirection: "row",
