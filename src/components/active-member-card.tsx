@@ -56,7 +56,7 @@ export function ActiveMemberCard({
             variant="bodySmall"
             style={[
               styles.pausedText,
-              { color: theme.colors.onSurfaceVariant },
+              { color: (theme.colors as any).pausedText },
             ]}
           >
             Pausad
@@ -147,5 +147,6 @@ const styles = StyleSheet.create({
   },
   pausedText: {
     fontStyle: "italic",
+    opacity: 0.8,
   },
 });

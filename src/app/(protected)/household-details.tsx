@@ -116,7 +116,7 @@ export default function HouseHoldDetailsScreen() {
             {/* Active members section */}
             <View style={styles.section}>
               <Text variant="titleLarge" style={styles.sectionTitle}>
-                Aktiva medlemmar ({activeMembers.length})
+                Medlemmar ({activeMembers.length})
               </Text>
               {activeMembers.map((member) => (
                 <ActiveMemberCard
@@ -159,7 +159,7 @@ export default function HouseHoldDetailsScreen() {
       {/* Leave Household Button */}
       <View style={styles.buttonContainer}>
         <CustomPaperButton
-          mode="outlined"
+          mode="text"
           icon="exit-to-app"
           text="Lämna hushåll"
           onPress={handleLeaveHousehold}
