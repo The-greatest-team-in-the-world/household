@@ -9,7 +9,8 @@ import {
 } from "@/utils/get-statistics-from-range";
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import LottieView from "lottie-react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
 export default function CurrentWeekStatisticsScreen() {
@@ -38,16 +39,17 @@ export default function CurrentWeekStatisticsScreen() {
   if (completions.length === 0) {
     return (
       <View style={s.noChoresContainer}>
-        <Image
-          source={require("@/assets/images/not-found.png")}
-          style={s.image}
-        />
         <Text style={[s.noChoresText, s.largeText]}>
-          Inga sysslor är registrerade för den här veckan ännu.
+          Inga sysslor är registrerade för den här veckan.
         </Text>
         <Text style={s.noChoresText}>
           Börja med att lägga till eller markera en syssla som klar!
         </Text>
+        <LottieView
+          source={require("../../../assets/animations/Tumbleweed.json")}
+          autoPlay
+          style={s.lottieAni}
+        />
       </View>
     );
   }
@@ -99,13 +101,7 @@ const s = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 50,
-    gap: 30,
-  },
-  image: {
-    maxWidth: "70%",
-    maxHeight: 300,
-    objectFit: "scale-down",
+    padding: 20,
   },
   noChoresText: {
     textAlign: "center",
@@ -127,5 +123,10 @@ const s = StyleSheet.create({
   pieChart: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  lottieAni: {
+    width: 300,
+    height: 300,
+    alignSelf: "center",
   },
 });
