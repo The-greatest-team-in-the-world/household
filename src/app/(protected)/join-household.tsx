@@ -120,7 +120,12 @@ export default function JoinHouseholdScreen() {
                 <Text style={s.surfaceTitle}>
                   Anslut till ett nytt hushåll 🏡
                 </Text>
-                <Text style={s.surfaceText}>
+                <Text
+                  style={[
+                    s.surfaceText,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
                   För att ansluta behöver du en 6-siffrig kod! Koden får du från
                   en medlem i det hushåll du vill ansluta till.
                 </Text>

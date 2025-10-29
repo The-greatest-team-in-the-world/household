@@ -119,7 +119,9 @@ export default function CreateHouseholdScreen() {
       <View style={s.container}>
         <Surface style={s.surface}>
           <Text style={s.surfaceTitle}>Vad funkar bäst? Teamwork! 🏡</Text>
-          <Text style={s.surfaceSubText}>
+          <Text
+            style={[s.surfaceSubText, { color: theme.colors.onSurfaceVariant }]}
+          >
             Bjud in familj eller vänner, dela sysslorna och håll koll på vem som
             gör vad.
           </Text>
