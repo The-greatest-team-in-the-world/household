@@ -140,7 +140,7 @@ export default function HouseholdsScreen() {
       setVisible(false);
       setShouldRender(false);
       setDeleting(false);
-      router.replace("/(auth)/login");
+      router.dismissTo("/(auth)/login");
     } catch (err: any) {
       setDeleting(false);
       Alert.alert(
@@ -183,8 +183,8 @@ export default function HouseholdsScreen() {
   return (
     <View style={s.Container}>
       <View style={s.headerContainer}>
-        <Text style={s.header}>Dina hushåll</Text>
-        <IconButton icon="human" size={40} onPress={() => setVisible(true)} />
+        <Text style={s.header}>Mina hushåll</Text>
+        <IconButton icon="account" size={40} onPress={() => setVisible(true)} />
       </View>
 
       <ScrollView style={s.householdContainer}>
@@ -244,16 +244,16 @@ export default function HouseholdsScreen() {
       />
       <View style={s.buttonContainer}>
         <CustomPaperButton
+          mode="text"
+          icon="home-plus"
+          text="Skapa hushåll"
+          onPress={() => router.push("/(protected)/create-household")}
+        />
+        <CustomPaperButton
           mode="contained"
           icon="account-multiple-plus"
           text="Gå med i hushåll"
           onPress={() => router.push("/(protected)/join-household")}
-        />
-        <CustomPaperButton
-          mode="contained"
-          icon="home-plus"
-          text="Skapa hushåll"
-          onPress={() => router.push("/(protected)/create-household")}
         />
       </View>
       <AlertDialog {...alertPropsMsg}></AlertDialog>
@@ -271,11 +271,10 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
-    padding: 20,
   },
   householdSurface: {
     width: "100%",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 10,
     borderRadius: 8,
   },
@@ -295,7 +294,7 @@ const s = StyleSheet.create({
   text: {
     fontSize: 20,
   },
-  householdContainer: { paddingHorizontal: 16, marginBottom: 20 },
+  householdContainer: { paddingHorizontal: 0, marginBottom: 20 },
   surface: {
     borderRadius: 10,
     marginBottom: 10,
@@ -306,7 +305,7 @@ const s = StyleSheet.create({
   },
   surfaceInner: {
     paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingHorizontal: 1,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,

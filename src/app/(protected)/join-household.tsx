@@ -103,12 +103,6 @@ export default function JoinHouseholdScreen() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedInput]);
-  console.log("/////////////////////");
-  console.log("loading", loading);
-  console.log("hasSearched", hasSearched);
-  console.log("household", household);
-  console.log("memberStatus", memberStatus);
-  console.log("householdStatus", householdStatus);
 
   return (
     <KeyboardAwareScrollView

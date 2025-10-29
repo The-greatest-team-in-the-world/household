@@ -52,7 +52,13 @@ export function ActiveMemberCard({
           {member.nickName}
         </Text>
         {member.isPaused && (
-          <Text variant="bodySmall" style={styles.pausedText}>
+          <Text
+            variant="bodySmall"
+            style={[
+              styles.pausedText,
+              { color: (theme.colors as any).pausedText },
+            ]}
+          >
             Pausad
           </Text>
         )}
@@ -140,8 +146,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   pausedText: {
-    color: "#ff9800",
     fontStyle: "italic",
-    fontSize: 12,
+    opacity: 0.8,
   },
 });
