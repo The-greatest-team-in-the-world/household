@@ -52,7 +52,6 @@ export default function ProtectedLayout() {
         name="join-household"
         options={{ title: "Gå med i hushåll" }}
       />
-      <Stack.Screen name="user-profile" options={{ title: "Profil" }} />
       <Stack.Screen
         name="household-details"
         options={{ title: "Hushållsdetaljer" }}

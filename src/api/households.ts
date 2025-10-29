@@ -119,6 +119,25 @@ export async function getHouseholdByCode(code: string) {
   } as Household;
 }
 
+export async function getHouseholdById(id: string) {
+  const docRef = doc(db, "households", id);
+  const snapshot = await getDoc(docRef);
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  const data = snapshot.data();
+  return {
+    id: snapshot.id,
+    name: data.name,
+    code: data.code,
+    ownerIds: data.ownerIds,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  } as Household;
+}
+
 export async function householdCodeExists(code: string): Promise<boolean> {
   const q = query(collection(db, "households"), where("code", "==", code));
   const snapshot = await getDocs(q);

@@ -43,7 +43,7 @@ export default function JoinHouseholdScreen() {
     control,
     watch,
     formState: { errors },
-  } = useForm<FormFields>({ resolver: zodResolver(details) });
+  } = useForm<FormFields>({ resolver: zodResolver(details), mode: "onChange" });
 
   const codeValue = watch("code");
   const debouncedInput = useDebounce(codeValue, 1000);
@@ -120,12 +120,14 @@ export default function JoinHouseholdScreen() {
                 <Text style={s.surfaceTitle}>
                   Anslut till ett nytt hushåll 🏡
                 </Text>
-                <Text style={s.surfaceText}>
-                  För att ansluta behöver du en 6-siffrig kod!
-                </Text>
-                <Text style={s.surfaceText}>
-                  Koden får du från en medlem i det hushåll du vill ansluta
-                  till.
+                <Text
+                  style={[
+                    s.surfaceText,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  För att ansluta behöver du en 6-siffrig kod! Koden får du från
+                  en medlem i det hushåll du vill ansluta till.
                 </Text>
               </Surface>
               <TextInput
@@ -221,6 +223,5 @@ const s = StyleSheet.create({
   surfaceText: {
     fontSize: 16,
     fontWeight: 600,
-    padding: 5,
   },
 });
