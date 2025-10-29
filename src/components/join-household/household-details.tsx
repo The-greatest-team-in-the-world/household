@@ -46,7 +46,7 @@ function HouseHoldDetails(
       {householdStatus === "full" && (
         <View>
           <Text style={[s.infoMessage, { color: theme.colors.tertiary }]}>
-            Detta husåhåll är för närvarande fullt. Du kan därför inte ansluta.
+            Detta hushåll är för närvarande fullt. Du kan därför inte ansluta.
           </Text>
         </View>
       )}
