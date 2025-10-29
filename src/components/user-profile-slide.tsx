@@ -121,6 +121,7 @@ export default function SettingsSideSheet({
           style={{
             backgroundColor: theme.colors.surfaceVariant,
             borderRadius: 6,
+            marginBottom: 16,
           }}
         >
           <View style={styles.topRow}>
@@ -142,7 +143,7 @@ export default function SettingsSideSheet({
           </View>
         </View>
         <Divider />
-        <View style={{ flex: 1, padding: 8, marginVertical: 20 }}>
+        <View style={{ flex: 1, padding: 8 }}>
           <List.Section>
             <List.Item
               title="Tema"
