@@ -20,10 +20,6 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text } from "react-native-paper";
-import {
-  red100,
-  red200,
-} from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 export default function HouseholdsScreen() {
   const [reauthVisible, setReauthVisible] = useState(false);
@@ -200,8 +196,8 @@ export default function HouseholdsScreen() {
           const suffix = pending
             ? "· väntar på godkännande"
             : paused
-              ? "· pausad"
-              : "";
+            ? "· pausad"
+            : "";
 
           return (
             <Pressable
