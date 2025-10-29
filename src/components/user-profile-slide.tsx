@@ -168,21 +168,34 @@ export default function SettingsSideSheet({
                 </View>
               )}
             />
-            <View style={[styles.themeButton]}>
+            <View>
               <SegmentedButtons
                 value={userTheme}
-                onValueChange={setUserTheme}
-                buttons={[
-                  {
-                    value: "light",
-                    label: "Light",
-                  },
-                  {
-                    value: "dark",
-                    label: "Dark",
-                  },
-                  { value: "auto", label: "Auto" },
-                ]}
+                onValueChange={(v: string) =>
+                  setUserTheme(v as "light" | "dark" | "auto")
+                }
+                density="small"
+                // Build buttons dynamically so we can set a checked background using theme colors
+                buttons={["light", "dark", "auto"].map((val) => ({
+                  value: val,
+                  label:
+                    val === "auto"
+                      ? "Auto"
+                      : val.charAt(0).toUpperCase() + val.slice(1),
+                  // use theme primaryContainer for checked background and onPrimaryContainer for label color
+                  style: [
+                    { flex: 1, minWidth: 0 },
+                    userTheme === val
+                      ? {
+                          backgroundColor: (theme.colors as any).primary,
+                        }
+                      : undefined,
+                  ],
+                  labelStyle:
+                    userTheme === val
+                      ? { color: (theme.colors as any).onPrimary } // text färg för vald
+                      : { color: theme.colors.onSurface },
+                }))}
               />
             </View>
           </List.Section>
@@ -242,19 +255,5 @@ const styles = StyleSheet.create({
   actionButton: {
     borderRadius: 10,
     justifyContent: "center",
-  },
-  themeButton: {
-    flexDirection: "row",
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    marginTop: 8,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-    borderRadius: 24,
   },
 });
