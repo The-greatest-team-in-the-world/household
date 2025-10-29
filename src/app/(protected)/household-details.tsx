@@ -1,4 +1,3 @@
-import { toggleMemberPause } from "@/api/members";
 import { userAtom } from "@/atoms/auth-atoms";
 import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
@@ -6,12 +5,11 @@ import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { HouseholdInfoHeader } from "@/components/household-info-header";
-import { MemberList } from "@/components/member-list";
 import { PendingMemberCard } from "@/components/pending-member-card";
 import { useMemberManagement } from "@/hooks/useMemberManagement";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
@@ -27,12 +25,16 @@ export default function HouseHoldDetailsScreen() {
     handleReject,
     handleMakeOwner,
     handleRemoveOwnership,
+    handlePauseClick,
     makeOwnerDialog,
     setMakeOwnerDialog,
     confirmMakeOwner,
     removeOwnerDialog,
     setRemoveOwnerDialog,
     confirmRemoveOwnership,
+    pauseDialog,
+    setPauseDialog,
+    confirmTogglePause,
     errorDialog,
     setErrorDialog,
     handleLeaveHousehold,
@@ -84,20 +86,6 @@ export default function HouseHoldDetailsScreen() {
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
 
-  const handleTogglePause = async (userId: string) => {
-    if (!currentHousehold?.id) return;
-
-    try {
-      const result = await toggleMemberPause(currentHousehold.id, userId);
-      if (!result.success) {
-        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
-      }
-    } catch (error) {
-      console.error("Error toggling pause:", error);
-      Alert.alert("Fel", "Ett oväntat fel uppstod");
-    }
-  };
-
   return (
     <Surface style={styles.container} elevation={0}>
       <ScrollView>
@@ -136,21 +124,35 @@ export default function HouseHoldDetailsScreen() {
                   member={member}
                   onMakeOwner={handleMakeOwner}
                   onRemoveOwnership={handleRemoveOwnership}
-                  onTogglePause={handleTogglePause}
+                  onTogglePause={handlePauseClick}
                   currentUserId={user?.uid}
                 />
               ))}
             </View>
           </View>
         ) : (
-          <MemberList
-            members={members}
-            householdName={currentHousehold.name}
-            householdCode={currentHousehold.code}
-            householdId={currentHousehold.id}
-            currentUserId={user?.uid}
-            isOwner={currentHousehold.isOwner}
-          />
+          <View style={styles.memberContainer}>
+            <HouseholdInfoHeader
+              householdName={currentHousehold.name}
+              householdCode={currentHousehold.code}
+            />
+
+            <View style={styles.section}>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Medlemmar:
+              </Text>
+              {activeMembers.map((member) => (
+                <ActiveMemberCard
+                  key={member.userId}
+                  member={member}
+                  onTogglePause={
+                    currentHousehold.isOwner ? handlePauseClick : undefined
+                  }
+                  currentUserId={user?.uid}
+                />
+              ))}
+            </View>
+          </View>
         )}
       </ScrollView>
 
@@ -174,6 +176,27 @@ export default function HouseHoldDetailsScreen() {
         agreeText="Ja, gör till ägare"
         disagreeText="Avbryt"
         agreeAction={confirmMakeOwner}
+      />
+
+      <AlertDialog
+        open={pauseDialog.open}
+        onClose={() =>
+          setPauseDialog({
+            open: false,
+            userId: "",
+            nickName: "",
+            isPaused: false,
+          })
+        }
+        headLine={pauseDialog.isPaused ? "Aktivera medlem" : "Pausa medlem"}
+        alertMsg={
+          pauseDialog.isPaused
+            ? `Vill du aktivera ${pauseDialog.nickName}?`
+            : `Vill du pausa ${pauseDialog.nickName}? Glöm inte att starta igen när hen kommer tillbaka.`
+        }
+        agreeText={pauseDialog.isPaused ? "Ja, aktivera" : "Ja, pausa"}
+        disagreeText="Avbryt"
+        agreeAction={confirmTogglePause}
       />
 
       <AlertDialog
@@ -229,6 +252,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   adminContainer: {
+    padding: 16,
+  },
+  memberContainer: {
     padding: 16,
   },
   heading: {
