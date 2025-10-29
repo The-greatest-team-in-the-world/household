@@ -20,6 +20,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text } from "react-native-paper";
+import {
+  red100,
+  red200,
+} from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 export default function HouseholdsScreen() {
   const [reauthVisible, setReauthVisible] = useState(false);
@@ -264,7 +268,7 @@ export default function HouseholdsScreen() {
 const s = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: 25,
+    padding: 20,
   },
   headerContainer: {
     alignItems: "center",
@@ -277,6 +281,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 20,
     borderRadius: 8,
+    backgroundColor: "#f00",
   },
   householdContent: {
     flexDirection: "row",
@@ -287,14 +292,17 @@ const s = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     gap: 20,
+    paddingLeft: 4,
+    paddingRight: 4,
   },
   header: {
     fontSize: 35,
+    paddingLeft: 4,
   },
   text: {
     fontSize: 20,
   },
-  householdContainer: { paddingHorizontal: 0, marginBottom: 20 },
+  householdContainer: { paddingHorizontal: 4, marginBottom: 20 },
   surface: {
     borderRadius: 10,
     marginBottom: 10,
