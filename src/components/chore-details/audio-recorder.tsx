@@ -166,7 +166,7 @@ export function AudioRecorderComponent({
           />
         )}
         <CustomPaperButton
-          mode="outlined"
+          mode="text"
           text="Avbryt"
           onPress={onCancel}
           disabled={isUploading}

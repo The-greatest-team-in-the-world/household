@@ -73,7 +73,7 @@ export default function ChoreCard({
         </Pressable>
       ) : (
         <Pressable onPress={handlePress}>
-          <Surface style={s.container} elevation={1}>
+          <Surface style={s.container}>
             <Text style={s.choreName}>{choreName}</Text>
             <View
               style={[

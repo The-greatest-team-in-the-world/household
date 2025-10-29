@@ -78,7 +78,7 @@ export default function ChoreForm({
   }, [defaultValues.frequency]);
 
   return (
-    <Surface style={s.container} elevation={4}>
+    <Surface style={s.container}>
       <View style={s.contentContainer}>
         <View style={s.choreNameContainer}>
           <Text style={s.choreName}>{title}</Text>
@@ -231,7 +231,7 @@ export default function ChoreForm({
           text="Avbryt"
           icon="close"
           disabled={isSubmitting}
-          mode="outlined"
+          mode="text"
           style={{ flex: 1 }}
         />
         <CustomPaperButton

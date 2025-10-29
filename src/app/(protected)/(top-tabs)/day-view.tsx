@@ -114,21 +114,12 @@ export default function DayViewScreen() {
     );
   }
 
-  const completedCount = todaysCompletions.length;
-  const incompleteCount = allChoresToShow.filter((chore) => {
-    const completedChoreIds = new Set(todaysCompletions.map((c) => c.choreId));
-    return !completedChoreIds.has(chore.id);
-  }).length;
-
   return (
     <Surface style={s.container} elevation={0}>
-      <View style={s.headerContainer}>
-        <Text style={s.subheader}>
-          {completedCount} klara • {incompleteCount} kvar
-        </Text>
-      </View>
-
-      <ScrollView contentContainerStyle={s.choreContentContainer}>
+      <ScrollView
+        fadingEdgeLength={20}
+        contentContainerStyle={s.choreContentContainer}
+      >
         {myChores.length > 0 && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Mina sysslor</Text>
@@ -171,16 +162,15 @@ export default function DayViewScreen() {
         )}
       </ScrollView>
 
-      <View style={canCreate ? s.buttonRowSingle : s.buttonRowSingle}>
+      <View>
         {canCreate && (
           <CustomPaperButton
             text="Skapa syssla"
             icon="plus"
-            mode="contained"
+            mode="text"
             onPress={() => {
               router.push("/(protected)/create-chore");
             }}
-            style={s.buttonFull}
           />
         )}
       </View>
@@ -196,7 +186,7 @@ const s = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
   },
   headerContainer: {
     alignItems: "center",
@@ -211,12 +201,10 @@ const s = StyleSheet.create({
     marginTop: 4,
   },
   choreContentContainer: {
-    gap: 16,
-    paddingHorizontal: 5,
-    paddingBottom: 20,
+    paddingHorizontal: 10,
   },
   section: {
-    marginBottom: 20,
+    marginTop: 20,
   },
   sectionTitle: {
     fontSize: 16,
@@ -232,26 +220,10 @@ const s = StyleSheet.create({
   emptyStateText: {
     fontSize: 18,
   },
-
   mineEmpty: {
     fontSize: 14,
     fontStyle: "italic",
     marginLeft: 5,
     marginTop: 4,
-  },
-
-  buttonRowTwo: {
-    flexDirection: "row",
-    gap: 10,
-    paddingBottom: 20,
-  },
-  buttonRowSingle: {
-    paddingBottom: 20,
-  },
-  buttonFlex: {
-    flex: 1,
-  },
-  buttonFull: {
-    width: "100%",
   },
 });
