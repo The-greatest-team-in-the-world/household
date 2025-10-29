@@ -125,20 +125,6 @@ export default function HouseHoldDetailsScreen() {
     }
   };
 
-  const handleTogglePause = async (userId: string) => {
-    if (!currentHousehold?.id) return;
-
-    try {
-      const result = await toggleMemberPause(currentHousehold.id, userId);
-      if (!result.success) {
-        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
-      }
-    } catch (error) {
-      console.error("Error toggling pause:", error);
-      Alert.alert("Fel", "Ett oväntat fel uppstod");
-    }
-  };
-
   return (
     <Surface style={styles.container} elevation={0}>
       <ScrollView>
@@ -229,6 +215,27 @@ export default function HouseHoldDetailsScreen() {
         agreeText="Ja, gör till ägare"
         disagreeText="Avbryt"
         agreeAction={confirmMakeOwner}
+      />
+
+      <AlertDialog
+        open={pauseDialog.open}
+        onClose={() =>
+          setPauseDialog({
+            open: false,
+            userId: "",
+            nickName: "",
+            isPaused: false,
+          })
+        }
+        headLine={pauseDialog.isPaused ? "Aktivera medlem" : "Pausa medlem"}
+        alertMsg={
+          pauseDialog.isPaused
+            ? `Vill du aktivera ${pauseDialog.nickName}?`
+            : `Vill du pausa ${pauseDialog.nickName}? Glöm inte att starta igen när hen kommer tillbaka.`
+        }
+        agreeText={pauseDialog.isPaused ? "Ja, aktivera" : "Ja, pausa"}
+        disagreeText="Avbryt"
+        agreeAction={confirmTogglePause}
       />
 
       <AlertDialog
