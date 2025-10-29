@@ -48,22 +48,20 @@ export default function CreateHousholdScreen() {
         return;
       }
 
-      // Steg 1: Skapa hushåll
+      // Skapa hushåll
       householdId = await createNewHousehold(data.householdName);
 
-      // Steg 2: Lägg till medlem
+      // Lägg till medlem
       const result = await addNewMemberToHousehold(
         householdId,
         selectedAvatar,
         data.nickName,
-        false,
-        true,
-        "active",
+        false, // isPaused
+        true, // isOwner
+        "active", // status
       );
 
       if (!result.success) {
-        // Radera hushållet om medlem inte kunde läggas till
-        await deleteHousehold(householdId);
         throw new Error(result.error || "Kunde inte lägga till medlem");
       }
 
@@ -72,12 +70,13 @@ export default function CreateHousholdScreen() {
     } catch (error) {
       console.error("Error creating household:", error);
 
-      // Cleanup: Om hushåll skapades men något gick fel, radera det
+      // Om hushåll skapades men något gick fel efteråt, ta bort
       if (householdId) {
         try {
           await deleteHousehold(householdId);
+          console.log("Hushåll raderat efter misslyckad operation");
         } catch (cleanupError) {
-          console.error("Error during cleanup:", cleanupError);
+          console.error("Kunde inte radera hushållet:", cleanupError);
         }
       }
 

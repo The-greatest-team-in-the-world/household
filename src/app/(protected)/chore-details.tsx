@@ -123,14 +123,14 @@ export default function ChoreDetailsScreen() {
             if (selectedChore) {
               deleteChore();
               setDialogOpen(false);
-              router.replace("/(protected)/(top-tabs)/day-view");
+              router.dismissTo("/(protected)/(top-tabs)/day-view");
             }
           }}
           secondOptionAction={() => {
             if (selectedChore) {
               softDeleteChore();
               setDialogOpen(false);
-              router.replace("/(protected)/(top-tabs)/day-view");
+              router.dismissTo("/(protected)/(top-tabs)/day-view");
             }
           }}
         />
