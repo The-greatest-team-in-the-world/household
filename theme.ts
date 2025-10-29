@@ -25,7 +25,7 @@ export const AppDefaultTheme = merge(CombinedDefaultTheme, {
     primaryContainer: "rgb(157, 248, 152)",
     onPrimaryContainer: "rgb(0, 34, 4)",
     secondary: "rgb(0, 107, 94)",
-    secondaryToned: "rgba(0, 107, 95, 0.52)",
+    secondaryToned: "hsla(117, 31%, 60%, 1.00)",
     onSecondary: "rgb(255, 255, 255)",
     secondaryContainer: "rgb(118, 248, 226)",
     onSecondaryContainer: "rgb(0, 32, 27)",
