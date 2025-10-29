@@ -20,6 +20,12 @@ export default function HouseHoldDetailsScreen() {
   const initMembersListener = useSetAtom(initMembersListenerAtom);
 
   const [loading, setLoading] = useState(true);
+  const [pauseDialog, setPauseDialog] = useState({
+    open: false,
+    userId: "",
+    nickName: "",
+    isPaused: false,
+  });
 
   const {
     handleApprove,
@@ -83,6 +89,42 @@ export default function HouseHoldDetailsScreen() {
   const pendingMembers = members.filter((m) => m.status === "pending");
   const activeMembers = members.filter((m) => m.status === "active");
 
+  const handlePauseClick = (userId: string) => {
+    const member = members.find((m) => m.userId === userId);
+    if (!member) return;
+
+    setPauseDialog({
+      open: true,
+      userId: member.userId,
+      nickName: member.nickName,
+      isPaused: member.isPaused,
+    });
+  };
+
+  const confirmTogglePause = async () => {
+    if (!currentHousehold?.id || !pauseDialog.userId) return;
+
+    try {
+      const result = await toggleMemberPause(
+        currentHousehold.id,
+        pauseDialog.userId,
+      );
+      if (!result.success) {
+        Alert.alert("Fel", result.error || "Kunde inte pausa/aktivera medlem");
+      }
+    } catch (error) {
+      console.error("Error toggling pause:", error);
+      Alert.alert("Fel", "Ett oväntat fel uppstod");
+    } finally {
+      setPauseDialog({
+        open: false,
+        userId: "",
+        nickName: "",
+        isPaused: false,
+      });
+    }
+  };
+
   const handleTogglePause = async (userId: string) => {
     if (!currentHousehold?.id) return;
 
@@ -135,7 +177,7 @@ export default function HouseHoldDetailsScreen() {
                   member={member}
                   onMakeOwner={handleMakeOwner}
                   onRemoveOwnership={handleRemoveOwnership}
-                  onTogglePause={handleTogglePause}
+                  onTogglePause={handlePauseClick}
                   currentUserId={user?.uid}
                 />
               ))}
@@ -157,7 +199,7 @@ export default function HouseHoldDetailsScreen() {
                   key={member.userId}
                   member={member}
                   onTogglePause={
-                    currentHousehold.isOwner ? handleTogglePause : undefined
+                    currentHousehold.isOwner ? handlePauseClick : undefined
                   }
                   currentUserId={user?.uid}
                 />
