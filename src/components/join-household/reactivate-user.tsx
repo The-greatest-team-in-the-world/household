@@ -39,11 +39,12 @@ export default function ReactivateUser({ household, householdMembers }: Props) {
           Du har varit medlem i detta hushåll tidigare. Vill du ansöka om att
           återaktivera ditt medlemsskap?
         </Text>
-        <Text style={s.title}>Din sparade avatar och smeknamn:</Text>
+      </View>
+      <View style={s.savedInfoContainer}>
         <View style={s.infoContainer}>
           <View
             style={[
-              s.infoEmojiContainer,
+              s.emojiContainer,
               ,
               { backgroundColor: retiredUser.avatar.color },
             ]}
@@ -55,19 +56,22 @@ export default function ReactivateUser({ household, householdMembers }: Props) {
       </View>
       <View style={s.buttonContainer}>
         <CustomPaperButton
+          mode="text"
+          icon="close"
+          text="Avbryt"
+          onPress={() => router.dismissTo("/(protected)")}
+          style={{ flex: 1 }}
+        />
+        <CustomPaperButton
           mode="contained"
           text="Ansök igen"
+          icon="redo"
           disabled={isLoading}
           onPress={() =>
             updateUserStatus("pending", household.id, retiredUser.userId)
           }
+          style={{ flex: 1 }}
         />
-        <CustomPaperButton
-          mode="outlined"
-          text="Avbryt"
-          onPress={() => router.dismissTo("/(protected)")}
-        />
-
         {errorMessage && (
           <Text style={[s.errorText, { color: theme.colors.error }]}>
             {errorMessage}
@@ -107,10 +111,12 @@ const s = StyleSheet.create({
   title: {
     fontWeight: 700,
     fontSize: 15,
+    textAlign: "center",
   },
   buttonContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
     gap: 20,
   },
   infoContainer: {
@@ -118,7 +124,7 @@ const s = StyleSheet.create({
     gap: 10,
     alignItems: "center",
   },
-  infoEmojiContainer: {
+  emojiContainer: {
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
@@ -131,5 +137,10 @@ const s = StyleSheet.create({
   infoNickname: {
     fontSize: 25,
     fontWeight: 700,
+  },
+  savedInfoContainer: {
+    flex: 1,
+    justifyContent: "center",
+    gap: 20,
   },
 });
