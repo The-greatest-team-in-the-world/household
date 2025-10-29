@@ -17,6 +17,13 @@ interface DialogState {
   nickName: string;
 }
 
+interface PauseDialogState {
+  open: boolean;
+  userId: string;
+  nickName: string;
+  isPaused: boolean;
+}
+
 interface ErrorDialogState {
   open: boolean;
   message: string;
@@ -36,6 +43,12 @@ export function useMemberManagement(
     open: false,
     userId: "",
     nickName: "",
+  });
+  const [pauseDialog, setPauseDialog] = useState<PauseDialogState>({
+    open: false,
+    userId: "",
+    nickName: "",
+    isPaused: false,
   });
   const [errorDialog, setErrorDialog] = useState<ErrorDialogState>({
     open: false,
