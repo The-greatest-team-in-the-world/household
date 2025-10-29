@@ -24,8 +24,9 @@ export function HouseholdInfoHeader({
 
 const styles = StyleSheet.create({
   card: {
-    margin: 16,
-    padding: 16,
+    marginBottom: 16,
+    paddingTop: 4,
+    paddingBottom: 4,
     borderRadius: 12,
   },
   householdName: {
@@ -35,5 +36,6 @@ const styles = StyleSheet.create({
   code: {
     textAlign: "center",
     marginBottom: 8,
+    opacity: 0.7,
   },
 });

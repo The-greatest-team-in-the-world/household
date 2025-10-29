@@ -17,6 +17,13 @@ interface DialogState {
   nickName: string;
 }
 
+interface PauseDialogState {
+  open: boolean;
+  userId: string;
+  nickName: string;
+  isPaused: boolean;
+}
+
 interface ErrorDialogState {
   open: boolean;
   message: string;
@@ -36,6 +43,12 @@ export function useMemberManagement(
     open: false,
     userId: "",
     nickName: "",
+  });
+  const [pauseDialog, setPauseDialog] = useState<PauseDialogState>({
+    open: false,
+    userId: "",
+    nickName: "",
+    isPaused: false,
   });
   const [errorDialog, setErrorDialog] = useState<ErrorDialogState>({
     open: false,
@@ -115,6 +128,34 @@ export function useMemberManagement(
       setErrorDialog({
         open: true,
         message: result.error || "Ett fel uppstod vid borttagning av ägare",
+      });
+    }
+  };
+
+  const handlePauseClick = (userId: string) => {
+    const member = members.find((m) => m.userId === userId);
+    if (!member) return;
+
+    setPauseDialog({
+      open: true,
+      userId: member.userId,
+      nickName: member.nickName,
+      isPaused: member.isPaused,
+    });
+  };
+
+  const confirmTogglePause = async () => {
+    if (!householdId || !pauseDialog.userId) return;
+
+    setPauseDialog({ open: false, userId: "", nickName: "", isPaused: false });
+
+    const { toggleMemberPause } = await import("@/api/members");
+    const result = await toggleMemberPause(householdId, pauseDialog.userId);
+
+    if (!result.success) {
+      setErrorDialog({
+        open: true,
+        message: result.error || "Ett fel uppstod vid pausning av medlem",
       });
     }
   };
@@ -207,12 +248,16 @@ export function useMemberManagement(
     handleReject,
     handleMakeOwner,
     handleRemoveOwnership,
+    handlePauseClick,
     makeOwnerDialog,
     setMakeOwnerDialog,
     confirmMakeOwner,
     removeOwnerDialog,
     setRemoveOwnerDialog,
     confirmRemoveOwnership,
+    pauseDialog,
+    setPauseDialog,
+    confirmTogglePause,
     errorDialog,
     setErrorDialog,
     handleLeaveHousehold,
