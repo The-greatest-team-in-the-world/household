@@ -52,15 +52,15 @@ export const CustomPaperButton = ({
         currentMode === "contained"
           ? color || theme.colors.primary
           : currentMode === "contained-tonal"
-          ? color || (theme.colors as any).secondaryToned
-          : undefined
+            ? color || (theme.colors as any).secondaryToned
+            : undefined
       }
       textColor={
         currentMode === "outlined"
           ? theme.colors.primary
           : currentMode === "contained-tonal"
-          ? (theme.colors as any).onTertiary || undefined
-          : undefined
+            ? (theme.colors as any).onTertiary || undefined
+            : undefined
       }
       onPress={onPress}
       disabled={disabled}
