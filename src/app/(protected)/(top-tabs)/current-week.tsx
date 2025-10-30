@@ -1,6 +1,7 @@
 import { choresAtom } from "@/atoms/chore-atom";
 import { choreCompletionsAtom } from "@/atoms/chore-completion-atom";
 import { membersAtom } from "@/atoms/member-atom";
+import NotFound from "@/components/not-found";
 import PieChart from "@/components/pie-chart";
 import { ChoreCompletion } from "@/types/chore-completion";
 import {
@@ -9,9 +10,7 @@ import {
 } from "@/utils/get-statistics-from-range";
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
-import LottieView from "lottie-react-native";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
 
 export default function CurrentWeekStatisticsScreen() {
   const completions = getChoresFromCurrentWeek(
@@ -38,19 +37,10 @@ export default function CurrentWeekStatisticsScreen() {
 
   if (completions.length === 0) {
     return (
-      <View style={s.noChoresContainer}>
-        <Text style={[s.noChoresText, s.largeText]}>
-          Inga sysslor är registrerade för den här veckan.
-        </Text>
-        <Text style={s.noChoresText}>
-          Börja med att lägga till eller markera en syssla som klar!
-        </Text>
-        <LottieView
-          source={require("../../../assets/animations/Tumbleweed.json")}
-          autoPlay
-          style={s.lottieAni}
-        />
-      </View>
+      <NotFound
+        title="Inga sysslor är registrerade för den här veckan."
+        subTitle="Börja med att lägga till eller markera en syssla som klar!"
+      />
     );
   }
 
@@ -105,6 +95,8 @@ const s = StyleSheet.create({
   },
   noChoresText: {
     textAlign: "center",
+    borderWidth: 1,
+    borderColor: "#f00",
   },
   largeText: {
     fontSize: 20,
@@ -127,7 +119,10 @@ const s = StyleSheet.create({
   },
   lottieAni: {
     width: 300,
-    height: 300,
+    height: 150,
     alignSelf: "center",
+    borderWidth: 1,
+    borderColor: "#f00",
+    backgroundColor: "#0f0",
   },
 });

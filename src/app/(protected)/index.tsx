@@ -13,6 +13,7 @@ import {
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
+import NotFound from "@/components/not-found";
 import { ReauthModal } from "@/components/reauth-modal";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import { router } from "expo-router";
@@ -188,45 +189,54 @@ export default function HouseholdsScreen() {
       </View>
 
       <ScrollView style={s.householdContainer}>
-        {visibleHouseholds.map((h: any) => {
-          const pending = h.status === "pending";
-          const paused = !!h.isPaused;
-          const disabled = !canEnter(h);
+        {visibleHouseholds.length === 0 ? (
+          <NotFound
+            title="Inga hushåll än."
+            subTitle="Skapa ett nytt hushåll eller gå med i ett befintligt"
+          />
+        ) : (
+          visibleHouseholds.map((h: any) => {
+            const pending = h.status === "pending";
+            const paused = !!h.isPaused;
+            const disabled = !canEnter(h);
 
-          const suffix = pending
-            ? "· väntar på godkännande"
-            : paused
+            const suffix = pending
+              ? "· väntar på godkännande"
+              : paused
               ? "· pausad"
               : "";
 
-          return (
-            <Pressable
-              key={h.id}
-              onPress={disabled ? undefined : () => handleSelectHousehold(h)}
-              disabled={disabled}
-              style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
-            >
-              <Surface style={s.householdSurface} elevation={1}>
-                <View style={s.householdContent}>
-                  <Text style={[s.text, (pending || paused) && s.textDisabled]}>
-                    {h.name} {suffix}
-                  </Text>
-                  {h.isOwner && pendingCounts[h.id] > 0 && (
-                    <Pressable
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleOpenSettings(h);
-                      }}
-                      style={s.badge}
+            return (
+              <Pressable
+                key={h.id}
+                onPress={disabled ? undefined : () => handleSelectHousehold(h)}
+                disabled={disabled}
+                style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
+              >
+                <Surface style={s.householdSurface} elevation={1}>
+                  <View style={s.householdContent}>
+                    <Text
+                      style={[s.text, (pending || paused) && s.textDisabled]}
                     >
-                      <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                    </Pressable>
-                  )}
-                </View>
-              </Surface>
-            </Pressable>
-          );
-        })}
+                      {h.name} {suffix}
+                    </Text>
+                    {h.isOwner && pendingCounts[h.id] > 0 && (
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleOpenSettings(h);
+                        }}
+                        style={s.badge}
+                      >
+                        <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </Surface>
+              </Pressable>
+            );
+          })
+        )}
       </ScrollView>
       <SettingsSideSheet
         onClose={() => setVisible(false)}
