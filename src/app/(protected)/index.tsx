@@ -221,8 +221,8 @@ export default function HouseholdsScreen() {
             const suffix = pending
               ? "· Väntar på godkännande"
               : paused
-              ? "· Pausad"
-              : "";
+                ? "· Pausad"
+                : "";
 
             return (
               <Pressable
