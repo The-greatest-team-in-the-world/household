@@ -1,4 +1,4 @@
-import { getChores } from "@/api/chores";
+import { getChores, initChoresListener } from "@/api/chores";
 import { Chore } from "@/types/chore";
 import { currentHouseholdMember } from "@/atoms/member-atom";
 import { atom } from "jotai";
@@ -16,6 +16,15 @@ export const loadChoresAtom = atom(
 
     const chores = await getChores(householdId);
     set(choresAtom, chores);
+  },
+);
+
+export const initChoresListenerAtom = atom(
+  null,
+  (_get, set, householdId: string) => {
+    return initChoresListener(householdId, (chores) => {
+      set(choresAtom, chores);
+    });
   },
 );
 
