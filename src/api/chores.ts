@@ -6,7 +6,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  onSnapshot,
   serverTimestamp,
   Timestamp,
   updateDoc,
@@ -46,44 +45,6 @@ export async function getChores(householdId: string): Promise<Chore[]> {
       } as Chore;
     })
     .filter((chore) => !chore.isArchived);
-}
-
-export function initChoresListener(
-  householdId: string,
-  onUpdate: (chores: Chore[]) => void,
-): () => void {
-  console.log("Setting up chores listener for:", householdId);
-
-  const choresRef = collection(db, "households", householdId, "chores");
-
-  const unsubscribe = onSnapshot(choresRef, (snapshot) => {
-    const chores = snapshot.docs
-      .map((doc) => {
-        const data = doc.data();
-
-        return {
-          id: doc.id,
-          name: data.name,
-          description: data.description,
-          frequency: data.frequency,
-          effort: data.effort,
-          audioUrl: data.audioUrl ?? null,
-          imageUrl: data.imageUrl ?? null,
-          isArchived: data.isArchived,
-          lastCompletedAt: data.lastCompletedAt ?? null,
-          lastCompletedBy: data.lastCompletedBy ?? null,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          assignedTo: data.assignedTo,
-        } as Chore;
-      })
-      .filter((chore) => !chore.isArchived);
-
-    onUpdate(chores);
-    console.log(`Chores updated for ${householdId}:`, chores.length);
-  });
-
-  return unsubscribe;
 }
 
 export async function getChoreById(
