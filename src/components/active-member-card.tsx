@@ -54,10 +54,7 @@ export function ActiveMemberCard({
         {member.isPaused && (
           <Text
             variant="bodySmall"
-            style={[
-              styles.pausedText,
-              { color: (theme.colors as any).pausedText },
-            ]}
+            style={[{ color: theme.colors.onSurfaceDisabled }]}
           >
             Pausad
           </Text>
@@ -140,13 +137,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   paused: {
-    opacity: 0.5,
+    opacity: 0.6,
   },
   pausedCard: {
     opacity: 0.9,
-  },
-  pausedText: {
-    fontStyle: "italic",
-    opacity: 0.8,
   },
 });

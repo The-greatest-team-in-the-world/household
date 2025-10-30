@@ -90,7 +90,12 @@ export default function CreateHouseholdScreen() {
       }
 
       setErrorMessage(null);
-      setCurrentHousehold({ ...household, isOwner: true });
+      setCurrentHousehold({
+        ...household,
+        isOwner: true,
+        status: "active",
+        isPaused: false,
+      });
       router.dismissTo("/(protected)/(top-tabs)/day-view");
     } catch (error) {
       console.error("Error creating household:", error);
