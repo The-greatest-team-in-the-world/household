@@ -9,6 +9,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   serverTimestamp,
   Timestamp,
@@ -49,6 +50,26 @@ export async function getMemberByUserId(
   }
 
   return snapshot.docs[0].data() as HouseholdMember;
+}
+
+export function initPendingMembersListener(
+  householdId: string,
+  onUpdate: (count: number) => void,
+): () => void {
+  console.log("Setting up pending members listener for:", householdId);
+
+  const membersRef = collection(db, "households", householdId, "members");
+  const q = query(membersRef, where("status", "==", "pending"));
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    onUpdate(snapshot.size);
+    console.log(
+      `Pending members count updated for ${householdId}:`,
+      snapshot.size,
+    );
+  });
+
+  return unsubscribe;
 }
 
 export async function addNewMemberToHousehold(

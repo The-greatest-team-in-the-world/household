@@ -1,6 +1,10 @@
-import { getMemberByUserId, getMembers } from "@/api/members";
+import {
+  getMemberByUserId,
+  getMembers,
+  initPendingMembersListener,
+} from "@/api/members";
 import { HouseholdMember } from "@/types/household-member";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { atom } from "jotai";
 import { db } from "../../firebase-config";
 
@@ -38,25 +42,14 @@ export const getMemberByUserIdAtom = atom(
 export const initPendingMembersListenerAtom = atom(
   null,
   (get, set, householdId: string) => {
-    console.log("Setting up pending members listener for:", householdId);
-
-    const membersRef = collection(db, "households", householdId, "members");
-    const q = query(membersRef, where("status", "==", "pending"));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    return initPendingMembersListener(householdId, (count) => {
       const currentCounts = get(pendingMembersCountAtom);
       const newCounts = {
         ...currentCounts,
-        [householdId]: snapshot.size,
+        [householdId]: count,
       };
       set(pendingMembersCountAtom, newCounts);
-      console.log(
-        `Pending members count updated for ${householdId}:`,
-        snapshot.size,
-      );
     });
-
-    return unsubscribe;
   },
 );
 
