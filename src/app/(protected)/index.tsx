@@ -18,6 +18,7 @@ import SettingsSideSheet from "@/components/user-profile-slide";
 import type { Household } from "@/types/household";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
+import LottieView from "lottie-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text, useTheme } from "react-native-paper";
@@ -198,52 +199,67 @@ export default function HouseholdsScreen() {
       </View>
 
       <ScrollView style={s.householdContainer}>
-        {visibleHouseholds.map((h: UserHousehold) => {
-          const pending = h.status === "pending";
-          const paused = !!h.isPaused;
-          const disabled = !canEnter(h);
+        {visibleHouseholds.length === 0 ? (
+          <View style={s.emptyState}>
+            <LottieView
+              source={require("@/assets/animations/Tumbleweed.json")}
+              autoPlay
+              loop
+              style={s.lottie}
+            />
+            <Text style={s.emptyText}>Inga hushåll än</Text>
+            <Text style={s.emptySubtext}>
+              Skapa ett nytt hushåll eller gå med i ett befintligt
+            </Text>
+          </View>
+        ) : (
+          visibleHouseholds.map((h: UserHousehold) => {
+            const pending = h.status === "pending";
+            const paused = !!h.isPaused;
+            const disabled = !canEnter(h);
 
-          const suffix = pending
-            ? "· Väntar på godkännande"
-            : paused
-            ? "· Pausad"
-            : "";
+            const suffix = pending
+              ? "· Väntar på godkännande"
+              : paused
+              ? "· Pausad"
+              : "";
 
-          return (
-            <Pressable
-              key={h.id}
-              onPress={disabled ? undefined : () => handleSelectHousehold(h)}
-              disabled={disabled}
-              style={s.surfaceInner}
-            >
-              <Surface style={s.householdSurface} elevation={1}>
-                <View style={s.householdContent}>
-                  <Text
-                    style={[
-                      s.text,
-                      (pending || paused) && {
-                        color: theme.colors.onSurfaceDisabled,
-                      },
-                    ]}
-                  >
-                    {h.name} {suffix}
-                  </Text>
-                  {h.isOwner && pendingCounts[h.id] > 0 && (
-                    <Pressable
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleOpenSettings(h);
-                      }}
-                      style={s.badge}
+            return (
+              <Pressable
+                key={h.id}
+                onPress={disabled ? undefined : () => handleSelectHousehold(h)}
+                disabled={disabled}
+                style={s.surfaceInner}
+              >
+                <Surface style={s.householdSurface} elevation={1}>
+                  <View style={s.householdContent}>
+                    <Text
+                      style={[
+                        s.text,
+                        (pending || paused) && {
+                          color: theme.colors.onSurfaceDisabled,
+                        },
+                      ]}
                     >
-                      <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                    </Pressable>
-                  )}
-                </View>
-              </Surface>
-            </Pressable>
-          );
-        })}
+                      {h.name} {suffix}
+                    </Text>
+                    {h.isOwner && pendingCounts[h.id] > 0 && (
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleOpenSettings(h);
+                        }}
+                        style={s.badge}
+                      >
+                        <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </Surface>
+              </Pressable>
+            );
+          })
+        )}
       </ScrollView>
       <SettingsSideSheet
         onClose={() => setVisible(false)}
@@ -342,5 +358,28 @@ const s = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  lottie: {
+    width: 300,
+    height: 300,
+    alignSelf: "center",
+  },
+  emptyText: {
+    fontSize: 24,
+    fontWeight: "600",
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 16,
+    opacity: 0.7,
+    textAlign: "center",
+    paddingHorizontal: 40,
   },
 });
