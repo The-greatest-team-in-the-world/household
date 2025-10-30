@@ -214,10 +214,10 @@ export default function HouseholdsScreen() {
                 const disabled = !canEnter(h);
 
                 const suffix = pending
-                  ? "· väntar på godkännande"
+                  ? "Väntar på godkännande"
                   : paused
-                    ? "· pausad"
-                    : "";
+                  ? "Pausad"
+                  : "";
 
                 return (
                   <Pressable
@@ -230,16 +230,31 @@ export default function HouseholdsScreen() {
                   >
                     <Surface style={s.householdSurface} elevation={1}>
                       <View style={s.householdContent}>
-                        <Text
-                          style={[
-                            s.text,
-                            (pending || paused) && {
-                              color: theme.colors.onSurfaceDisabled,
-                            },
-                          ]}
-                        >
-                          {h.name} {suffix}
-                        </Text>
+                        <View style={s.textContainer}>
+                          <Text
+                            numberOfLines={1}
+                            style={[
+                              s.text,
+                              (pending || paused) && {
+                                color: theme.colors.onSurfaceDisabled,
+                              },
+                            ]}
+                          >
+                            {h.name}
+                          </Text>
+                          {suffix && (
+                            <Text
+                              style={[
+                                s.suffix,
+                                {
+                                  color: theme.colors.onSurfaceDisabled,
+                                },
+                              ]}
+                            >
+                              {suffix}
+                            </Text>
+                          )}
+                        </View>
                         {h.isOwner && pendingCounts[h.id] > 0 && (
                           <Pressable
                             onPress={(e) => {
@@ -317,6 +332,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   buttonContainer: {
     flexDirection: "column",
@@ -331,6 +347,16 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 20,
+    flex: 1,
+  },
+  textContainer: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 4,
+  },
+  suffix: {
+    fontSize: 14,
+    opacity: 0.8,
   },
   householdContainer: {
     paddingHorizontal: 4,
