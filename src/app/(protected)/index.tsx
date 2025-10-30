@@ -13,12 +13,12 @@ import {
 import { shouldRenderSlideAtom, slideVisibleAtom } from "@/atoms/ui-atom";
 import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
+import NotFound from "@/components/not-found";
 import { ReauthModal } from "@/components/reauth-modal";
 import SettingsSideSheet from "@/components/user-profile-slide";
 import type { Household } from "@/types/household";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import LottieView from "lottie-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text, useTheme } from "react-native-paper";
@@ -200,28 +200,20 @@ export default function HouseholdsScreen() {
 
       <ScrollView style={s.householdContainer}>
         {visibleHouseholds.length === 0 ? (
-          <View style={s.emptyState}>
-            <LottieView
-              source={require("@/assets/animations/Tumbleweed.json")}
-              autoPlay
-              loop
-              style={s.lottie}
-            />
-            <Text style={s.emptyText}>Inga hushåll än</Text>
-            <Text style={s.emptySubtext}>
-              Skapa ett nytt hushåll eller gå med i ett befintligt
-            </Text>
-          </View>
+          <NotFound
+            title="Inga hushåll än."
+            subTitle="Skapa ett nytt hushåll eller gå med i ett befintligt"
+          />
         ) : (
-          visibleHouseholds.map((h: UserHousehold) => {
+          visibleHouseholds.map((h: any) => {
             const pending = h.status === "pending";
             const paused = !!h.isPaused;
             const disabled = !canEnter(h);
 
             const suffix = pending
-              ? "· Väntar på godkännande"
+              ? "· väntar på godkännande"
               : paused
-                ? "· Pausad"
+                ? "· pausad"
                 : "";
 
             return (

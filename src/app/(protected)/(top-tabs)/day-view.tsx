@@ -2,6 +2,7 @@ import { currentHouseholdAtom } from "@/atoms/household-atom";
 import { currentHouseholdMember } from "@/atoms/member-atom";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import ChoreCard from "@/components/day-view/chore-card";
+import NotFound from "@/components/not-found";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
 import { Chore } from "@/types/chore";
 import {
@@ -11,7 +12,6 @@ import {
 } from "@/utils/chore-helpers";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import LottieView from "lottie-react-native";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
@@ -158,16 +158,9 @@ export default function DayViewScreen() {
 
         {allChoresToShow.length === 0 && myChores.length === 0 && (
           <View style={s.emptyState}>
-            <Text style={[s.noChoresText, s.largeText]}>
-              Du har inga sysslor ännu.
-            </Text>
-            <Text style={s.noChoresText}>
-              Du kan skapa sysslor genom att trycka på knappen skapa syssla.
-            </Text>
-            <LottieView
-              source={require("../../../assets/animations/Tumbleweed.json")}
-              autoPlay
-              style={s.lottieAni}
+            <NotFound
+              title="Du har inga sysslor ännu."
+              subTitle="Du kan skapa sysslor genom att trycka på knappen skapa syssla."
             />
           </View>
         )}
@@ -230,7 +223,7 @@ const s = StyleSheet.create({
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: 120,
+    paddingVertical: 145,
   },
   emptyStateText: {
     fontSize: 18,
