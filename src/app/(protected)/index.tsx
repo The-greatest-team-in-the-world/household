@@ -54,6 +54,7 @@ export default function HouseholdsScreen() {
 
       return Number(aInactive) - Number(bInactive);
     });
+
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
