@@ -72,6 +72,23 @@ export function initPendingMembersListener(
   return unsubscribe;
 }
 
+export function initMembersListener(
+  householdId: string,
+  onUpdate: (members: HouseholdMember[]) => void,
+): () => void {
+  console.log("Setting up members listener for:", householdId);
+
+  const membersRef = collection(db, "households", householdId, "members");
+
+  const unsubscribe = onSnapshot(membersRef, (snapshot) => {
+    const members = snapshot.docs.map((doc) => doc.data() as HouseholdMember);
+    onUpdate(members);
+    console.log(`Members updated for ${householdId}:`, members.length);
+  });
+
+  return unsubscribe;
+}
+
 export async function addNewMemberToHousehold(
   householdId: string,
   avatar: Avatar,

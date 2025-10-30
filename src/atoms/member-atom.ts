@@ -1,12 +1,11 @@
 import {
   getMemberByUserId,
   getMembers,
+  initMembersListener,
   initPendingMembersListener,
 } from "@/api/members";
 import { HouseholdMember } from "@/types/household-member";
-import { collection, onSnapshot } from "firebase/firestore";
 import { atom } from "jotai";
-import { db } from "../../firebase-config";
 
 export const currentHouseholdMember = atom<HouseholdMember | null>(null);
 export const membersAtom = atom<HouseholdMember[]>([]);
@@ -55,18 +54,10 @@ export const initPendingMembersListenerAtom = atom(
 
 export const initMembersListenerAtom = atom(
   null,
-  (get, set, householdId: string) => {
-    console.log("Setting up members listener for:", householdId);
-
-    const membersRef = collection(db, "households", householdId, "members");
-
-    const unsubscribe = onSnapshot(membersRef, (snapshot) => {
-      const members = snapshot.docs.map((doc) => doc.data() as HouseholdMember);
+  (_get, set, householdId: string) => {
+    return initMembersListener(householdId, (members) => {
       set(membersAtom, members);
-      console.log(`Members updated for ${householdId}:`, members.length);
     });
-
-    return unsubscribe;
   },
 );
 
