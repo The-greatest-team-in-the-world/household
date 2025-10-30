@@ -15,13 +15,22 @@ import AlertDialog from "@/components/alertDialog";
 import { CustomPaperButton } from "@/components/custom-paper-button";
 import { ReauthModal } from "@/components/reauth-modal";
 import SettingsSideSheet from "@/components/user-profile-slide";
+import type { Household } from "@/types/household";
 import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
+import LottieView from "lottie-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { IconButton, Surface, Text } from "react-native-paper";
+import { IconButton, Surface, Text, useTheme } from "react-native-paper";
+
+type UserHousehold = Household & {
+  isOwner: boolean;
+  status: "pending" | "active" | "left";
+  isPaused: boolean;
+};
 
 export default function HouseholdsScreen() {
+  const theme = useTheme();
   const [reauthVisible, setReauthVisible] = useState(false);
   const [, setDeleting] = useState(false);
   const initHouseholdsListener = useSetAtom(initHouseholdsListenerAtom);
@@ -29,15 +38,17 @@ export default function HouseholdsScreen() {
   const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
   const getMemberByUserId = useSetAtom(getMemberByUserIdAtom);
   const user = useAtomValue(userAtom);
-  const canEnter = (h: any) => {
+  const canEnter = (h: UserHousehold) => {
     if (h.isOwner) {
       return h.status === "active";
     }
     return h.status === "active" && !h.isPaused;
   };
   const visibleHouseholds = (households ?? [])
-    .filter((h: any) => h.status === "active" || h.status === "pending")
-    .sort((a: any, b: any) => {
+    .filter(
+      (h: UserHousehold) => h.status === "active" || h.status === "pending",
+    )
+    .sort((a: UserHousehold, b: UserHousehold) => {
       const aInactive = a.status === "pending" || a.isPaused;
       const bInactive = b.status === "pending" || b.isPaused;
 
@@ -55,10 +66,10 @@ export default function HouseholdsScreen() {
     if (!households) return [];
     return households
       .filter(
-        (h: any) =>
+        (h: UserHousehold) =>
           h.isOwner && (h.status === "active" || h.status === "pending"),
       )
-      .map((h: any) => h.id);
+      .map((h: UserHousehold) => h.id);
   }, [households]);
 
   // Set up real-time listener for households
@@ -150,7 +161,7 @@ export default function HouseholdsScreen() {
     }
   }
 
-  async function handleSelectHousehold(h: any) {
+  async function handleSelectHousehold(h: UserHousehold) {
     if (user) {
       await getMemberByUserId({ householdId: h.id, userId: user.uid });
     }
@@ -159,7 +170,7 @@ export default function HouseholdsScreen() {
     router.push("/(protected)/(top-tabs)/day-view");
   }
 
-  function handleOpenSettings(h: any) {
+  function handleOpenSettings(h: UserHousehold) {
     setCurrentHousehold(h);
     router.push("/(protected)/household-details");
   }
@@ -188,45 +199,67 @@ export default function HouseholdsScreen() {
       </View>
 
       <ScrollView style={s.householdContainer}>
-        {visibleHouseholds.map((h: any) => {
-          const pending = h.status === "pending";
-          const paused = !!h.isPaused;
-          const disabled = !canEnter(h);
+        {visibleHouseholds.length === 0 ? (
+          <View style={s.emptyState}>
+            <LottieView
+              source={require("@/assets/animations/Tumbleweed.json")}
+              autoPlay
+              loop
+              style={s.lottie}
+            />
+            <Text style={s.emptyText}>Inga hushåll än</Text>
+            <Text style={s.emptySubtext}>
+              Skapa ett nytt hushåll eller gå med i ett befintligt
+            </Text>
+          </View>
+        ) : (
+          visibleHouseholds.map((h: UserHousehold) => {
+            const pending = h.status === "pending";
+            const paused = !!h.isPaused;
+            const disabled = !canEnter(h);
 
-          const suffix = pending
-            ? "· väntar på godkännande"
-            : paused
-              ? "· pausad"
-              : "";
+            const suffix = pending
+              ? "· Väntar på godkännande"
+              : paused
+                ? "· Pausad"
+                : "";
 
-          return (
-            <Pressable
-              key={h.id}
-              onPress={disabled ? undefined : () => handleSelectHousehold(h)}
-              disabled={disabled}
-              style={[s.surfaceInner, (pending || paused) && s.rowDisabled]}
-            >
-              <Surface style={s.householdSurface} elevation={1}>
-                <View style={s.householdContent}>
-                  <Text style={[s.text, (pending || paused) && s.textDisabled]}>
-                    {h.name} {suffix}
-                  </Text>
-                  {h.isOwner && pendingCounts[h.id] > 0 && (
-                    <Pressable
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleOpenSettings(h);
-                      }}
-                      style={s.badge}
+            return (
+              <Pressable
+                key={h.id}
+                onPress={disabled ? undefined : () => handleSelectHousehold(h)}
+                disabled={disabled}
+                style={s.surfaceInner}
+              >
+                <Surface style={s.householdSurface} elevation={1}>
+                  <View style={s.householdContent}>
+                    <Text
+                      style={[
+                        s.text,
+                        (pending || paused) && {
+                          color: theme.colors.onSurfaceDisabled,
+                        },
+                      ]}
                     >
-                      <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                    </Pressable>
-                  )}
-                </View>
-              </Surface>
-            </Pressable>
-          );
-        })}
+                      {h.name} {suffix}
+                    </Text>
+                    {h.isOwner && pendingCounts[h.id] > 0 && (
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleOpenSettings(h);
+                        }}
+                        style={s.badge}
+                      >
+                        <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </Surface>
+              </Pressable>
+            );
+          })
+        )}
       </ScrollView>
       <SettingsSideSheet
         onClose={() => setVisible(false)}
@@ -297,10 +330,9 @@ const s = StyleSheet.create({
   text: {
     fontSize: 20,
   },
-  householdContainer: { paddingHorizontal: 4, marginBottom: 20 },
-  surface: {
-    borderRadius: 10,
-    marginBottom: 10,
+  householdContainer: {
+    paddingHorizontal: 4,
+    marginBottom: 20,
   },
   surfaceContent: {
     borderRadius: 10,
@@ -313,8 +345,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  rowDisabled: { opacity: 0.5 },
-  textDisabled: { color: "#888", fontStyle: "italic" },
   badge: {
     backgroundColor: "#f44336",
     borderRadius: 12,
@@ -328,5 +358,28 @@ const s = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  lottie: {
+    width: 300,
+    height: 300,
+    alignSelf: "center",
+  },
+  emptyText: {
+    fontSize: 24,
+    fontWeight: "600",
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 16,
+    opacity: 0.7,
+    textAlign: "center",
+    paddingHorizontal: 40,
   },
 });
