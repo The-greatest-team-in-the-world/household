@@ -185,60 +185,101 @@ export function initHouseholdsListener(
   return unsubscribe;
 }
 
-export async function createNewHousehold(name: string): Promise<string> {
-  const docRef = await addDoc(collection(db, "households"), {
-    name: name,
-    code: await houseCodeGenerator(),
-    ownerIds: [auth.currentUser?.uid],
-    createdAt: serverTimestamp(),
-  });
-
-  return docRef.id;
-}
-
-export async function getHouseholdByCode(code: string) {
-  const q = query(collection(db, "households"), where("code", "==", code));
-  const snapshot = await getDocs(q);
-
-  const firstDoc = snapshot.docs[0];
-  if (!firstDoc) {
-    return null;
+export async function createNewHousehold(
+  name: string,
+): Promise<{ householdId?: string; success: boolean; error?: string }> {
+  try {
+    const docRef = await addDoc(collection(db, "households"), {
+      name: name,
+      code: await houseCodeGenerator(),
+      ownerIds: [auth.currentUser?.uid],
+      createdAt: serverTimestamp(),
+    });
+    return { householdId: docRef.id, success: true };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: `Kunde inte skapa nytt hushåll! ERROR: ${error}`,
+    };
   }
-
-  const data = firstDoc.data();
-  return {
-    id: firstDoc.id,
-    name: data.name,
-    code: data.code,
-    ownerIds: data.ownerIds,
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
-  } as Household;
 }
 
-export async function getHouseholdById(id: string) {
-  const docRef = doc(db, "households", id);
-  const snapshot = await getDoc(docRef);
+export async function getHouseholdByCode(
+  code: string,
+): Promise<{ success: boolean; error?: string; household?: Household }> {
+  try {
+    const q = query(collection(db, "households"), where("code", "==", code));
+    const snapshot = await getDocs(q);
 
-  if (!snapshot.exists()) {
-    return null;
+    const firstDoc = snapshot.docs[0];
+
+    if (!firstDoc) {
+      return { success: false, error: "Kunde inte hitta hushåll!" };
+    }
+
+    const data = firstDoc.data();
+    return {
+      success: true,
+      household: {
+        id: firstDoc.id,
+        name: data.name,
+        code: data.code,
+        ownerIds: data.ownerIds,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: "Kunde inte hitta hushåll",
+    };
   }
-
-  const data = snapshot.data();
-  return {
-    id: snapshot.id,
-    name: data.name,
-    code: data.code,
-    ownerIds: data.ownerIds,
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
-  } as Household;
 }
 
-export async function householdCodeExists(code: string): Promise<boolean> {
-  const q = query(collection(db, "households"), where("code", "==", code));
-  const snapshot = await getDocs(q);
-  return !snapshot.empty;
+export async function getHouseholdById(
+  id: string,
+): Promise<{ success: boolean; error?: string; household?: Household }> {
+  try {
+    const docRef = doc(db, "households", id);
+    const snapshot = await getDoc(docRef);
+
+    if (!snapshot.exists()) {
+      return { success: false, error: "Kunde inte hitta hushåll" };
+    }
+
+    const data = snapshot.data();
+    return {
+      success: true,
+      household: {
+        id: snapshot.id,
+        name: data.name,
+        code: data.code,
+        ownerIds: data.ownerIds,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: "Kunde inte hämta hushåll",
+    };
+  }
+}
+
+async function householdCodeExists(code: string): Promise<boolean> {
+  try {
+    const q = query(collection(db, "households"), where("code", "==", code));
+    const snapshot = await getDocs(q);
+    return !snapshot.empty;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
 async function houseCodeGenerator(length: number = 6): Promise<string> {

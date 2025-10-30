@@ -60,7 +60,11 @@ export default function CreateHouseholdScreen() {
       }
 
       // Skapa hushåll
-      householdId = await createNewHousehold(data.householdName);
+      const response = await createNewHousehold(data.householdName);
+      if (!response.success || !response.householdId) {
+        throw new Error(response.error || "Kunde inte skapa hushåll");
+      }
+      householdId = response.householdId;
 
       // Lägg till medlem
       const result = await addNewMemberToHousehold(
@@ -76,10 +80,11 @@ export default function CreateHouseholdScreen() {
         throw new Error(result.error || "Kunde inte lägga till medlem");
       }
 
-      const household = await getHouseholdById(householdId);
+      const { success, household, error } = await getHouseholdById(householdId);
 
-      if (!household) {
-        throw new Error("Kunde inte hitta det skapade hushållet");
+      if (!success || !household) {
+        setErrorMessage(error!);
+        throw new Error(error || "Kunde inte hämta hushållet");
       }
 
       if (user) {
