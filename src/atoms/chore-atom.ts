@@ -1,6 +1,6 @@
 import { getChores } from "@/api/chores";
-import { Chore } from "@/types/chore";
 import { currentHouseholdMember } from "@/atoms/member-atom";
+import { Chore } from "@/types/chore";
 import { atom } from "jotai";
 
 export const selectedChoreAtom = atom<Chore | null>(null);
