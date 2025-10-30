@@ -54,6 +54,7 @@ export default function HouseholdsScreen() {
 
       return Number(aInactive) - Number(bInactive);
     });
+
   const setVisible = useSetAtom(slideVisibleAtom);
   const setShouldRender = useSetAtom(shouldRenderSlideAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
@@ -198,61 +199,99 @@ export default function HouseholdsScreen() {
         <IconButton icon="account" size={40} onPress={() => setVisible(true)} />
       </View>
 
-      <ScrollView style={s.householdContainer}>
-        {visibleHouseholds.length === 0 ? (
-          <NotFound
-            title="Inga hushåll än."
-            subTitle="Skapa ett nytt hushåll eller gå med i ett befintligt"
-          />
-        ) : (
-          visibleHouseholds.map((h: any) => {
-            const pending = h.status === "pending";
-            const paused = !!h.isPaused;
-            const disabled = !canEnter(h);
+      {households !== null && (
+        <>
+          <ScrollView style={s.householdContainer}>
+            {visibleHouseholds.length === 0 ? (
+              <NotFound
+                title="Inga hushåll än."
+                subTitle="Skapa ett nytt hushåll eller gå med i ett befintligt"
+              />
+            ) : (
+              visibleHouseholds.map((h: UserHousehold) => {
+                const pending = h.status === "pending";
+                const paused = !!h.isPaused;
+                const disabled = !canEnter(h);
 
-            const suffix = pending
-              ? "· väntar på godkännande"
-              : paused
-                ? "· pausad"
-                : "";
+                const suffix = pending
+                  ? "Väntar på godkännande"
+                  : paused
+                    ? "Pausad"
+                    : "";
 
-            return (
-              <Pressable
-                key={h.id}
-                onPress={disabled ? undefined : () => handleSelectHousehold(h)}
-                disabled={disabled}
-                style={s.surfaceInner}
-              >
-                <Surface style={s.householdSurface} elevation={1}>
-                  <View style={s.householdContent}>
-                    <Text
-                      style={[
-                        s.text,
-                        (pending || paused) && {
-                          color: theme.colors.onSurfaceDisabled,
-                        },
-                      ]}
-                    >
-                      {h.name} {suffix}
-                    </Text>
-                    {h.isOwner && pendingCounts[h.id] > 0 && (
-                      <Pressable
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          handleOpenSettings(h);
-                        }}
-                        style={s.badge}
-                      >
-                        <Text style={s.badgeText}>{pendingCounts[h.id]}</Text>
-                      </Pressable>
-                    )}
-                  </View>
-                </Surface>
-              </Pressable>
-            );
-          })
-        )}
-      </ScrollView>
+                return (
+                  <Pressable
+                    key={h.id}
+                    onPress={
+                      disabled ? undefined : () => handleSelectHousehold(h)
+                    }
+                    disabled={disabled}
+                    style={s.surfaceInner}
+                  >
+                    <Surface style={s.householdSurface} elevation={1}>
+                      <View style={s.householdContent}>
+                        <View style={s.textContainer}>
+                          <Text
+                            numberOfLines={1}
+                            style={[
+                              s.text,
+                              (pending || paused) && {
+                                color: theme.colors.onSurfaceDisabled,
+                              },
+                            ]}
+                          >
+                            {h.name}
+                          </Text>
+                          {suffix && (
+                            <Text
+                              style={[
+                                s.suffix,
+                                {
+                                  color: theme.colors.onSurfaceDisabled,
+                                },
+                              ]}
+                            >
+                              {suffix}
+                            </Text>
+                          )}
+                        </View>
+                        {h.isOwner && pendingCounts[h.id] > 0 && (
+                          <Pressable
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              handleOpenSettings(h);
+                            }}
+                            style={s.badge}
+                          >
+                            <Text style={s.badgeText}>
+                              {pendingCounts[h.id]}
+                            </Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </Surface>
+                  </Pressable>
+                );
+              })
+            )}
+          </ScrollView>
+
+          <View style={s.buttonContainer}>
+            <CustomPaperButton
+              mode="text"
+              icon="home-plus"
+              text="Skapa hushåll"
+              onPress={() => router.push("/(protected)/create-household")}
+            />
+            <CustomPaperButton
+              mode="contained"
+              icon="account-multiple-plus"
+              text="Gå med i hushåll"
+              onPress={() => router.push("/(protected)/join-household")}
+            />
+          </View>
+        </>
+      )}
       <SettingsSideSheet
         onClose={() => setVisible(false)}
         onLogout={handleSignOut}
@@ -267,20 +306,6 @@ export default function HouseholdsScreen() {
           await performFinalDeleteAfterReauth();
         }}
       />
-      <View style={s.buttonContainer}>
-        <CustomPaperButton
-          mode="text"
-          icon="home-plus"
-          text="Skapa hushåll"
-          onPress={() => router.push("/(protected)/create-household")}
-        />
-        <CustomPaperButton
-          mode="contained"
-          icon="account-multiple-plus"
-          text="Gå med i hushåll"
-          onPress={() => router.push("/(protected)/join-household")}
-        />
-      </View>
       <AlertDialog {...alertPropsMsg}></AlertDialog>
     </View>
   );
@@ -307,6 +332,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   buttonContainer: {
     flexDirection: "column",
@@ -321,6 +347,16 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 20,
+    flex: 1,
+  },
+  textContainer: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 4,
+  },
+  suffix: {
+    fontSize: 14,
+    opacity: 0.8,
   },
   householdContainer: {
     paddingHorizontal: 4,

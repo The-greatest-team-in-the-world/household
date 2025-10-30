@@ -267,6 +267,7 @@ export async function leaveMemberFromHousehold(
     await updateDoc(
       doc(db, "households", householdId, "members", memberDoc.id),
       {
+        isOwner: false,
         status: "left",
         updatedAt: serverTimestamp(),
       },

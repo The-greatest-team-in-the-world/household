@@ -111,7 +111,7 @@ export function initHouseholdsListener(
 
   const unsubscribe = onSnapshot(membersQuery, async (snapshot) => {
     if (snapshot.empty) {
-      onUpdate(null);
+      onUpdate([]);
       console.log("No households found for user");
       return;
     }

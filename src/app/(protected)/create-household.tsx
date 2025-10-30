@@ -143,6 +143,7 @@ export default function CreateHouseholdScreen() {
                 onChangeText={onChange}
                 value={value}
                 autoCapitalize="words"
+                maxLength={30}
               />
             </View>
           )}

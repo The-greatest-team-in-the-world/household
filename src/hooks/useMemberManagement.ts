@@ -172,7 +172,9 @@ export function useMemberManagement(
       return;
     }
 
-    const activeMembers = members.filter((m) => m.status === "active");
+    const activeMembers = members.filter(
+      (m) => m.status === "active" && !m.isPaused,
+    );
     const isCurrentUserOwner = ownerIds?.includes(currentUserId) ?? false;
 
     // Check if current user is an owner and the only owner
