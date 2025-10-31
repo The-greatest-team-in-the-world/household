@@ -29,6 +29,7 @@ type FormFields = z.infer<typeof details>;
 
 export default function JoinHouseholdScreen() {
   const user = useAtomValue(userAtom);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [household, setHousehold] = useState<Household | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -60,15 +61,20 @@ export default function JoinHouseholdScreen() {
       // Annars så nollställs household och laddning startar för att hämta hushåll från db med angiven kod.
       setLoading(true);
       setHousehold(null);
+      setErrorMessage(null);
       try {
-        const result = await getHouseholdByCode(
+        const { success, household, error } = await getHouseholdByCode(
           debouncedInput.toLocaleUpperCase(),
         );
-        setHousehold(result);
+        if (!success || !household) {
+          throw new Error(error || "Kunde inte hämta hushållet");
+        }
 
-        if (result) {
+        setHousehold(household);
+
+        if (household) {
           // Hämta info om medlemmar i hushållet.
-          const membersList = await getMembers(result.id);
+          const membersList = await getMembers(household.id);
 
           setHouseholdMembers(membersList);
           // Kontrollera om hushållet är fullt.
@@ -93,6 +99,11 @@ export default function JoinHouseholdScreen() {
         setHasSearched(true);
       } catch (error) {
         console.error("Error fetching household:", error);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage("Ett okänt fel uppstod");
+        }
       } finally {
         setLoading(false);
       }
@@ -151,6 +162,11 @@ export default function JoinHouseholdScreen() {
         {errors.code && (
           <Text style={[s.errorText, { color: theme.colors.error }]}>
             {errors.code.message}
+          </Text>
+        )}
+        {errorMessage && (
+          <Text style={[s.errorText, { color: theme.colors.error }]}>
+            {errorMessage}
           </Text>
         )}
 
