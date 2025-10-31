@@ -37,9 +37,19 @@ export const resetHouseholdAtomsAtom = atom(null, (get, set) => {
 
 export const initHouseholdsListenerAtom = atom(
   null,
-  (_get, set, userId: string) => {
+  (get, set, userId: string) => {
     return initHouseholdsListener(userId, (households) => {
       set(householdsAtom, households);
+
+      const currentHousehold = get(currentHouseholdAtom);
+      if (currentHousehold && households) {
+        const updatedHousehold = households.find(
+          (h) => h.id === currentHousehold.id,
+        );
+        if (updatedHousehold) {
+          set(currentHouseholdAtom, updatedHousehold);
+        }
+      }
     });
   },
 );
