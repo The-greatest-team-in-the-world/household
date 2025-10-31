@@ -28,7 +28,6 @@ export function AudioRecorderComponent({
   const [error, setError] = useState<string | null>(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
 
-  // Be om tillstånd när komponenten mountas
   useEffect(() => {
     const getPermission = async () => {
       try {
@@ -47,14 +46,9 @@ export function AudioRecorderComponent({
     getPermission();
   }, []);
 
-  // Skapa recorder med useAudioRecorder hook
-  // Använder custom options för bättre filstorlek och kompatibilitet
   const recorder = useAudioRecorder(CUSTOM_RECORDING_OPTIONS);
-
-  // Få recording state (uppdateras varje 100ms)
   const recordingState = useAudioRecorderState(recorder, 100);
 
-  // Förbered recordern när tillstånd är givet
   useEffect(() => {
     const prepareRecorder = async () => {
       if (permissionGranted && !recordingState.canRecord) {
@@ -92,13 +86,9 @@ export function AudioRecorderComponent({
       setIsUploading(true);
       setError(null);
 
-      // Stoppa inspelning och få URI
       const uri = await stopRecording(recorder);
-
-      // Ladda upp till Firebase
       const audioUrl = await uploadAudioToFirebase(uri, householdId, choreId);
 
-      // Notifiera parent component
       onAudioUploaded(audioUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload audio");

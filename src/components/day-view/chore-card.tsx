@@ -85,16 +85,7 @@ export default function ChoreCard({
                 },
               ]}
             >
-              <Text
-                style={[
-                  s.days,
-                  {
-                    color: isOverdue
-                      ? theme.colors.onError
-                      : theme.colors.onSurface,
-                  },
-                ]}
-              >
+              <Text style={s.days}>
                 {isOverdue ? daysOverdue : displayValue}
               </Text>
             </View>
