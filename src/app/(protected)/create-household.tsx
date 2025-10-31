@@ -83,7 +83,6 @@ export default function CreateHouseholdScreen() {
       const { success, household, error } = await getHouseholdById(householdId);
 
       if (!success || !household) {
-        setErrorMessage(error!);
         throw new Error(error || "Kunde inte hämta hushållet");
       }
 
