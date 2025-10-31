@@ -45,7 +45,7 @@ export function HouseholdHeader() {
               styles.badge,
               {
                 backgroundColor: theme.colors.error,
-                color: theme.colors.onSurface,
+                color: theme.colors.onTertiary,
               },
             ]}
           >
