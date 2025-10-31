@@ -266,7 +266,12 @@ export default function HouseholdsScreen() {
                               { backgroundColor: theme.colors.error },
                             ]}
                           >
-                            <Text style={s.badgeText}>
+                            <Text
+                              style={[
+                                s.badgeText,
+                                { color: theme.colors.onTertiary },
+                              ]}
+                            >
                               {pendingCounts[h.id]}
                             </Text>
                           </Pressable>
