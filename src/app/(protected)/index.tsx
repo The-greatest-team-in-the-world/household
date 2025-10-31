@@ -261,7 +261,10 @@ export default function HouseholdsScreen() {
                               e.stopPropagation();
                               handleOpenSettings(h);
                             }}
-                            style={s.badge}
+                            style={[
+                              s.badge,
+                              { backgroundColor: theme.colors.error },
+                            ]}
                           >
                             <Text style={s.badgeText}>
                               {pendingCounts[h.id]}
@@ -374,7 +377,6 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   badge: {
-    backgroundColor: "#f44336",
     borderRadius: 12,
     minWidth: 24,
     height: 24,
@@ -383,7 +385,6 @@ const s = StyleSheet.create({
     paddingHorizontal: 6,
   },
   badgeText: {
-    color: "white",
     fontSize: 12,
     fontWeight: "bold",
   },

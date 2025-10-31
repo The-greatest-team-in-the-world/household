@@ -7,13 +7,14 @@ import { useRouter } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import { Badge, IconButton } from "react-native-paper";
+import { Badge, IconButton, useTheme } from "react-native-paper";
 
 export function HouseholdHeader() {
   const router = useRouter();
   const currentHousehold = useAtomValue(currentHouseholdAtom);
   const pendingCounts = useAtomValue(pendingMembersCountAtom);
   const initPendingListener = useSetAtom(initPendingMembersListenerAtom);
+  const theme = useTheme();
 
   useEffect(() => {
     if (!currentHousehold || !currentHousehold.isOwner) return;
@@ -39,7 +40,17 @@ export function HouseholdHeader() {
           onPress={handleOpenSettings}
         />
         {currentHousehold?.isOwner && pendingCount > 0 && (
-          <Badge style={styles.badge}>{pendingCount}</Badge>
+          <Badge
+            style={[
+              styles.badge,
+              {
+                backgroundColor: theme.colors.error,
+                color: theme.colors.onSurface,
+              },
+            ]}
+          >
+            {pendingCount}
+          </Badge>
         )}
       </View>
     </View>
