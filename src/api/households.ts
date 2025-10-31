@@ -12,6 +12,7 @@ import {
   onSnapshot,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 
@@ -295,6 +296,31 @@ async function houseCodeGenerator(length: number = 6): Promise<string> {
   } while (await householdCodeExists(result));
 
   return result;
+}
+
+export async function updateHouseholdName(
+  householdId: string,
+  newName: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!newName || newName.trim().length === 0) {
+      return { success: false, error: "Namnet får inte vara tomt" };
+    }
+
+    const householdRef = doc(db, "households", householdId);
+    await updateDoc(householdRef, {
+      name: newName.trim(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating household name:", error);
+    return {
+      success: false,
+      error: "Kunde inte uppdatera hushållsnamn",
+    };
+  }
 }
 
 export async function deleteHousehold(

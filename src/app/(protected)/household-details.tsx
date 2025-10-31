@@ -1,5 +1,6 @@
+import { updateHouseholdName } from "@/api/households";
 import { userAtom } from "@/atoms/auth-atoms";
-import { currentHouseholdAtom } from "@/atoms/household-atom";
+import { currentHouseholdAtom, householdsAtom } from "@/atoms/household-atom";
 import { initMembersListenerAtom, membersAtom } from "@/atoms/member-atom";
 import { ActiveMemberCard } from "@/components/active-member-card";
 import AlertDialog from "@/components/alertDialog";
@@ -14,6 +15,9 @@ import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 export default function HouseHoldDetailsScreen() {
   const currentHousehold = useAtomValue(currentHouseholdAtom);
+  const setCurrentHousehold = useSetAtom(currentHouseholdAtom);
+  const households = useAtomValue(householdsAtom);
+  const setHouseholds = useSetAtom(householdsAtom);
   const members = useAtomValue(membersAtom);
   const user = useAtomValue(userAtom);
   const initMembersListener = useSetAtom(initMembersListenerAtom);
@@ -64,6 +68,28 @@ export default function HouseHoldDetailsScreen() {
     };
   }, [currentHousehold?.id, initMembersListener]);
 
+  const handleNameChange = async (newName: string) => {
+    if (!currentHousehold) return;
+
+    const result = await updateHouseholdName(currentHousehold.id, newName);
+
+    if (result.success) {
+      const updated = { ...currentHousehold, name: newName };
+      setCurrentHousehold(updated);
+
+      if (households) {
+        setHouseholds(
+          households.map((h) => (h.id === updated.id ? updated : h)),
+        );
+      }
+    } else {
+      setErrorDialog({
+        open: true,
+        message: result.error ?? "Kunde inte uppdatera namnet",
+      });
+    }
+  };
+
   if (!currentHousehold) {
     return (
       <Surface style={styles.centerContainer} elevation={0}>
@@ -94,6 +120,8 @@ export default function HouseHoldDetailsScreen() {
             <HouseholdInfoHeader
               householdName={currentHousehold.name}
               householdCode={currentHousehold.code}
+              isOwner={isOwner}
+              onNameChange={handleNameChange}
             />
 
             {/* Pending members section */}
